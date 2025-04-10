@@ -17,9 +17,11 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import { useLocation } from "react-router-dom"
 
 export function NavMain({
     items,
+    title
 }: {
     items: {
         title: string
@@ -30,16 +32,18 @@ export function NavMain({
             title: string
             url: string
         }[]
-    }[]
+    }[],
+    title: string
 }) {
+  const location = useLocation();
     return (
         <SidebarGroup>
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            <SidebarGroupLabel>{title}</SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => (
                     <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
                         <SidebarMenuItem>
-                            <SidebarMenuButton asChild tooltip={item.title}>
+                            <SidebarMenuButton asChild tooltip={item.title} isActive={location.pathname === item.url}>
                                 <a href={item.url}>
                                     <item.icon />
                                     <span>{item.title}</span>

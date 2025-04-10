@@ -1,138 +1,210 @@
-import { useQuery } from "@tanstack/react-query"
-import { ClassCard } from "./components/classe-card"
-import { instance } from "@/lib/axios"
-import { API_ENDPOINT } from "@/constants/api"
+import { cn } from "@/lib/utils"
+import { useScreenWidth } from "@/hooks/screen-size"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { useEffect } from "react"
+import { Users2 } from "lucide-react"
+import { useBreadcrumb } from "@/context/BreadcrumbContext"
+import { keepPreviousData, useQuery } from "@tanstack/react-query"
+import { getClasses } from "@/apis/classes/query-slice"
 import { useUserStore } from "@/store/user-store"
+import ClassCardSkeleton from "@/components/sketlon/classe-card";
+
+import { motion, AnimatePresence } from 'framer-motion';
+import { cardVariants } from "@/constants/animations"
+import { ClassCard } from "@/components/cards/classe-card"
+import { toast } from "sonner"
+import { useClassFilters } from "./hooks/use-filter"
+import { usePagination } from "./hooks/use-pagination"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ClassFilterPanel } from "./components/class-filter-panel"
+import { EmptyResults } from "./components/empty-results"
+import { PaginationControls } from "./components/pagination-controls"
 
 interface Instructor {
-    id: string
-    name: string
-    surname: string
-    avatar: string
+  id: string
+  name: string
+  surname: string
+  avatar: string
 }
 export interface IClasseCard {
-    id: string
-    title: string
-    instructors: Instructor[]
-    period: {
-        start: string
-        end: string
+  id: string
+  title: string
+  instructors: Instructor[]
+  period: {
+    start: string
+    end: string
+  }
+  students: {
+    total: number
+    genderDistribution: {
+      male: number
+      female: number
     }
-    students: {
-        total: number
-        genderDistribution: {
-            male: number
-            female: number
-        }
-    }
-    coursesCount: number
+  }
+  coursesCount: number
 }
-async function getClasses(scholarityConfigId: string) {
-    try {
-        const response = await instance.get(`${API_ENDPOINT.CLASSES}/${scholarityConfigId}`);
-        console.log(response.data);
-    } catch (error) {
-        console.log(error);
-    }
-}
+
 export default function ClassePage() {
-    const user = useUserStore.getState().decodedUser;
-    console.log("user", user);
-    const { data, error } = useQuery({ queryKey: ['classes'], queryFn: () => getClasses(user?.facility?.scholarityConfigId) });
-    console.log("data : ", data, "error: ", error);
-    // Sample class data with multiple instructors
-    const classData = {
-        id: "class-1",
-        title: "Introduction à l'Informatique",
-        instructors: [
-            {
-                id: "instr-1",
-                name: "Marie",
-                surname: "Dupont",
-                avatar: "/placeholder.svg?height=40&width=40",
-            },
-            {
-                id: "instr-2",
-                name: "Jean",
-                surname: "Martin",
-                avatar: "/placeholder.svg?height=40&width=40",
-            },
-            {
-                id: "instr-3",
-                name: "Sophie",
-                surname: "Bernard",
-                avatar: "/placeholder.svg?height=40&width=40",
-            },
-        ],
-        period: {
-            start: "1 Sept 2023",
-            end: "15 Déc 2023",
-        },
-        students: {
-            total: 48,
-            genderDistribution: {
-                male: 28,
-                female: 20,
-            },
-        },
-        coursesCount: 12,
-    }
+  const user = useUserStore.getState().decodedUser
+  const id = user?.facility?.scholarityConfigId
+  const width = useScreenWidth()
+  const isMediumScreen = width >= 769 && width <= 1434
+  const isMobile = useIsMobile()
+  const { setSousPages } = useBreadcrumb()
 
-    // Sample class with different data
-    const classData2 = {
-        id: "class-2",
-        title: "Mathématiques Avancées",
-        instructors: [
-            {
-                id: "instr-4",
-                name: "Pierre",
-                surname: "Leroy",
-                avatar: "/placeholder.svg?height=40&width=40",
-            },
-            {
-                id: "instr-5",
-                name: "Isabelle",
-                surname: "Moreau",
-                avatar: "/placeholder.svg?height=40&width=40",
-            },
-        ],
-        period: {
-            start: "5 Sept 2023",
-            end: "20 Déc 2023",
-        },
-        students: {
-            total: 36,
-            genderDistribution: {
-                male: 22,
-                female: 14,
-            },
-        },
-        coursesCount: 8,
-    }
+  const {
+    data: classes,
+    isLoading,
+    isError,
+    isFetching // this for the pagination fetching
+  } = useQuery({
+    queryKey: ["classes", id],
+    queryFn: () => getClasses(id),
+    enabled: !!id,
+    placeholderData: keepPreviousData
+  })
 
-    return (
-        <main className="container mx-auto py-10">
-            <h1 className="text-2xl font-bold mb-6">Informations des Classes</h1>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <ClassCard
-                    {...classData}
-                    onChatClick={() => console.log("Chat clicked")}
-                    onEditClick={(id) => console.log("Edit clicked for", id)}
-                    onDeleteClick={(id) => console.log("Delete clicked for", id)}
-                />
-                <ClassCard
-                    {...classData2}
-                    onChatClick={() => console.log("Chat clicked")}
-                    onEditClick={(id) => console.log("Edit clicked for", id)}
-                    onDeleteClick={(id) => console.log("Delete clicked for", id)}
-                />
-                <ClassCard
-                    {...classData2}
-                    onChatClick={() => console.log("Chat clicked")}
-                    onEditClick={(id) => console.log("Edit clicked for", id)}
-                    onDeleteClick={(id) => console.log("Delete clicked for", id)}
-                />
-            </div>
-        </main>
-    )
+  if (isError) {
+    toast.error("Something went wrong")
+  }
+
+  useEffect(() => {
+    setSousPages([{ name: "classes", link: "/dashboard/classes", icon: <Users2 size={16} /> }])
+  }, [setSousPages])
+
+  // Use our custom hooks
+  const { filters, activeFilters, filteredClasses, updateFilter, removeFilter, clearAllFilters } = useClassFilters(
+    classes?.data,
+  )
+
+  const {
+    currentPage,
+    itemsPerPage,
+    totalPages,
+    paginatedData: paginatedClasses,
+    pageInfo,
+    goToPage,
+    goToNextPage,
+    goToPreviousPage,
+    changeItemsPerPage,
+  } = usePagination({
+    data: filteredClasses,
+    initialItemsPerPage: 6,
+  })
+
+  return (
+    <main className="container mx-auto py-10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <h1 className="text-2xl font-bold">Informations des Classes</h1>
+        <div className="flex items-center gap-2 mt-4 md:mt-0">
+          <Select value={itemsPerPage.toString()} onValueChange={(value) => changeItemsPerPage(Number(value))}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Items per page" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="3">3 per page</SelectItem>
+              <SelectItem value="6">6 per page</SelectItem>
+              <SelectItem value="9">9 per page</SelectItem>
+              <SelectItem value="12">12 per page</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <ClassFilterPanel
+        filters={filters}
+        activeFilters={activeFilters}
+        updateFilter={updateFilter as any}
+        removeFilter={removeFilter}
+        clearAllFilters={clearAllFilters}
+      />
+
+      {/* Results count */}
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-sm text-muted-foreground">
+          Showing {pageInfo.startIndex}-{pageInfo.endIndex} of {pageInfo.totalItems} classes
+        </p>
+      </div>
+
+      {/* Classes Grid */}
+      <div className={cn("grid grid-cols-3 gap-6", isMediumScreen && "grid-cols-1 p-3", isMobile && "grid-cols-1")}>
+        <AnimatePresence mode="wait">
+          {isLoading ? (
+            <>
+              {[0, 1, 2, 3, 4, 5].map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  variants={cardVariants}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ClassCardSkeleton />
+                </motion.div>
+              ))}
+            </>
+          ) : (
+            <>
+              {paginatedClasses.length > 0 ? (
+                paginatedClasses.map((classe) => (
+                  <motion.div
+                    key={classe?._id}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    variants={cardVariants}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ClassCard
+                      key={classe?._id}
+                      id={classe._id}
+                      coursesCount={classe?.countLessons}
+                      instructors={classe.subjects_instructors.map((subjects_instructor) => {
+                        return {
+                          id: subjects_instructor.instructor?._id,
+                          name: subjects_instructor.instructor?.firstName,
+                          surname: subjects_instructor.instructor?.lastName,
+                          avatar: `${import.meta.env.VITE_API_BASE_URL}/${subjects_instructor.instructor?.imageUrl}`,
+                        }
+                      })}
+                      period={{
+                        start: classe?.startDate,
+                        end: classe?.endDate,
+                      }}
+                      students={{
+                        genderDistribution: {
+                          male: classe?.students?.filter((std) => std?.gender === "homme").length,
+                          female: classe?.students?.filter((std) => std?.gender === "femme").length,
+                        },
+                        total: classe?.students?.length,
+                      }}
+                      title={classe?.name}
+                      onChatClick={() => console.log("Chat clicked")}
+                      onEditClick={(id) => console.log("Edit clicked for", id)}
+                      onDeleteClick={(id) => console.log("Delete clicked for", id)}
+                    />
+                  </motion.div>
+                ))
+              ) : (
+                <EmptyResults clearAllFilters={clearAllFilters} />
+              )}
+            </>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Pagination */}
+      {!isLoading && filteredClasses.length > 0 && (
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          goToPage={goToPage}
+          goToNextPage={goToNextPage}
+          goToPreviousPage={goToPreviousPage}
+        />
+      )}
+    </main>
+  )
 }

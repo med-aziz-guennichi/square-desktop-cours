@@ -1,187 +1,146 @@
+"use client"
+
 import * as React from "react"
 import {
-    BookOpen,
-    Bot,
-    Command,
-    Frame,
-    LifeBuoy,
-    Map,
-    PieChart,
-    Send,
-    Settings2,
-    SquareTerminal,
+  ArrowUpCircleIcon,
+  BarChart3,
+  Calendar,
+  CheckCircle,
+  Clock,
+  FileQuestion,
+  HelpCircleIcon,
+  History,
+  Library,
+  SearchIcon,
+  SettingsIcon,
+  Star,
+  Users,
+  Video,
+
 } from "lucide-react"
 
 import { NavMain } from "@/components/side-bar/nav-main"
-import { NavProjects } from "@/components/side-bar/nav-projects"
 import { NavSecondary } from "@/components/side-bar/nav-secondary"
 import { NavUser } from "@/components/side-bar/nav-user"
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
 const data = {
-    user: {
-        name: "shadcn",
-        email: "m@example.com",
-        avatar: "/avatars/shadcn.jpg",
+  Ceo: [
+    {
+      title: "Dashboard Exécutif",
+      url: "/dashboard",
+      icon: BarChart3,
     },
-    navMain: [
-        {
-            title: "Playground",
-            url: "#",
-            icon: SquareTerminal,
-            isActive: true,
-            items: [
-                {
-                    title: "History",
-                    url: "#",
-                },
-                {
-                    title: "Starred",
-                    url: "#",
-                },
-                {
-                    title: "Settings",
-                    url: "#",
-                },
-            ],
-        },
-        {
-            title: "Models",
-            url: "#",
-            icon: Bot,
-            items: [
-                {
-                    title: "Genesis",
-                    url: "#",
-                },
-                {
-                    title: "Explorer",
-                    url: "#",
-                },
-                {
-                    title: "Quantum",
-                    url: "#",
-                },
-            ],
-        },
-        {
-            title: "Documentation",
-            url: "#",
-            icon: BookOpen,
-            items: [
-                {
-                    title: "Introduction",
-                    url: "#",
-                },
-                {
-                    title: "Get Started",
-                    url: "#",
-                },
-                {
-                    title: "Tutorials",
-                    url: "#",
-                },
-                {
-                    title: "Changelog",
-                    url: "#",
-                },
-            ],
-        },
-        {
-            title: "Settings",
-            url: "#",
-            icon: Settings2,
-            items: [
-                {
-                    title: "General",
-                    url: "#",
-                },
-                {
-                    title: "Team",
-                    url: "#",
-                },
-                {
-                    title: "Billing",
-                    url: "#",
-                },
-                {
-                    title: "Limits",
-                    url: "#",
-                },
-            ],
-        },
-    ],
-    navSecondary: [
-        {
-            title: "Support",
-            url: "#",
-            icon: LifeBuoy,
-        },
-        {
-            title: "Feedback",
-            url: "#",
-            icon: Send,
-        },
-    ],
-    projects: [
-        {
-            name: "Design Engineering",
-            url: "#",
-            icon: Frame,
-        },
-        {
-            name: "Sales & Marketing",
-            url: "#",
-            icon: PieChart,
-        },
-        {
-            name: "Travel",
-            url: "#",
-            icon: Map,
-        },
-    ],
+  ],
+  navSecondary: [
+    {
+      title: "Settings",
+      url: "/",
+      icon: SettingsIcon,
+    },
+    {
+      title: "Get Help",
+      url: "#",
+      icon: HelpCircleIcon,
+    },
+    {
+      title: "Search",
+      url: "#",
+      icon: SearchIcon,
+    },
+  ],
+  classes: [
+    {
+      title: "Toutes les classes",
+      url: "/dashboard/classes",
+      icon: Users,
+    },
+  ],
+  emploi: [
+    {
+      title: "Planification",
+      url: "#",
+      icon: Calendar,
+    },
+  ],
+  conference: [
+    {
+      title: "Réunions",
+      url: "#",
+      icon: Video,
+    },
+  ],
+  bibliotheque: [
+    {
+      title: "Tous les cours",
+      url: "#",
+      icon: Library,
+    },
+    {
+      title: "Mes quiz",
+      url: "#",
+      icon: FileQuestion,
+    },
+    {
+      title: "Cours en cours",
+      url: "#",
+      icon: Clock,
+    },
+    {
+      title: "Cours terminés",
+      url: "#",
+      icon: CheckCircle,
+    },
+    {
+      title: "Favoris",
+      url: "#",
+      icon: Star,
+    },
+    {
+      title: "Historique",
+      url: "#",
+      icon: History,
+    },
+  ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-    return (
-        <Sidebar
-            collapsible="icon"
-            className="top-[--header-height] !h-[calc(100svh-var(--header-height))]"
-            {...props}
-        >
-            <SidebarHeader>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
-                            <a href="#">
-                                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                                    <Command className="size-4" />
-                                </div>
-                                <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">Acme Inc</span>
-                                    <span className="truncate text-xs">Enterprise</span>
-                                </div>
-                            </a>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarHeader>
-            <SidebarContent>
-                <NavMain items={data.navMain} />
-                <NavProjects projects={data.projects} />
-                <NavSecondary items={data.navSecondary} className="mt-auto" />
-            </SidebarContent>
-            <SidebarFooter>
-                <NavUser user={data.user} />
-            </SidebarFooter>
-        </Sidebar>
-    )
+  return (
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
+              <a href="#">
+                <ArrowUpCircleIcon className="h-5 w-5" />
+                <span className="text-base font-semibold">Acme Inc.</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <NavMain items={data.Ceo} title="CEO" />
+        <NavMain items={data.classes} title="CLASSES" />
+        <NavMain items={data.emploi} title="EMPLOI DU TEMPS" />
+        <NavMain items={data.conference} title="CONFÉRENCE" />
+        <NavMain items={data.bibliotheque} title="BIBLIOTHÈQUE" />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
+      </SidebarContent>
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
+    </Sidebar>
+  )
 }

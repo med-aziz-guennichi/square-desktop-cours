@@ -6,7 +6,8 @@ import { MessageCircle, Users, Pencil, Trash2, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { AvatarGroup } from "@/components/ui/avatar-group"
-import { IClasseCard } from "../classe-page"
+import { IClasseCard } from "@/pages/classe/classe-page";
+import { useNavigate } from "react-router-dom"
 
 type ClassCardProps = IClasseCard & {
     onChatClick?: () => void
@@ -25,11 +26,11 @@ export function ClassCard({
     onEditClick = () => { },
     onDeleteClick = () => { },
 }: ClassCardProps) {
-    const malePercentage = Math.round((students.genderDistribution.male / students.total) * 100)
-    const femalePercentage = Math.round((students.genderDistribution.female / students.total) * 100)
-
+    const malePercentage = Math.round((students.genderDistribution.male / students.total) * 100) || 0;
+    const femalePercentage = Math.round((students.genderDistribution.female / students.total) * 100) || 0;
+    const navigate = useNavigate();
     return (
-        <Card className="overflow-hidden transition-all hover:shadow-lg hover:shadow-primary/15 hover:cursor-pointer">
+        <Card className="overflow-hidden transition-all hover:shadow-lg hover:shadow-primary/15 hover:cursor-pointer" onClick={() => navigate(`/dashboard/classes/matiere/${id}`)}>
             <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                     <CardTitle className="text-xl font-bold">{title}</CardTitle>

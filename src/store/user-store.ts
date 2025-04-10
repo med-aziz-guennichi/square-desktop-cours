@@ -19,7 +19,7 @@ const userStoreSlice: StateCreator<UserState> = (set) => ({
     decodedUser: null,
     setCredentials: (user) => set({ user }),
     setDecodedUser: (user: any) => set({ decodedUser: user }),
-    removeCredentials: () => set({ user: null }),
+    removeCredentials: () => set({ user: null, decodedUser:null }),
 });
 
 const persistedUserStore = persist<UserState>(userStoreSlice, {

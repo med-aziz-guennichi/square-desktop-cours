@@ -8,6 +8,7 @@ import { SignInAPIResponseSchema, SignInFormType } from "./schema";
 import { SignInAPI } from "./query-slice";
 import { instance } from "@/lib/axios";
 import { API_ENDPOINT } from "@/constants/api";
+import { useNavigate } from "react-router-dom";
 
 interface ErrorResponse {
     message: string;
@@ -15,6 +16,7 @@ interface ErrorResponse {
 
 export function useSignIn() {
     const { setCredentials } = useUserStore();
+    const navigate = useNavigate();
     return useMutation<
         z.infer<typeof SignInAPIResponseSchema>,
         AxiosError<ErrorResponse>,
@@ -35,6 +37,7 @@ export function useSignIn() {
             });
             useUserStore.getState().setDecodedUser(response.data);
             toast.success(message);
+            navigate("/dashboard/classes")
         },
         onError: (error) => {
             const errorMessage = error.response?.data.message || "An error occurred";

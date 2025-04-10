@@ -1,15 +1,13 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import {  SubmitHandler, useForm } from "react-hook-form";
 import { SignInFormSchema, SignInFormType } from "@/apis/login/schema";
 import { useSignIn } from "@/apis/login/query";
 import { invoke } from "@tauri-apps/api/core";
 import { Loader2 } from "lucide-react";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
-import { useNavigate } from "react-router-dom";
 
 
 export function LoginForm({
@@ -18,24 +16,23 @@ export function LoginForm({
 }: React.ComponentPropsWithoutRef<"form">) {
     const methods = useForm<SignInFormType>({
         resolver: zodResolver(SignInFormSchema),
+        defaultValues: {
+          email: '',
+          macAddress: '',
+          password: ''
+        }
     });
     const {
         handleSubmit,
-        formState: { errors },
     } = methods;
 
-    const { mutate, isPending, isSuccess } = useSignIn();
-    const navigate = useNavigate();
+    const { mutate, isPending } = useSignIn();
 
     const onSubmit: SubmitHandler<SignInFormType> = async (data) => {
         const mac = await invoke<string>("get_mac");
         data.macAddress = mac;
         mutate(data);
-        if (isSuccess) {
-            navigate("/dashboard");
-        }
     };
-    console.log("form errors:", errors);
     return (
         <Form {...methods}>
             <form className={cn("flex flex-col gap-6", className)} {...props} onSubmit={handleSubmit(onSubmit)}>

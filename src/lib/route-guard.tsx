@@ -13,5 +13,5 @@ export const PrivateRoute: FC<RouteProps> = ({ children }) => {
 
 export const PublicRoute: FC<RouteProps> = ({ children }) => {
     const { user } = useUserStore();
-    return user ? <Navigate to="/classes" /> : children;
+    return user ? <Navigate to="/dashboard/classes" /> : children;
 };
