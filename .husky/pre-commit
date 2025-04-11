@@ -1,5 +1,14 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
+
+# TEMP FILE to detect loop
+HOOK_GUARD_FILE=".git/.prettier-hook-guard"
+
+# Skip the hook if we're already inside an auto-format commit
+if [ -f "$HOOK_GUARD_FILE" ]; then
+  echo "Detected loop, skipping hook..."
+  rm "$HOOK_GUARD_FILE"
+  exit 0
+fi
 
 echo "Running lint..."
 bun run lint
@@ -7,9 +16,10 @@ bun run lint
 echo "Running prettier..."
 prettier --write "**/*.{ts,tsx,mdx}" --cache
 
-# Check if Prettier made any changes
-if [[ `git status --porcelain` ]]; then
+# If prettier made changes, commit them and mark this run
+if [ -n "$(git status --porcelain)" ]; then
   echo "Prettier made changes, committing them..."
+  touch "$HOOK_GUARD_FILE"
   git add .
   git commit -m "chore: apply prettier formatting"
 fi
