@@ -28,7 +28,7 @@ import { usePagination } from './hooks/use-pagination';
 
 export default function ClassePage() {
   const user = useUserStore.getState().decodedUser;
-  const id = user!.facility!.scholarityConfigId;
+  const id = user?.facility?.scholarityConfigId;
   const width = useScreenWidth();
   const isMediumScreen = width >= 769 && width <= 1434;
   const isMobile = useIsMobile();
@@ -41,7 +41,7 @@ export default function ClassePage() {
     // isFetching, // this for the pagination fetching
   } = useQuery({
     queryKey: ['classes', id],
-    queryFn: () => getClasses(id),
+    queryFn: () => getClasses(id!),
     enabled: !!id,
     placeholderData: keepPreviousData,
   });
