@@ -1,1 +1,15 @@
-bun run lint && prettier --write \"**/*.{ts,tsx,mdx}\" --cache
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "Running lint..."
+bun run lint
+
+echo "Running prettier..."
+prettier --write "**/*.{ts,tsx,mdx}" --cache
+
+# Check if Prettier made any changes
+if [[ `git status --porcelain` ]]; then
+  echo "Prettier made changes, committing them..."
+  git add .
+  git commit -m "chore: apply prettier formatting"
+fi

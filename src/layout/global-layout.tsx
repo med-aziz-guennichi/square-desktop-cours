@@ -1,6 +1,7 @@
 import FullPageLoader from '@/components/full-page-loader';
 import { checkForUpdates } from '@/lib/updater';
 import { useEffect } from 'react';
+import { Outlet, useNavigation } from 'react-router-dom';
 
 // Extend the Window interface to include __TAURI__
 declare global {
@@ -8,7 +9,6 @@ declare global {
     __TAURI__?: unknown;
   }
 }
-import { Outlet, useNavigation } from 'react-router-dom';
 
 export default function GlobalLayout() {
   const navigation = useNavigation();
