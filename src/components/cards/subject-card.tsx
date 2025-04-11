@@ -1,28 +1,38 @@
-"use client"
+'use client';
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Share2, BookOpen, GraduationCap, Star } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { useNavigate } from "react-router-dom"
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { BookOpen, GraduationCap, Share2, Star } from 'lucide-react';
 
 interface CourseCardProps {
-  id: string
-  title: string
+  id: string;
+  title: string;
   instructor: {
-    name: string
-    surname: string
-    avatar: string
-  }
-  description: string
-  isCourse?: boolean
-  isFavorite?: boolean
-  price?: number | null
-  isFree?: boolean
-  onShareClick?: (id: string) => void
-  onFavoriteClick?: (id: string) => void
-  onClick?: (id: string) => void
+    name: string;
+    surname: string;
+    avatar: string;
+  };
+  description: string;
+  isCourse?: boolean;
+  isFavorite?: boolean;
+  price?: number | null;
+  isFree?: boolean;
+  onShareClick?: (id: string) => void;
+  onFavoriteClick?: (id: string) => void;
+  onClick?: (id: string) => void;
 }
 
 export function CourseCard({
@@ -34,28 +44,27 @@ export function CourseCard({
   isFavorite = false,
   price = null,
   isFree = false,
-  onShareClick = () => { },
-  onFavoriteClick = () => { },
-  onClick = () => { },
+  onShareClick = () => {},
+  onFavoriteClick = () => {},
+  onClick = () => {},
 }: CourseCardProps) {
-  const navigate = useNavigate();
   return (
     <Card
       className="overflow-hidden transition-all cursor-pointer relative hover:shadow-lg hover:shadow-primary/15 hover:cursor-pointer"
-      onClick={() => navigate(`/dashboard/classes/${id}/cours`)}
+      onClick={() => onClick(id)}
     >
       {/* Course indicator badge */}
       <div className="absolute top-0 left-0 bg-primary text-primary-foreground rounded-br-md px-2 py-1 text-xs font-medium flex items-center gap-1 z-10">
         <GraduationCap className="h-3 w-3" />
-        <span>{isCourse ? "Cours" : "Matiere"}</span>
+        <span>{isCourse ? 'Cours' : 'Matiere'}</span>
       </div>
 
       {/* Price or Free badge */}
       {(price !== null || isFree) && (
         <div
-          className={`absolute top-0 right-0 ${isFree ? "bg-green-500" : "bg-primary"} text-primary-foreground rounded-bl-md px-2 py-1 text-sm font-medium z-10`}
+          className={`absolute top-0 right-0 ${isFree ? 'bg-green-500' : 'bg-primary'} text-primary-foreground rounded-bl-md px-2 py-1 text-sm font-medium z-10`}
         >
-          {isFree ? "Gratuit" : `${price}€`}
+          {isFree ? 'Gratuit' : `${price}€`}
         </div>
       )}
 
@@ -71,8 +80,8 @@ export function CourseCard({
                     size="icon"
                     className="h-8 w-8 rounded-full"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      onFavoriteClick(id)
+                      e.stopPropagation();
+                      onFavoriteClick(id);
                     }}
                   >
                     {isFavorite ? (
@@ -83,7 +92,7 @@ export function CourseCard({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}</p>
+                  <p>{isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -96,8 +105,8 @@ export function CourseCard({
                     size="icon"
                     className="h-8 w-8 rounded-full"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      onShareClick(id)
+                      e.stopPropagation();
+                      onShareClick(id);
                     }}
                   >
                     <Share2 className="h-4 w-4" />
@@ -146,5 +155,5 @@ export function CourseCard({
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }

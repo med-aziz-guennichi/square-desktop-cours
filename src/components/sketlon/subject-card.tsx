@@ -1,6 +1,6 @@
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import { BookOpen } from "lucide-react"
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { BookOpen } from 'lucide-react';
 
 export default function SubjectCardSketlon() {
   return (
@@ -49,5 +49,5 @@ export default function SubjectCardSketlon() {
         <Skeleton className="h-8 w-24" />
       </CardFooter>
     </Card>
-  )
+  );
 }

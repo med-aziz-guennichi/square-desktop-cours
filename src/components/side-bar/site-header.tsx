@@ -1,7 +1,7 @@
-import { Separator } from "@/components/ui/separator"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { NavActions } from "./nav-actions"
-import { Breadcrumb } from "../breadcrumb";
+import { Separator } from '@/components/ui/separator';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { Breadcrumb } from '../breadcrumb';
+import { NavActions } from './nav-actions';
 
 export function SiteHeader() {
   return (
@@ -15,8 +15,8 @@ export function SiteHeader() {
         <Breadcrumb />
       </div>
       <div className="p-3">
-     <NavActions />
+        <NavActions />
       </div>
     </header>
-  )
+  );
 }

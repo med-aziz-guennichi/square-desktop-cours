@@ -1,5 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
-import { JSX } from "react";
+import { createContext, JSX, ReactNode, useContext, useState } from 'react';
 
 interface SousPage {
   name: string;
@@ -12,7 +11,9 @@ interface BreadcrumbContextType {
   setSousPages: (pages: SousPage[]) => void;
 }
 
-const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(undefined);
+const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(
+  undefined,
+);
 
 export const BreadcrumbProvider = ({ children }: { children: ReactNode }) => {
   const [sousPages, setSousPages] = useState<SousPage[]>([]);
@@ -26,6 +27,7 @@ export const BreadcrumbProvider = ({ children }: { children: ReactNode }) => {
 
 export const useBreadcrumb = () => {
   const context = useContext(BreadcrumbContext);
-  if (!context) throw new Error("useBreadcrumb must be used within a BreadcrumbProvider");
+  if (!context)
+    throw new Error('useBreadcrumb must be used within a BreadcrumbProvider');
   return context;
 };

@@ -1,6 +1,5 @@
-"use client"
+'use client';
 
-import * as React from "react"
 import {
   ArrowUpCircleIcon,
   BarChart3,
@@ -16,12 +15,12 @@ import {
   Star,
   Users,
   Video,
+} from 'lucide-react';
+import * as React from 'react';
 
-} from "lucide-react"
-
-import { NavMain } from "@/components/side-bar/nav-main"
-import { NavSecondary } from "@/components/side-bar/nav-secondary"
-import { NavUser } from "@/components/side-bar/nav-user"
+import { NavMain } from '@/components/side-bar/nav-main';
+import { NavSecondary } from '@/components/side-bar/nav-secondary';
+import { NavUser } from '@/components/side-bar/nav-user';
 import {
   Sidebar,
   SidebarContent,
@@ -30,87 +29,87 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from '@/components/ui/sidebar';
 
 const data = {
   Ceo: [
     {
-      title: "Dashboard Exécutif",
-      url: "/dashboard",
+      title: 'Dashboard Exécutif',
+      url: '/dashboard',
       icon: BarChart3,
     },
   ],
   navSecondary: [
     {
-      title: "Settings",
-      url: "/",
+      title: 'Settings',
+      url: '/',
       icon: SettingsIcon,
     },
     {
-      title: "Get Help",
-      url: "#",
+      title: 'Get Help',
+      url: '#',
       icon: HelpCircleIcon,
     },
     {
-      title: "Search",
-      url: "#",
+      title: 'Search',
+      url: '#',
       icon: SearchIcon,
     },
   ],
   classes: [
     {
-      title: "Toutes les classes",
-      url: "/dashboard/classes",
+      title: 'Toutes les classes',
+      url: '/dashboard/classes',
       icon: Users,
     },
   ],
   emploi: [
     {
-      title: "Planification",
-      url: "#",
+      title: 'Planification',
+      url: '#',
       icon: Calendar,
     },
   ],
   conference: [
     {
-      title: "Réunions",
-      url: "#",
+      title: 'Réunions',
+      url: '#',
       icon: Video,
     },
   ],
   bibliotheque: [
     {
-      title: "Tous les cours",
-      url: "#",
+      title: 'Tous les cours',
+      url: '#',
       icon: Library,
     },
     {
-      title: "Mes quiz",
-      url: "#",
+      title: 'Mes quiz',
+      url: '#',
       icon: FileQuestion,
     },
     {
-      title: "Cours en cours",
-      url: "#",
+      title: 'Cours en cours',
+      url: '#',
       icon: Clock,
     },
     {
-      title: "Cours terminés",
-      url: "#",
+      title: 'Cours terminés',
+      url: '#',
       icon: CheckCircle,
     },
     {
-      title: "Favoris",
-      url: "#",
+      title: 'Favoris',
+      url: '#',
       icon: Star,
     },
     {
-      title: "Historique",
-      url: "#",
+      title: 'Historique',
+      url: '#',
       icon: History,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -122,7 +121,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <a href="/">
                 <ArrowUpCircleIcon className="h-5 w-5" />
                 <span className="text-base font-semibold">Acme Inc.</span>
               </a>
@@ -142,5 +141,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

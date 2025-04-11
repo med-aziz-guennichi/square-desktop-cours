@@ -1,10 +1,10 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const RefreshTokenAPIRequestSchema = z.object({
-    refreshToken: z.string(),
-})
+  refreshToken: z.string(),
+});
 
 export const RefreshTokenAPIResponseSchema = z.object({
-    accessToken: z.string(),
-    refreshToken: z.string(),
+  accessToken: z.string(),
+  refreshToken: z.string(),
 });

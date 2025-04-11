@@ -5,12 +5,11 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { useBreadcrumb } from "@/context/BreadcrumbContext";
-import { Home } from "lucide-react";
-import React from "react";
-import { useNavigate } from "react-router-dom";
-
+} from '@/components/ui/breadcrumb';
+import { useBreadcrumb } from '@/context/BreadcrumbContext';
+import { Home } from 'lucide-react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const Breadcrumb = () => {
   const navigate = useNavigate();
@@ -21,7 +20,10 @@ export const Breadcrumb = () => {
         <BreadcrumbList>
           {/* Home link */}
           <BreadcrumbItem>
-            <BreadcrumbLink onClick={() => navigate("/ceo")} className="inline-flex items-center gap-1.5 cursor-pointer">
+            <BreadcrumbLink
+              onClick={() => navigate('/ceo')}
+              className="inline-flex items-center gap-1.5 cursor-pointer"
+            >
               <Home size={16} strokeWidth={2} />
               Home
             </BreadcrumbLink>
@@ -38,13 +40,16 @@ export const Breadcrumb = () => {
                     {page.name}
                   </BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink onClick={() => {
-                    if (typeof page.link === "string") {
-                      navigate(page.link)
-                    } else {
-                      page.link();
-                    }
-                  }} className="inline-flex items-center gap-1.5 capitalize cursor-pointer">
+                  <BreadcrumbLink
+                    onClick={() => {
+                      if (typeof page.link === 'string') {
+                        navigate(page.link);
+                      } else {
+                        page.link();
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 capitalize cursor-pointer"
+                  >
                     {page.icon}
                     {page.name}
                   </BreadcrumbLink>
@@ -55,7 +60,6 @@ export const Breadcrumb = () => {
           ))}
         </BreadcrumbList>
       </BreadcrumbComponent>
-
     </div>
   );
 };

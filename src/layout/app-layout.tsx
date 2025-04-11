@@ -1,10 +1,10 @@
-import { AppSidebar } from "@/components/side-bar/app-sidebar"
-import { SiteHeader } from "@/components/side-bar/site-header"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { AppSidebar } from '@/components/side-bar/app-sidebar';
+import { SiteHeader } from '@/components/side-bar/site-header';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-    return (
-      <SidebarProvider>
+  return (
+    <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
@@ -17,7 +17,5 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </SidebarInset>
     </SidebarProvider>
-
-
-    )
+  );
 }

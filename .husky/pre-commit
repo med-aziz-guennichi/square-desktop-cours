@@ -1,0 +1,1 @@
+bun run lint && prettier --write \"**/*.{ts,tsx,mdx}\" --cache && git add ./ && git commit -m "format-project"

@@ -1,81 +1,70 @@
-import { cn } from "@/lib/utils"
-import { useScreenWidth } from "@/hooks/screen-size"
-import { useIsMobile } from "@/hooks/use-mobile"
-import { useEffect } from "react"
-import { Users2 } from "lucide-react"
-import { useBreadcrumb } from "@/context/BreadcrumbContext"
-import { keepPreviousData, useQuery } from "@tanstack/react-query"
-import { getClasses } from "@/apis/classes/query-slice"
-import { useUserStore } from "@/store/user-store"
-import ClassCardSkeleton from "@/components/sketlon/classe-card";
+import { getClasses } from '@/apis/classes/query-slice';
+import ClassCardSkeleton from '@/components/sketlon/classe-card';
+import { useBreadcrumb } from '@/context/BreadcrumbContext';
+import { useScreenWidth } from '@/hooks/screen-size';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
+import { useUserStore } from '@/store/user-store';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { Users2 } from 'lucide-react';
+import { useEffect } from 'react';
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { cardVariants } from "@/constants/animations"
-import { ClassCard } from "@/components/cards/classe-card"
-import { toast } from "sonner"
-import { useClassFilters } from "./hooks/use-filter"
-import { usePagination } from "./hooks/use-pagination"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ClassFilterPanel } from "./components/class-filter-panel"
-import { EmptyResults } from "./components/empty-results"
-import { PaginationControls } from "./components/pagination-controls"
-
-interface Instructor {
-  id: string
-  name: string
-  surname: string
-  avatar: string
-}
-export interface IClasseCard {
-  id: string
-  title: string
-  instructors: Instructor[]
-  period: {
-    start: string
-    end: string
-  }
-  students: {
-    total: number
-    genderDistribution: {
-      male: number
-      female: number
-    }
-  }
-  coursesCount: number
-}
+import { ClassCard } from '@/components/cards/classe-card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { cardVariants } from '@/constants/animations';
+import { AnimatePresence, motion } from 'framer-motion';
+import { toast } from 'sonner';
+import { ClassFilterPanel } from './components/class-filter-panel';
+import { EmptyResults } from './components/empty-results';
+import { PaginationControls } from './components/pagination-controls';
+import { useClassFilters } from './hooks/use-filter';
+import { usePagination } from './hooks/use-pagination';
 
 export default function ClassePage() {
-  const user = useUserStore.getState().decodedUser
-  const id = user?.facility?.scholarityConfigId
-  const width = useScreenWidth()
-  const isMediumScreen = width >= 769 && width <= 1434
-  const isMobile = useIsMobile()
-  const { setSousPages } = useBreadcrumb()
+  const user = useUserStore.getState().decodedUser;
+  const id = user!.facility!.scholarityConfigId;
+  const width = useScreenWidth();
+  const isMediumScreen = width >= 769 && width <= 1434;
+  const isMobile = useIsMobile();
+  const { setSousPages } = useBreadcrumb();
 
   const {
     data: classes,
     isLoading,
     isError,
-    isFetching // this for the pagination fetching
+    // isFetching, // this for the pagination fetching
   } = useQuery({
-    queryKey: ["classes", id],
+    queryKey: ['classes', id],
     queryFn: () => getClasses(id),
     enabled: !!id,
-    placeholderData: keepPreviousData
-  })
+    placeholderData: keepPreviousData,
+  });
 
   if (isError) {
-    toast.error("Something went wrong")
+    toast.error('Something went wrong');
   }
 
   useEffect(() => {
-    setSousPages([{ name: "classes", link: "/dashboard/classes", icon: <Users2 size={16} /> }])
-  }, [setSousPages])
+    setSousPages([
+      { name: 'classes', link: '/dashboard/classes', icon: <Users2 size={16} /> },
+    ]);
+  }, [setSousPages]);
 
   // Use our custom hooks
-  const { filters, activeFilters, filteredClasses, updateFilter, removeFilter, clearAllFilters } = useClassFilters(
-    classes?.data,
-  )
+  const {
+    filters,
+    activeFilters,
+    filteredClasses,
+    updateFilter,
+    removeFilter,
+    clearAllFilters,
+  } = useClassFilters(classes?.data);
 
   const {
     currentPage,
@@ -90,14 +79,17 @@ export default function ClassePage() {
   } = usePagination({
     data: filteredClasses,
     initialItemsPerPage: 6,
-  })
+  });
 
   return (
     <main className="container mx-auto py-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
         <h1 className="text-2xl font-bold">Informations des Classes</h1>
         <div className="flex items-center gap-2 mt-4 md:mt-0">
-          <Select value={itemsPerPage.toString()} onValueChange={(value) => changeItemsPerPage(Number(value))}>
+          <Select
+            value={itemsPerPage.toString()}
+            onValueChange={(value) => changeItemsPerPage(Number(value))}
+          >
             <SelectTrigger className="w-[120px]">
               <SelectValue placeholder="Items per page" />
             </SelectTrigger>
@@ -115,7 +107,7 @@ export default function ClassePage() {
       <ClassFilterPanel
         filters={filters}
         activeFilters={activeFilters}
-        updateFilter={updateFilter as any}
+        updateFilter={updateFilter}
         removeFilter={removeFilter}
         clearAllFilters={clearAllFilters}
       />
@@ -123,12 +115,19 @@ export default function ClassePage() {
       {/* Results count */}
       <div className="flex justify-between items-center mb-4">
         <p className="text-sm text-muted-foreground">
-          Showing {pageInfo.startIndex}-{pageInfo.endIndex} of {pageInfo.totalItems} classes
+          Showing {pageInfo.startIndex}-{pageInfo.endIndex} of {pageInfo.totalItems}{' '}
+          classes
         </p>
       </div>
 
       {/* Classes Grid */}
-      <div className={cn("grid grid-cols-3 gap-6", isMediumScreen && "grid-cols-1 p-3", isMobile && "grid-cols-1")}>
+      <div
+        className={cn(
+          'grid grid-cols-3 gap-6',
+          isMediumScreen && 'grid-cols-1 p-3',
+          isMobile && 'grid-cols-1',
+        )}
+      >
         <AnimatePresence mode="wait">
           {isLoading ? (
             <>
@@ -161,29 +160,37 @@ export default function ClassePage() {
                       key={classe?._id}
                       id={classe._id}
                       coursesCount={classe?.countLessons}
-                      instructors={classe.subjects_instructors.map((subjects_instructor) => {
-                        return {
-                          id: subjects_instructor.instructor?._id,
-                          name: subjects_instructor.instructor?.firstName,
-                          surname: subjects_instructor.instructor?.lastName,
-                          avatar: `${import.meta.env.VITE_API_BASE_URL}/${subjects_instructor.instructor?.imageUrl}`,
-                        }
-                      })}
+                      instructors={classe.subjects_instructors.map(
+                        (subjects_instructor) => {
+                          return {
+                            id: subjects_instructor.instructor?._id,
+                            name:
+                              subjects_instructor.instructor?.firstName || 'Unknown',
+                            surname:
+                              subjects_instructor.instructor?.lastName || 'Unknown',
+                            avatar: `${import.meta.env.VITE_API_BASE_URL}/${subjects_instructor.instructor?.imageUrl}`,
+                          };
+                        },
+                      )}
                       period={{
                         start: classe?.startDate,
                         end: classe?.endDate,
                       }}
                       students={{
                         genderDistribution: {
-                          male: classe?.students?.filter((std) => std?.gender === "homme").length,
-                          female: classe?.students?.filter((std) => std?.gender === "femme").length,
+                          male: classe?.students?.filter(
+                            (std) => std?.gender === 'homme',
+                          ).length,
+                          female: classe?.students?.filter(
+                            (std) => std?.gender === 'femme',
+                          ).length,
                         },
                         total: classe?.students?.length,
                       }}
                       title={classe?.name}
-                      onChatClick={() => console.log("Chat clicked")}
-                      onEditClick={(id) => console.log("Edit clicked for", id)}
-                      onDeleteClick={(id) => console.log("Delete clicked for", id)}
+                      onChatClick={() => console.warn('Chat clicked')}
+                      onEditClick={(id) => console.warn('Edit clicked for', id)}
+                      onDeleteClick={(id) => console.warn('Delete clicked for', id)}
                     />
                   </motion.div>
                 ))
@@ -206,5 +213,5 @@ export default function ClassePage() {
         />
       )}
     </main>
-  )
+  );
 }
