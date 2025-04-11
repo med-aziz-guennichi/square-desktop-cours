@@ -1,0 +1,6 @@
+password: aziz
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+Aborted (core dumped)
+
+`TAURI_SIGNING_PRIVATE_KEY`  Path or String of your private key
+`TAURI_SIGNING_PRIVATE_KEY_PASSWORD`  Your private key password (optional)
