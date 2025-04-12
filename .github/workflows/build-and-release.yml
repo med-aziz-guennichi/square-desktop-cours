@@ -24,20 +24,15 @@ jobs:
       - name: Install Bun
         shell: pwsh
         run: |
-         $ErrorActionPreference = "Stop"
-         Invoke-WebRequest -Uri "https://bun.sh/install" -UseBasicParsing -OutFile install.bat
-         Start-Process -FilePath "install.bat" -NoNewWindow -Wait
-         $env:Path += ";$HOME\.bun\bin"
-
-      - name: Add Bun to PATH
-        run: echo "$HOME\.bun\bin" | Out-File -Append -FilePath $env:GITHUB_PATH
-        shell: pwsh
-
-      - name: Install Tauri CLI
-        run: cargo install tauri-cli
+          $ErrorActionPreference = "Stop"
+          iwr https://bun.sh/install -UseBasicParsing | iex
+          $env:Path += ";$env:USERPROFILE\.bun\bin"
 
       - name: Install dependencies
         run: bun install
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli
 
       - name: Build Tauri App
         run: cargo tauri build
