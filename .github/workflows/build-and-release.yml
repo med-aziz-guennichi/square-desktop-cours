@@ -57,9 +57,8 @@ jobs:
         run: |
           VERSION=${GITHUB_REF_NAME#v}
           SIG_PATH="src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/${{ env.PROJECT_NAME }}_${VERSION}_x64-setup.exe.sig"
-          FILE_PATH="https://github.com/med-aziz-guennichi/studiffy-release/releases/v${VERSION}/nsis/${{ env.PROJECT_NAME }}_${VERSION}_x64-setup.exe"
+          FILE_PATH="https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${VERSION}/nsis/${{ env.PROJECT_NAME }}_${VERSION}_x64-setup.exe"
           SIG=$(cat "$SIG_PATH")
-
           echo "{
             \"version\": \"$VERSION\",
             \"notes\": \"Auto-generated release\",
