@@ -35,7 +35,7 @@ jobs:
             echo "Adding Bun to PATH for Unix-like OS"
             export PATH="$HOME/.bun/bin:$PATH"
           fi
-        shell: bash
+        shell: pwsh
         
 
       - name: Install Tauri CLI
