@@ -60,7 +60,10 @@ export function LoginForm({
                 <FormItem>
                   <FormLabel>Adresse e-mail</FormLabel>
                   <FormControl>
-                    <Input placeholder="m@example.com" {...field} />
+                    <Input
+                      placeholder="m@proservices-training-company.com"
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>
                     Entrez une adresse e-mail valide. Elle sera utilisée pour vous
