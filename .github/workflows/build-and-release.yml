@@ -36,7 +36,7 @@ jobs:
             export PATH="$HOME/.bun/bin:$PATH"
           fi
         shell: bash
-         ``
+        
 
       - name: Install Tauri CLI
         run: cargo install tauri-cli
