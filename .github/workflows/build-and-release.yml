@@ -1,4 +1,4 @@
-name: Build and Release Tauri App (Windows + Linux)
+name: Build and Release Tauri App (Windows only)
 
 on:
   push:
@@ -7,11 +7,8 @@ on:
 
 jobs:
   build:
-    name: Build ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    name: Build Windows
+    runs-on: windows-latest
 
     steps:
       - name: Checkout source
@@ -26,17 +23,12 @@ jobs:
       
       - name: Install Bun
         run: |
-          curl -fsSL https://bun.sh/install | bash
-          if ($env:RUNNER_OS -eq "Windows") {
-            Write-Host "Adding Bun to PATH for Windows"
-            [System.IO.File]::WriteAllText("$env:SystemDrive\temp\path.txt", "$HOME\.bun\bin")
-            Write-Host "Ensure the above is appended for PATH"
-          } else {
-            Write-Host "Adding Bun to PATH for Unix-like OS"
-            $env:PATH = "$HOME/.bun/bin;$env:PATH"
-          }
+          iwr https://bun.sh/install -UseBasicParsing | iex
         shell: pwsh
-        
+
+      - name: Add Bun to PATH
+        run: echo "$HOME\.bun\bin" | Out-File -Append -FilePath $env:GITHUB_PATH
+        shell: pwsh
 
       - name: Install Tauri CLI
         run: cargo install tauri-cli
@@ -45,13 +37,12 @@ jobs:
         run: bun install
 
       - name: Build Tauri App
-        run: |
-          cargo tauri build
+        run: cargo tauri build
           
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: bundle-${{ matrix.os }}
+          name: bundle-windows
           path: |
             src-tauri/target/release/bundle
             src-tauri/target/release/bundle/latest.json
@@ -62,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download all build artifacts
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           path: ./artifacts
@@ -83,5 +74,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add .
-          git commit -m "Release ${{ github.ref_name }} for Windows and Linux"
+          git commit -m "Release ${{ github.ref_name }} for Windows"
           git push
