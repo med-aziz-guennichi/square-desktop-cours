@@ -23,6 +23,11 @@ jobs:
           rust-version: stable
           toolchain: stable
           override: true
+      
+      - name: Install Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          export PATH="$HOME/.bun/bin:$PATH"
 
       - name: Install Tauri CLI
         run: cargo install tauri-cli
