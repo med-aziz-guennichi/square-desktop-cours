@@ -1,36 +1,47 @@
 import { relaunch } from '@tauri-apps/plugin-process';
 import { check } from '@tauri-apps/plugin-updater';
 
-export async function checkForUpdates() {
+export async function checkForUpdates(
+  setUpdateStatus: (status: string) => void,
+  setDownloadProgress: (progress: string) => void,
+) {
+  setUpdateStatus('Checking for updates...');
   try {
     const update = await check();
     if (update) {
-      console.warn(
-        `Found update ${update.version} from ${update.date} with notes: ${update.body}`,
-      );
+      setUpdateStatus(`Found update ${update.version} - ${update.body}`);
       let downloaded = 0;
       let contentLength = 0;
 
       await update.downloadAndInstall((event) => {
         switch (event.event) {
-          case 'Started':
+          case 'Started': {
             contentLength = event.data.contentLength!;
-            console.warn(`Started downloading ${event.data.contentLength} bytes`);
+            setDownloadProgress(
+              `Started downloading ${event.data.contentLength} bytes`,
+            );
             break;
-          case 'Progress':
+          }
+          case 'Progress': {
             downloaded += event.data.chunkLength;
-            console.warn(`Downloaded ${downloaded} from ${contentLength}`);
+            const progress = ((downloaded / contentLength) * 100).toFixed(2);
+            setDownloadProgress(`Downloading: ${progress}%`);
             break;
-          case 'Finished':
-            console.warn('Download finished');
+          }
+          case 'Finished': {
+            setDownloadProgress('Download finished!');
             break;
+          }
         }
       });
 
-      console.warn('Update installed. Relaunching app...');
+      setUpdateStatus('Update installed. Relaunching app...');
       await relaunch();
+    } else {
+      setUpdateStatus('No updates found.');
     }
   } catch (error) {
     console.error('Error while checking for updates:', error);
+    setUpdateStatus(`Error while checking for updates:`);
   }
 }

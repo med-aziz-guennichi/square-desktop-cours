@@ -3,6 +3,7 @@ use tauri_plugin_dialog;
 use tauri_plugin_process;
 use mac_address::get_mac_address;
 
+
 #[tauri::command]
 fn get_mac() -> Result<String, String> {
     match get_mac_address() {
