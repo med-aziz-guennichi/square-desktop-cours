@@ -98,7 +98,17 @@ jobs:
         run: |
           mkdir -p release-repo/releases/${{ github.ref_name }}
           cp -r artifacts/*/* ./release-repo/releases/${{ github.ref_name }}/
-          cp artifacts/*/*/latest.json ./release-repo/latest.json || echo "No latest.json found"
+
+          # Attempt to find latest.json and copy it to root
+          LATEST_JSON=$(find artifacts -type f -name latest.json)
+          if [ -f "$LATEST_JSON" ]; then
+            cp "$LATEST_JSON" release-repo/latest.json
+            echo "Copied latest.json to root"
+          else
+            echo "latest.json not found"
+            exit 1
+          fi
+
 
       - name: Commit and push to public repo
         run: |
