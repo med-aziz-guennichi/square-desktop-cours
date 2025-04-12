@@ -24,9 +24,10 @@ jobs:
       - name: Install Bun
         shell: pwsh
         run: |
-          $ErrorActionPreference = "Stop"
-          iwr https://bun.sh/install -UseBasicParsing | iex
-          $env:Path += ";$env:USERPROFILE\.bun\bin"
+          curl -fsSL https://bun.sh/install | bash
+          Write-Host "Adding Bun to PATH for Windows"
+          [System.IO.File]::WriteAllText("$env:SystemDrive\temp\path.txt", "$HOME\.bun\bin")
+          Write-Host "Ensure the above is appended for PATH"
 
       - name: Install dependencies
         run: bun install
