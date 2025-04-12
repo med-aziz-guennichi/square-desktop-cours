@@ -25,7 +25,8 @@ jobs:
         shell: pwsh
         run: |
          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-         Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://bun.sh/install'))
+         $script = (New-Object System.Net.WebClient).DownloadString('https://bun.sh/install')
+         Invoke-Expression $script
          $env:Path += ";$HOME\.bun\bin"
          Write-Host "Bun successfully installed and added to PATH"
 
