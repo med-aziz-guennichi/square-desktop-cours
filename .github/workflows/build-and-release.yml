@@ -23,8 +23,9 @@ jobs:
       
       - name: Install Bun
         run: |
-          iwr https://bun.sh/install -UseBasicParsing | iex
-        shell: pwsh
+         $ErrorActionPreference = "Stop"
+         Invoke-WebRequest -Uri "https://bun.sh/install" -UseBasicParsing | Invoke-Expression
+         shell: pwsh
 
       - name: Add Bun to PATH
         run: echo "$HOME\.bun\bin" | Out-File -Append -FilePath $env:GITHUB_PATH
