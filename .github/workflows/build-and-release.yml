@@ -46,6 +46,7 @@ jobs:
           bunx tauri build --target x86_64-pc-windows-gnu
       - name: Verify MSI signature file
         run: |
+          VERSION=${GITHUB_REF_NAME#v}
           SIG_PATH="src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/${{ env.PROJECT_NAME }}_${VERSION}_x64_en-US.exe.sig"
           if [ ! -f "$SIG_PATH" ]; then
             echo "Error: Signature file $SIG_PATH does not exist."
