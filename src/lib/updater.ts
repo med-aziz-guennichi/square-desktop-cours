@@ -1,54 +1,51 @@
-import { relaunch } from '@tauri-apps/plugin-process';
 import { check } from '@tauri-apps/plugin-updater';
 
 export async function checkForUpdates(
   setUpdateStatus: (status: string) => void,
   setDownloadProgress: (progress: number) => void,
   setIsModalOpen: (open: boolean) => void,
+  setIsUpdateReady: (ready: boolean) => void,
   isDownloading: boolean,
   setIsDownloading: (downloading: boolean) => void,
 ) {
   if (isDownloading) return;
-  setUpdateStatus('Checking for updates...');
-  setIsDownloading(false);
+
   try {
     const update = await check();
     if (update) {
-      setUpdateStatus(`Found update ${update.version} - ${update.body}`);
       setIsModalOpen(true);
+      setUpdateStatus(`Found update: ${update.version}`);
+      setIsDownloading(true);
+
       let downloaded = 0;
       let contentLength = 0;
-      setIsDownloading(true);
 
       await update.downloadAndInstall((event) => {
         switch (event.event) {
           case 'Started': {
             contentLength = event.data.contentLength!;
-            setDownloadProgress(0); // Reset progress
             break;
           }
           case 'Progress': {
             downloaded += event.data.chunkLength;
-            const progress = ((downloaded / contentLength) * 100).toFixed(2);
-            setDownloadProgress(parseFloat(progress)); // Update progress
+            const progress = (downloaded / contentLength) * 100;
+            setDownloadProgress(progress);
             break;
           }
           case 'Finished': {
-            setDownloadProgress(100); // Set progress to 100%
-            setUpdateStatus('Download finished!');
+            setUpdateStatus('✅ Update downloaded. Ready to restart.');
+            setIsUpdateReady(true);
             break;
           }
         }
       });
-
-      setUpdateStatus('Update installed. Relaunching app...');
-      await relaunch();
     } else {
-      setUpdateStatus('No updates found.');
+      setUpdateStatus('No updates available.');
     }
   } catch (error) {
-    console.error('Error while checking for updates:', error);
-    setIsModalOpen(true);
-    setUpdateStatus(`Error while checking for updates.: ${JSON.stringify(error)}`);
+    console.error('Update check failed:', error);
+    setUpdateStatus('❌ Failed to check for updates.');
+  } finally {
+    setIsDownloading(false);
   }
 }
