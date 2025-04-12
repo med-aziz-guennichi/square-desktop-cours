@@ -38,9 +38,10 @@ jobs:
           bun run build
 
       - name: Build Tauri App for Windows
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         run: |
           bunx tauri build --target x86_64-pc-windows-gnu
-        env: TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
