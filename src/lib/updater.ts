@@ -5,8 +5,10 @@ export async function checkForUpdates(
   setUpdateStatus: (status: string) => void,
   setDownloadProgress: (progress: number) => void,
   setIsModalOpen: (open: boolean) => void,
+  isDownloading: boolean,
   setIsDownloading: (downloading: boolean) => void,
 ) {
+  if (isDownloading) return;
   setUpdateStatus('Checking for updates...');
   setIsDownloading(false);
   try {
@@ -46,6 +48,7 @@ export async function checkForUpdates(
     }
   } catch (error) {
     console.error('Error while checking for updates:', error);
-    setUpdateStatus('Error while checking for updates.');
+    setIsModalOpen(true);
+    setUpdateStatus(`Error while checking for updates.: ${JSON.stringify(error)}`);
   }
 }

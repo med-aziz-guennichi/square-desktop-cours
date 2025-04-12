@@ -28,13 +28,33 @@ export default function GlobalLayout() {
     navigation.state === 'loading' || navigation.state === 'submitting';
 
   useEffect(() => {
-    checkForUpdates(
-      setUpdateStatus,
-      setDownloadProgress,
-      setIsModalOpen,
-      setIsDownloading,
-    );
-  }, []);
+    if (window.__TAURI__) {
+      // Check now
+      checkForUpdates(
+        setUpdateStatus,
+        setDownloadProgress,
+        setIsModalOpen,
+        isDownloading,
+        setIsDownloading,
+      );
+
+      // Check every 5 minutes
+      const interval = setInterval(
+        () => {
+          checkForUpdates(
+            setUpdateStatus,
+            setDownloadProgress,
+            setIsModalOpen,
+            isDownloading,
+            setIsDownloading,
+          );
+        },
+        5 * 60 * 1000,
+      ); // 5 minutes
+
+      return () => clearInterval(interval);
+    }
+  }, [isDownloading]);
 
   return (
     <>
@@ -43,7 +63,7 @@ export default function GlobalLayout() {
 
       {/* Modal for update progress */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="p-6 bg-white rounded-lg shadow-lg max-w-sm mx-auto">
+        <DialogContent className="p-6 rounded-lg shadow-lg max-w-sm mx-auto">
           <DialogTitle className="text-xl font-semibold mb-2">
             Update Progress
           </DialogTitle>
