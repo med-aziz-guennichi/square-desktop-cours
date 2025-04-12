@@ -1,0 +1,68 @@
+name: Build and Release Tauri App (Windows + Linux)
+
+on:
+  push:
+    tags:
+      - 'v*' # Runs on tag pushes like v1.0.0
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Set up Rust
+        uses: actions/setup-rust@v1
+        with:
+          rust-version: stable
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli
+
+      - name: Build Tauri App
+        run: |
+          cargo tauri build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-${{ matrix.os }}
+          path: |
+            src-tauri/target/release/bundle
+            src-tauri/target/release/bundle/latest.json
+
+  release:
+    name: Push to studiffy-release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Clone studiffy-release repo
+        run: |
+          git clone https://x-access-token:${{ secrets.RELEASE_PAT }}@github.com/med-aziz-guennichi/studiffy-release.git release-repo
+
+      - name: Copy artifacts to release repo
+        run: |
+          mkdir -p release-repo/releases/${{ github.ref_name }}
+          cp -r artifacts/*/ ./release-repo/releases/${{ github.ref_name }}/
+          cp artifacts/*/latest.json ./release-repo/latest.json
+
+      - name: Commit and push to public repo
+        run: |
+          cd release-repo
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "Release ${{ github.ref_name }} for Windows and Linux"
+          git push
