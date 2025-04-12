@@ -24,9 +24,10 @@ jobs:
       - name: Install Bun
         shell: pwsh
         run: |
-          iwr https://bun.sh/install -UseBasicParsing | iex
-          $env:Path += ";$HOME\.bun\bin"
-          Write-Host "Bun successfully installed and added to PATH"
+         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+         Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://bun.sh/install'))
+         $env:Path += ";$HOME\.bun\bin"
+         Write-Host "Bun successfully installed and added to PATH"
 
       - name: Install dependencies
         run: bun install
