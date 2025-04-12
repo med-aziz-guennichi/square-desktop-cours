@@ -22,10 +22,11 @@ jobs:
           override: true
       
       - name: Install Bun
+        shell: pwsh
         run: |
          $ErrorActionPreference = "Stop"
-         Invoke-WebRequest -Uri "https://bun.sh/install" -UseBasicParsing | Invoke-Expression
-         shell: pwsh
+         Invoke-WebRequest -Uri "https://bun.sh/install" -UseBasicParsing -OutFile install.bat
+         Start-Process -FilePath "install.bat" -NoNewWindow -Wait
 
       - name: Add Bun to PATH
         run: echo "$HOME\.bun\bin" | Out-File -Append -FilePath $env:GITHUB_PATH
