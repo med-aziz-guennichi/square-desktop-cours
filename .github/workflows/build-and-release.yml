@@ -35,11 +35,11 @@ jobs:
           bun run build
 
       - name: Install Tauri CLI
-        run: bunx tauri@latest
+        run: cargo install tauri-cli
 
       - name: Build Tauri App for Windows
         run: |
-          bunx tauri build --target x86_64-pc-windows-gnu
+          cargo tauri build --target x86_64-pc-windows-gnu
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
