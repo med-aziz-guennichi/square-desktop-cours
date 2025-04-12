@@ -44,7 +44,14 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PASSWORD }}
         run: |
           bunx tauri build --target x86_64-pc-windows-gnu
-
+      - name: Verify MSI signature file
+        run: |
+          SIG_PATH="src-tauri/target/x86_64-pc-windows-gnu/release/bundle/msi/${{ env.PROJECT_NAME }}_${VERSION}_x64_en-US.msi.sig"
+          if [ ! -f "$SIG_PATH" ]; then
+            echo "Error: Signature file $SIG_PATH does not exist."
+            exit 1
+          fi
+          
       - name: Generate latest.json
         run: |
           VERSION=${GITHUB_REF_NAME#v}
