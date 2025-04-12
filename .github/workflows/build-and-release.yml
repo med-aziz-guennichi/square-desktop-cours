@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*' # Runs on tag pushes like v1.0.0
 
+env:
+  PROJECT_NAME: studiffy
+
 jobs:
   build:
     name: Build Windows
@@ -23,14 +26,12 @@ jobs:
         run: |
           curl -fsSL https://bun.sh/install | bash
           echo "$HOME/.bun/bin" >> $GITHUB_PATH
+        shell: bash
 
       - name: Install system dependencies for cross-compiling
         run: |
           sudo apt-get update
           sudo apt-get install -y mingw-w64 zip nsis
-
-      - name: Verify NSIS installation
-        run: which makensis
 
       - name: Install JS dependencies and build frontend
         run: |
@@ -44,13 +45,31 @@ jobs:
         run: |
           bunx tauri build --target x86_64-pc-windows-gnu
 
+      - name: Generate latest.json
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          SIG_PATH="src-tauri/target/x86_64-pc-windows-gnu/release/bundle/msi/${{ env.PROJECT_NAME }}_${VERSION}_x64_en-US.msi.sig"
+          FILE_PATH="https://github.com/med-aziz-guennichi/studiffy-release/releases/download/v${VERSION}/${{ env.PROJECT_NAME }}_${VERSION}_x64_en-US.msi"
+          SIG=$(cat "$SIG_PATH")
+
+          echo "{
+            \"version\": \"$VERSION\",
+            \"notes\": \"Auto-generated release\",
+            \"pub_date\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\",
+            \"platforms\": {
+              \"windows-x86_64\": {
+                \"signature\": \"$SIG\",
+                \"url\": \"$FILE_PATH\"
+              }
+            }
+          }" > src-tauri/target/x86_64-pc-windows-gnu/release/bundle/latest.json
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: bundle-windows
           path: |
             src-tauri/target/x86_64-pc-windows-gnu/release/bundle
-            src-tauri/target/x86_64-pc-windows-gnu/release/bundle/latest.json
 
   release:
     name: Push to studiffy-release
@@ -70,8 +89,8 @@ jobs:
       - name: Copy artifacts to release repo
         run: |
           mkdir -p release-repo/releases/${{ github.ref_name }}
-          cp -r artifacts/*/ ./release-repo/releases/${{ github.ref_name }}/
-          cp artifacts/*/latest.json ./release-repo/latest.json
+          cp -r artifacts/*/* ./release-repo/releases/${{ github.ref_name }}/
+          cp artifacts/*/*/latest.json ./release-repo/latest.json || echo "No latest.json found"
 
       - name: Commit and push to public repo
         run: |
