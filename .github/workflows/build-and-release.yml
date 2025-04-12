@@ -47,7 +47,7 @@ jobs:
       - name: Verify MSI signature file
         run: |
           VERSION=${GITHUB_REF_NAME#v}
-          SIG_PATH="src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/${{ env.PROJECT_NAME }}_${VERSION}_x64_en-US.exe.sig"
+          SIG_PATH="src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/${{ env.PROJECT_NAME }}_${VERSION}_x64-setup.exe.sig"
           if [ ! -f "$SIG_PATH" ]; then
             echo "Error: Signature file $SIG_PATH does not exist."
             exit 1
@@ -56,8 +56,8 @@ jobs:
       - name: Generate latest.json
         run: |
           VERSION=${GITHUB_REF_NAME#v}
-          SIG_PATH="src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/${{ env.PROJECT_NAME }}_${VERSION}_x64_en-US.exe.sig"
-          FILE_PATH="https://github.com/med-aziz-guennichi/studiffy-release/releases/download/v${VERSION}/${{ env.PROJECT_NAME }}_${VERSION}_x64_en-US.exe"
+          SIG_PATH="src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/${{ env.PROJECT_NAME }}_${VERSION}_x64-setup.exe.sig"
+          FILE_PATH="https://github.com/med-aziz-guennichi/studiffy-release/releases/download/v${VERSION}/${{ env.PROJECT_NAME }}_${VERSION}_x64-setup.exe"
           SIG=$(cat "$SIG_PATH")
 
           echo "{
