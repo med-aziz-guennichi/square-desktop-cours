@@ -27,14 +27,14 @@ jobs:
       - name: Install Bun
         run: |
           curl -fsSL https://bun.sh/install | bash
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            echo "Adding Bun to PATH for Windows"
-            echo "$HOME/.bun/bin" | Out-File -FilePath $env:SystemDrive\temp\path.txt -Encoding ascii
+          if ($env:RUNNER_OS -eq "Windows") {
+            Write-Host "Adding Bun to PATH for Windows"
+            [System.IO.File]::WriteAllText("$env:SystemDrive\temp\path.txt", "$HOME\.bun\bin")
             Write-Host "Ensure the above is appended for PATH"
-          else
-            echo "Adding Bun to PATH for Unix-like OS"
-            export PATH="$HOME/.bun/bin:$PATH"
-          fi
+          } else {
+            Write-Host "Adding Bun to PATH for Unix-like OS"
+            $env:PATH = "$HOME/.bun/bin;$env:PATH"
+          }
         shell: pwsh
         
 
