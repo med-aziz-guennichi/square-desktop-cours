@@ -24,11 +24,16 @@ jobs:
       - name: Install Bun
         shell: pwsh
         run: |
-         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-         $script = (New-Object System.Net.WebClient).DownloadString('https://bun.sh/install')
-         Invoke-Expression $script
-         $env:Path += ";$HOME\.bun\bin"
-         Write-Host "Bun successfully installed and added to PATH"
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          try {
+            $script = Invoke-WebRequest -Uri 'https://bun.sh/install' -UseBasicParsing | Select-Object -ExpandProperty Content
+            Invoke-Expression $script
+            $env:Path += ";$HOME\.bun\bin"
+            Write-Host "Bun successfully installed and added to PATH"
+          } catch {
+            Write-Error "Failed to install Bun. Error: $_"
+            exit 1
+          }
 
       - name: Install dependencies
         run: bun install
