@@ -27,6 +27,7 @@ jobs:
          $ErrorActionPreference = "Stop"
          Invoke-WebRequest -Uri "https://bun.sh/install" -UseBasicParsing -OutFile install.bat
          Start-Process -FilePath "install.bat" -NoNewWindow -Wait
+         $env:Path += ";$HOME\.bun\bin"
 
       - name: Add Bun to PATH
         run: echo "$HOME\.bun\bin" | Out-File -Append -FilePath $env:GITHUB_PATH
