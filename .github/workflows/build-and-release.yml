@@ -6,7 +6,7 @@ on:
       - 'v*' # Runs on tag pushes like v1.0.0
 
 env:
-  PROJECT_NAME: studiffy
+  PROJECT_NAME: studiffy-cours
 
 jobs:
   build:
@@ -51,7 +51,7 @@ jobs:
             echo "Error: Signature file $SIG_PATH does not exist."
             exit 1
           fi
-          
+
       - name: Generate latest.json
         run: |
           VERSION=${GITHUB_REF_NAME#v}
