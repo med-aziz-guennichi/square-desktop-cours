@@ -29,9 +29,14 @@ jobs:
       - name: Install Bun
         shell: pwsh
         run: |
-          Invoke-WebRequest -Uri https://bun.sh/install -UseBasicParsing | Invoke-Expression
-          $env:PATH = "$env:USERPROFILE\.bun\bin;$env:PATH"
-          Write-Host "PATH after Bun installation: $env:PATH"
+          # Install Bun using the official install script
+          irm bun.sh/install.ps1 | iex
+          
+          # Add Bun to PATH for subsequent steps
+          Add-Content $env:GITHUB_PATH "$env:USERPROFILE\.bun\bin"
+          
+          # Verify installation
+          bun --version
       
       - name: Run beforeBuildCommand
         run: |
