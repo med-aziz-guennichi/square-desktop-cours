@@ -17,6 +17,31 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
 
+      - name: Install Bun
+        shell: pwsh
+        run: |
+          # Install Bun using the official install script
+          irm bun.sh/install.ps1 | iex
+          
+          # Add Bun to PATH persistently for all subsequent steps
+          $bunPath = "$env:USERPROFILE\.bun\bin"
+          echo "Adding Bun to PATH: $bunPath"
+          Add-Content $env:GITHUB_PATH "$bunPath"
+          
+          # Verify installation (this will fail but the PATH will work in next steps)
+          if (Test-Path "$bunPath\bun.exe") {
+              echo "Bun executable found at $bunPath\bun.exe"
+          } else {
+              echo "Bun executable not found!"
+          }
+
+      - name: Verify Bun installation
+        shell: pwsh
+        run: |
+          # Now Bun should be available in PATH
+          bun --version
+          bun install
+
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -26,18 +51,6 @@ jobs:
         run: |
           echo VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} >> .env
 
-      - name: Install Bun
-        shell: pwsh
-        run: |
-          # Install Bun using the official install script
-          irm bun.sh/install.ps1 | iex
-          
-          # Add Bun to PATH for subsequent steps
-          Add-Content $env:GITHUB_PATH "$env:USERPROFILE\.bun\bin"
-          
-          # Verify installation
-          bun --version
-      
       - name: Run beforeBuildCommand
         run: |
           bun install
