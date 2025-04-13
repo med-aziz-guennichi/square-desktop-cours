@@ -3,10 +3,11 @@ name: Build and Release Tauri App (Windows only)
 on:
   push:
     tags:
-      - 'v*' # Runs on tag pushes like v1.0.0
+      - 'v*'
 
 env:
   PROJECT_NAME: studiffy-cours
+  CARGO_TERM_COLOR: always
 
 jobs:
   build:
@@ -15,55 +16,60 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      # Cache Rust dependencies
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~\.cargo\registry
+            ~\.cargo\git
+            src-tauri\target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      # Cache Bun/node_modules
+      - name: Cache Bun dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~\.bun
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/package.json') }}
 
       - name: Install Bun
         shell: pwsh
         run: |
-          # Install Bun using the official install script
           irm bun.sh/install.ps1 | iex
-          
-          # Add Bun to PATH persistently for all subsequent steps
-          $bunPath = "$env:USERPROFILE\.bun\bin"
-          echo "Adding Bun to PATH: $bunPath"
-          Add-Content $env:GITHUB_PATH "$bunPath"
-          
-          # Verify installation (this will fail but the PATH will work in next steps)
-          if (Test-Path "$bunPath\bun.exe") {
-              echo "Bun executable found at $bunPath\bun.exe"
-          } else {
-              echo "Bun executable not found!"
-          }
-
-      - name: Verify Bun installation
-        shell: pwsh
-        run: |
-          # Now Bun should be available in PATH
-          bun --version
-          bun install
+          Add-Content $env:GITHUB_PATH "$env:USERPROFILE\.bun\bin"
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-pc-windows-msvc
+          profile: minimal
+
+      - name: Install dependencies
+        run: |
+          bun install
+          cargo install tauri-cli --version ^2.0.0
 
       - name: Inject .env
         run: |
           echo VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} >> .env
 
-      - name: Run beforeBuildCommand
-        run: |
-          bun install
-          bun run build
+      - name: Build frontend
+        run: bun run build
 
-      - name: Build Tauri App for Windows (.msi)
+      - name: Build Tauri App
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PASSWORD }}
         run: |
-          bunx tauri build
+          bunx tauri build --verbose
 
-      - name: Verify MSI signature file
+      - name: Verify MSI signature
+        shell: pwsh
         run: |
           $version = "${{ github.ref_name }}".TrimStart("v")
           $sigPath = "src-tauri\target\release\bundle\msi\${{ env.PROJECT_NAME }}_${version}_x64.msi.sig"
@@ -76,63 +82,46 @@ jobs:
         shell: pwsh
         run: |
           $version = "${{ github.ref_name }}".TrimStart("v")
-          $sigPath = "src-tauri\target\release\bundle\msi\${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig"
-          $filePath = "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi"
-          $sig = Get-Content $sigPath -Raw
-          $json = @{
+          $sig = Get-Content "src-tauri\target\release\bundle\msi\${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig" -Raw
+          @{
             version = $version
-            notes = "Auto-generated release"
+            notes = "Release $version"
             pub_date = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
             platforms = @{
               "windows-x86_64" = @{
                 signature = $sig
-                url = $filePath
+                url = "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi"
               }
             }
-          } | ConvertTo-Json -Depth 3
-          $json | Out-File "src-tauri/target/release/bundle/latest.json" -Encoding UTF8
+          } | ConvertTo-Json -Depth 3 | Out-File "src-tauri/target/release/bundle/latest.json" -Encoding UTF8
 
-      - name: Upload build artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: bundle-windows
           path: src-tauri/target/release/bundle
+          retention-days: 1
 
   release:
     name: Push to studiffy-release
     needs: build
     runs-on: ubuntu-latest
-
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
+          name: bundle-windows
           path: ./artifacts
 
-      - name: Clone studiffy-release repo
-        run: |
+      - run: |
           git clone https://x-access-token:${{ secrets.RELEASE_PAT }}@github.com/med-aziz-guennichi/studiffy-release.git release-repo
-
-      - name: Copy artifacts to release repo
-        run: |
           mkdir -p release-repo/releases/${{ github.ref_name }}
-          cp -r artifacts/*/* ./release-repo/releases/${{ github.ref_name }}/
+          cp -r artifacts/* release-repo/releases/${{ github.ref_name }}/
+          cp artifacts/latest.json release-repo/latest.json || echo "latest.json not found"
 
-          # Attempt to find latest.json and copy it to root
-          LATEST_JSON=$(find artifacts -type f -name latest.json)
-          if [ -f "$LATEST_JSON" ]; then
-            cp "$LATEST_JSON" release-repo/latest.json
-            echo "Copied latest.json to root"
-          else
-            echo "latest.json not found"
-            exit 1
-          fi
-
-      - name: Commit and push to public repo
-        run: |
+      - run: |
           cd release-repo
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add .
-          git commit -m "Release ${{ github.ref_name }} for Windows"
+          git commit -m "Release ${{ github.ref_name }}"
           git push
