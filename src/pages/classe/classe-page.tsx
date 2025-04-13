@@ -73,7 +73,7 @@ export default function ClassePage() {
     if (classes) {
       goToPage(classes.currentPage);
     }
-  }, [classes?.currentPage]);
+  }, [classes?.currentPage, classes?.totalPages, goToPage]);
 
   if (isError) {
     toast.error('Something went wrong');
