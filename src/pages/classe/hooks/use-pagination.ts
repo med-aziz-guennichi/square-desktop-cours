@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState } from 'react';
 
 interface UsePaginationProps {
   initialItemsPerPage?: number;

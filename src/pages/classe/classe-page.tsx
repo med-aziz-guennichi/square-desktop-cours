@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { useUserStore } from '@/store/user-store';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Users2 } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { ClassCard } from '@/components/cards/classe-card';
 import {
@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cardVariants } from '@/constants/animations';
+import { SubjectsInstructor } from '@/types/classe.interface';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { ClassFilterPanel } from './components/class-filter-panel';
@@ -25,7 +26,6 @@ import { EmptyResults } from './components/empty-results';
 import { PaginationControls } from './components/pagination-controls';
 import { useClassFilters } from './hooks/use-filter';
 import { usePagination } from './hooks/use-pagination';
-import { SubjectsInstructor } from '@/types/classe.interface';
 
 interface ClassData {
   _id: string;
@@ -57,16 +57,55 @@ export default function ClassePage() {
   });
 
   const {
+    filters: activeFilters,
+    updateFilter,
+    removeFilter,
+    clearAllFilters,
+  } = useClassFilters();
+
+  const {
     data: classes,
     isLoading,
     isError,
     isFetching,
   } = useQuery({
-    queryKey: ['classes', id, currentPage, itemsPerPage],
-    queryFn: () => getClasses(id!, currentPage, itemsPerPage),
+    queryKey: ['classes', id, currentPage, itemsPerPage, activeFilters],
+    queryFn: () => getClasses(id!, currentPage, itemsPerPage, activeFilters),
     enabled: !!id,
     placeholderData: keepPreviousData,
   });
+
+  // Extract unique subjects and instructors for filters
+  const availableSubjects = useMemo(() => {
+    if (!classes?.data) return [];
+    const subjects = new Map();
+    classes.data.forEach((classe: ClassData) => {
+      classe.subjects_instructors?.forEach((si) => {
+        if (si.subject && !subjects.has(si.subject)) {
+          subjects.set(si.subject, si.subject);
+        }
+      });
+    });
+    return Array.from(subjects.values());
+  }, [classes?.data]);
+
+  const availableInstructors = useMemo(() => {
+    if (!classes?.data) return [];
+    const instructors = new Map();
+    classes.data.forEach((classe: ClassData) => {
+      classe.subjects_instructors?.forEach((si) => {
+        if (si.instructor && !instructors.has(si.instructor._id)) {
+          instructors.set(si.instructor._id, si.instructor);
+        }
+      });
+    });
+    return Array.from(instructors.values());
+  }, [classes?.data]);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    goToPage(1);
+  }, [activeFilters]);
 
   // Update pagination with backend data when available
   useEffect(() => {
@@ -84,15 +123,6 @@ export default function ClassePage() {
       { name: 'classes', link: '/dashboard/classes', icon: <Users2 size={16} /> },
     ]);
   }, [setSousPages]);
-
-  // Filters (if you're keeping client-side filtering)
-  const {
-    filters,
-    activeFilters,
-    updateFilter,
-    removeFilter,
-    clearAllFilters,
-  } = useClassFilters(classes?.data || []);
 
   return (
     <main className="container mx-auto py-10 px-10">
@@ -118,18 +148,20 @@ export default function ClassePage() {
 
       {/* Filters */}
       <ClassFilterPanel
-        filters={filters}
+        filters={activeFilters}
         activeFilters={activeFilters}
         updateFilter={updateFilter}
         removeFilter={removeFilter}
         clearAllFilters={clearAllFilters}
+        subjects={availableSubjects}
+        instructors={availableInstructors}
       />
 
       {/* Results count */}
       <div className="flex justify-between items-center mb-4">
         <p className="text-sm text-muted-foreground">
-          Showing {pageInfo.startIndex}-{pageInfo.endIndex} of {classes?.totalItems || 0}{' '}
-          classes
+          Showing {pageInfo.startIndex}-{pageInfo.endIndex} of{' '}
+          {classes?.totalItems || 0} classes
         </p>
       </div>
 

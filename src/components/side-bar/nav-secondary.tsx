@@ -8,6 +8,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { NavLink } from 'react-router-dom';
+import { SoonBadge } from '../ui/soon-button';
 
 export function NavSecondary({
   items,
@@ -17,6 +19,7 @@ export function NavSecondary({
     title: string;
     url: string;
     icon: LucideIcon;
+    disabled?: boolean;
   }[];
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
@@ -26,10 +29,11 @@ export function NavSecondary({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild size="sm">
-                <a href={item.url}>
+                <NavLink to={item.url} aria-disabled={item.disabled}>
                   <item.icon />
                   <span>{item.title}</span>
-                </a>
+                  {item.disabled && <SoonBadge />}
+                </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

@@ -37,6 +37,7 @@ const data = {
       title: 'Dashboard Exécutif',
       url: '/dashboard',
       icon: BarChart3,
+      disabled: true,
     },
   ],
   navSecondary: [
@@ -44,16 +45,19 @@ const data = {
       title: 'Settings',
       url: '/',
       icon: SettingsIcon,
+      disabled: true,
     },
     {
       title: 'Get Help',
       url: '#',
       icon: HelpCircleIcon,
+      disabled: true,
     },
     {
       title: 'Search',
       url: '#',
       icon: SearchIcon,
+      disabled: true,
     },
   ],
   classes: [
@@ -68,6 +72,7 @@ const data = {
       title: 'Planification',
       url: '#',
       icon: Calendar,
+      disabled: true,
     },
   ],
   conference: [
@@ -75,6 +80,7 @@ const data = {
       title: 'Réunions',
       url: '#',
       icon: Video,
+      disabled: true,
     },
   ],
   bibliotheque: [
@@ -82,31 +88,37 @@ const data = {
       title: 'Tous les cours',
       url: '#',
       icon: Library,
+      disabled: true,
     },
     {
       title: 'Mes quiz',
       url: '#',
       icon: FileQuestion,
+      disabled: true,
     },
     {
       title: 'Cours en cours',
       url: '#',
       icon: Clock,
+      disabled: true,
     },
     {
       title: 'Cours terminés',
       url: '#',
       icon: CheckCircle,
+      disabled: true,
     },
     {
       title: 'Favoris',
       url: '#',
       icon: Star,
+      disabled: true,
     },
     {
       title: 'Historique',
       url: '#',
       icon: History,
+      disabled: true,
     },
   ],
 };

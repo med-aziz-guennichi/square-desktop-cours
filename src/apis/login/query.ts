@@ -40,9 +40,7 @@ export function useSignIn() {
       navigate('/dashboard/classes');
     },
     onError: (error) => {
-      const errorMessage =
-        error.response?.data.message ||
-        `An error occurred`;
+      const errorMessage = error.response?.data.message || `An error occurred`;
 
       toast.error(errorMessage);
     },
