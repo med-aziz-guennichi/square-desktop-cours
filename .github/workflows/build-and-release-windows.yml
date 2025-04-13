@@ -29,8 +29,9 @@ jobs:
       - name: Install Bun
         shell: pwsh
         run: |
-          curl -fsSL https://bun.sh/install | bash
-          $env:PATH = "$HOME/.bun/bin;$env:PATH"
+          Invoke-WebRequest -Uri https://bun.sh/install -UseBasicParsing | Invoke-Expression
+          $env:PATH = "$env:USERPROFILE\.bun\bin;$env:PATH"
+          Write-Host "PATH after Bun installation: $env:PATH"
       
       - name: Run beforeBuildCommand
         run: |
