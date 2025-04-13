@@ -1,5 +1,7 @@
 import { getRefreshToken } from '@/apis/refresh-token/query-slice';
 import { useUserStore } from '@/store/user-store';
+import { getVersion } from '@tauri-apps/api/app';
+
 import axios, {
   AxiosError,
   CreateAxiosDefaults,
@@ -47,8 +49,10 @@ instance.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       try {
+        const version = await getVersion();
         const response = await getRefreshToken({
           refreshToken: useUserStore.getState().user!.refreshToken!,
+          clientVersion: version
         });
 
         const { accessToken, refreshToken } = response;
