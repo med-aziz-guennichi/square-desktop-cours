@@ -5,7 +5,7 @@ export const API_ENDPOINT = {
   ME: `${BASE_URL}/me`,
   LOGOUT: `${BASE_URL}/logout`,
   REFRESH_TOKEN: `${BASE_URL}/refresh-token`,
-  CLASSES: `${BASE_URL}/training-company/classes/byRole-pagination`,
+  CLASSES: `${BASE_URL}/training-company/classes/byRole`,
   MATIERES: `${BASE_URL}/training-company/subjects-by-class-and-role`,
   LESSONS: `${BASE_URL}/training-company/get-all-lessons-pagination`,
 };

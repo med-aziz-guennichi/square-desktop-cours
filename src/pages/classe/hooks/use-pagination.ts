@@ -1,30 +1,37 @@
 import { useMemo, useState } from 'react';
 
-interface UsePaginationProps {
+interface UsePaginationProps<T> {
+  data: T[];
   initialItemsPerPage?: number;
-  totalItems?: number;
-  totalPages?: number;
-  currentPage?: number;
 }
 
-export function usePagination({
+export function usePagination<T>({
+  data,
   initialItemsPerPage = 6,
-  totalItems = 0,
-  totalPages = 1,
-  currentPage: initialPage = 1,
-}: UsePaginationProps) {
-  const [currentPage, setCurrentPage] = useState(initialPage);
+}: UsePaginationProps<T>) {
+  const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(initialItemsPerPage);
+
+  const totalPages = useMemo(
+    () => Math.ceil(data.length / itemsPerPage),
+    [data.length, itemsPerPage],
+  );
+
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return data.slice(startIndex, endIndex);
+  }, [data, currentPage, itemsPerPage]);
 
   const pageInfo = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = Math.min(totalItems, startIndex + itemsPerPage);
+    const endIndex = Math.min(data.length, startIndex + itemsPerPage);
     return {
-      startIndex: totalItems > 0 ? startIndex + 1 : 0,
+      startIndex: data.length > 0 ? startIndex + 1 : 0,
       endIndex,
-      totalItems,
+      totalItems: data.length,
     };
-  }, [totalItems, currentPage, itemsPerPage]);
+  }, [data.length, currentPage, itemsPerPage]);
 
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -53,6 +60,7 @@ export function usePagination({
     currentPage,
     itemsPerPage,
     totalPages,
+    paginatedData,
     pageInfo,
     goToPage,
     goToNextPage,
