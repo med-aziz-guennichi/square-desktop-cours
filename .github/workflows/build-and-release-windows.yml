@@ -32,6 +32,7 @@ jobs:
           echo VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} >> .env
 
       - name: Install Bun
+        shell: pwsh
         run: |
           curl -fsSL https://bun.sh/install | bash
           export PATH="$HOME/.bun/bin:$PATH"
