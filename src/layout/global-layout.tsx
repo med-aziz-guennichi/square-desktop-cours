@@ -34,6 +34,18 @@ export default function GlobalLayout() {
       setIsModalOpen,
       setIsDownloading,
     );
+    const interval = setInterval(
+      () => {
+        checkForUpdates(
+          setUpdateStatus,
+          setDownloadProgress,
+          setIsModalOpen,
+          setIsDownloading,
+        );
+      },
+      5 * 60 * 1000,
+    );
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -43,7 +55,7 @@ export default function GlobalLayout() {
 
       {/* Modal for update progress */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="p-6 bg-white rounded-lg shadow-lg max-w-sm mx-auto">
+        <DialogContent className="p-6 rounded-lg shadow-lg max-w-sm mx-auto">
           <DialogTitle className="text-xl font-semibold mb-2">
             Update Progress
           </DialogTitle>
