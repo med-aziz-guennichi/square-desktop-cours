@@ -82,7 +82,7 @@ export default function ClassePage() {
   });
 
   return (
-    <main className="container mx-auto py-10">
+    <main className="container mx-auto py-10 px-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
         <h1 className="text-2xl font-bold">Informations des Classes</h1>
         <div className="flex items-center gap-2 mt-4 md:mt-0">

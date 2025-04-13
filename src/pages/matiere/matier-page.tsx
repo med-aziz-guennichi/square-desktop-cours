@@ -35,7 +35,7 @@ export default function MatierePage() {
     ]);
   }, [setSousPages]);
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 px-10">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Liste des matieres</h1>
