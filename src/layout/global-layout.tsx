@@ -34,6 +34,18 @@ export default function GlobalLayout() {
       setIsModalOpen,
       setIsDownloading,
     );
+    const interval = setInterval(
+      () => {
+        checkForUpdates(
+          setUpdateStatus,
+          setDownloadProgress,
+          setIsModalOpen,
+          setIsDownloading,
+        );
+      },
+      5 * 60 * 1000,
+    );
+    return () => clearInterval(interval);
   }, []);
 
   return (

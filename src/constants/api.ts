@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = "https://gateway.studiffy.com/api";
 
 export const API_ENDPOINT = {
   SIGN_IN: `${BASE_URL}/login-desktop-vite`,
