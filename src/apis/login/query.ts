@@ -42,7 +42,7 @@ export function useSignIn() {
     onError: (error) => {
       const errorMessage =
         error.response?.data.message ||
-        `An error occurred :  ${JSON.stringify(error)}`;
+        `An error occurred`;
 
       toast.error(errorMessage);
     },

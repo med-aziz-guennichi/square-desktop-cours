@@ -25,7 +25,17 @@ import { EmptyResults } from './components/empty-results';
 import { PaginationControls } from './components/pagination-controls';
 import { useClassFilters } from './hooks/use-filter';
 import { usePagination } from './hooks/use-pagination';
+import { SubjectsInstructor } from '@/types/classe.interface';
 
+interface ClassData {
+  _id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  students: Array<{ gender: string }>;
+  subjects_instructors: SubjectsInstructor[];
+  countLessons: number;
+}
 export default function ClassePage() {
   const user = useUserStore.getState().decodedUser;
   const id = user?.facility?.scholarityConfigId;
@@ -35,16 +45,35 @@ export default function ClassePage() {
   const { setSousPages } = useBreadcrumb();
 
   const {
+    currentPage,
+    itemsPerPage,
+    pageInfo,
+    goToPage,
+    goToNextPage,
+    goToPreviousPage,
+    changeItemsPerPage,
+  } = usePagination({
+    initialItemsPerPage: 6,
+  });
+
+  const {
     data: classes,
     isLoading,
     isError,
-    // isFetching, // this for the pagination fetching
+    isFetching,
   } = useQuery({
-    queryKey: ['classes', id],
-    queryFn: () => getClasses(id!),
+    queryKey: ['classes', id, currentPage, itemsPerPage],
+    queryFn: () => getClasses(id!, currentPage, itemsPerPage),
     enabled: !!id,
     placeholderData: keepPreviousData,
   });
+
+  // Update pagination with backend data when available
+  useEffect(() => {
+    if (classes) {
+      goToPage(classes.currentPage);
+    }
+  }, [classes?.currentPage]);
 
   if (isError) {
     toast.error('Something went wrong');
@@ -56,33 +85,17 @@ export default function ClassePage() {
     ]);
   }, [setSousPages]);
 
-  // Use our custom hooks
+  // Filters (if you're keeping client-side filtering)
   const {
     filters,
     activeFilters,
-    filteredClasses,
     updateFilter,
     removeFilter,
     clearAllFilters,
-  } = useClassFilters(classes?.data);
-
-  const {
-    currentPage,
-    itemsPerPage,
-    totalPages,
-    paginatedData: paginatedClasses,
-    pageInfo,
-    goToPage,
-    goToNextPage,
-    goToPreviousPage,
-    changeItemsPerPage,
-  } = usePagination({
-    data: filteredClasses,
-    initialItemsPerPage: 6,
-  });
+  } = useClassFilters(classes?.data || []);
 
   return (
-    <main className="container mx-auto py-10">
+    <main className="container mx-auto py-10 px-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
         <h1 className="text-2xl font-bold">Informations des Classes</h1>
         <div className="flex items-center gap-2 mt-4 md:mt-0">
@@ -115,7 +128,7 @@ export default function ClassePage() {
       {/* Results count */}
       <div className="flex justify-between items-center mb-4">
         <p className="text-sm text-muted-foreground">
-          Showing {pageInfo.startIndex}-{pageInfo.endIndex} of {pageInfo.totalItems}{' '}
+          Showing {pageInfo.startIndex}-{pageInfo.endIndex} of {classes?.totalItems || 0}{' '}
           classes
         </p>
       </div>
@@ -129,7 +142,7 @@ export default function ClassePage() {
         )}
       >
         <AnimatePresence mode="wait">
-          {isLoading ? (
+          {isLoading || isFetching ? (
             <>
               {[0, 1, 2, 3, 4, 5].map((_, i) => (
                 <motion.div
@@ -146,8 +159,8 @@ export default function ClassePage() {
             </>
           ) : (
             <>
-              {paginatedClasses.length > 0 ? (
-                paginatedClasses.map((classe) => (
+              {classes?.data?.length > 0 ? (
+                classes.data.map((classe: ClassData) => (
                   <motion.div
                     key={classe?._id}
                     initial="hidden"
@@ -203,10 +216,10 @@ export default function ClassePage() {
       </div>
 
       {/* Pagination */}
-      {!isLoading && filteredClasses.length > 0 && (
+      {!isLoading && classes?.data?.length > 0 && (
         <PaginationControls
           currentPage={currentPage}
-          totalPages={totalPages}
+          totalPages={classes.totalPages}
           goToPage={goToPage}
           goToNextPage={goToNextPage}
           goToPreviousPage={goToPreviousPage}
