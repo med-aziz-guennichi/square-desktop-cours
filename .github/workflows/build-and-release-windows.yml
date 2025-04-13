@@ -22,11 +22,6 @@ jobs:
         with:
           targets: x86_64-pc-windows-msvc
 
-      - name: Install Node.js (npm)
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
       - name: Inject .env
         run: |
           echo VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} >> .env
@@ -35,23 +30,19 @@ jobs:
         shell: pwsh
         run: |
           curl -fsSL https://bun.sh/install | bash
-          export PATH="$HOME/.bun/bin:$PATH"
+          $env:PATH = "$HOME/.bun/bin;$env:PATH"
       
       - name: Run beforeBuildCommand
         run: |
           bun install
           bun run build
 
-      - name: Install Tauri CLI
-        run: |
-          npm install --global @tauri-apps/cli
-
       - name: Build Tauri App for Windows (.msi)
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PASSWORD }}
         run: |
-          tauri build
+          bunx tauri build
 
       - name: Verify MSI signature file
         run: |
