@@ -40,7 +40,9 @@ export function useSignIn() {
       navigate('/dashboard/classes');
     },
     onError: (error) => {
-      const errorMessage = error.response?.data.message || `An error occurred :  ${JSON.stringify(error)}`;
+      const errorMessage =
+        error.response?.data.message ||
+        `An error occurred :  ${JSON.stringify(error)}`;
 
       toast.error(errorMessage);
     },

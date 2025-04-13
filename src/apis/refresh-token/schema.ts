@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const RefreshTokenAPIRequestSchema = z.object({
   refreshToken: z.string(),
-  clientVersion: z.string()
+  clientVersion: z.string(),
 });
 
 export const RefreshTokenAPIResponseSchema = z.object({

@@ -52,7 +52,7 @@ instance.interceptors.response.use(
         const version = await getVersion();
         const response = await getRefreshToken({
           refreshToken: useUserStore.getState().user!.refreshToken!,
-          clientVersion: version
+          clientVersion: version,
         });
 
         const { accessToken, refreshToken } = response;
