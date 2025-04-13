@@ -105,7 +105,7 @@ export default function ClassePage() {
   // Reset to first page when filters change
   useEffect(() => {
     goToPage(1);
-  }, [activeFilters]);
+  }, [activeFilters, goToPage]);
 
   // Update pagination with backend data when available
   useEffect(() => {
