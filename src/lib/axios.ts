@@ -13,7 +13,7 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
 }
 
 const baseConfig: CreateAxiosDefaults = {
-  baseURL: `${import.meta.env.VITE_BASE_URL}`,
+  baseURL: `${import.meta.env.VITE_API_BASE_URL}`,
 };
 
 export const instanceWithoutInterceptors = axios.create(baseConfig);
