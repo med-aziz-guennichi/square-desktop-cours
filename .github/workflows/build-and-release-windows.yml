@@ -1,0 +1,122 @@
+name: Build and Release Tauri App (Windows only)
+
+on:
+  push:
+    tags:
+      - 'v*' # Runs on tag pushes like v1.0.0
+
+env:
+  PROJECT_NAME: studiffy-cours
+
+jobs:
+  build:
+    name: Build Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Install Node.js (npm)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Inject .env
+        run: |
+          echo VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} >> .env
+
+      - name: Install JS dependencies and build frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: Install Tauri CLI
+        run: |
+          npm install --global @tauri-apps/cli
+
+      - name: Build Tauri App for Windows (.msi)
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PASSWORD }}
+        run: |
+          tauri build
+
+      - name: Verify MSI signature file
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart("v")
+          $sigPath = "src-tauri\target\release\bundle\msi\${{ env.PROJECT_NAME }}_${version}_x64.msi.sig"
+          if (!(Test-Path $sigPath)) {
+            Write-Error "Signature file not found: $sigPath"
+            exit 1
+          }
+
+      - name: Generate latest.json
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart("v")
+          $sigPath = "src-tauri\target\release\bundle\msi\${{ env.PROJECT_NAME }}_${version}_x64.msi.sig"
+          $filePath = "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/msi/${{ env.PROJECT_NAME }}_${version}_x64.msi"
+          $sig = Get-Content $sigPath -Raw
+          $json = @{
+            version = $version
+            notes = "Auto-generated release"
+            pub_date = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
+            platforms = @{
+              "windows-x86_64" = @{
+                signature = $sig
+                url = $filePath
+              }
+            }
+          } | ConvertTo-Json -Depth 3
+          $json | Out-File "src-tauri/target/release/bundle/latest.json" -Encoding UTF8
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-windows
+          path: src-tauri/target/release/bundle
+
+  release:
+    name: Push to studiffy-release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Clone studiffy-release repo
+        run: |
+          git clone https://x-access-token:${{ secrets.RELEASE_PAT }}@github.com/med-aziz-guennichi/studiffy-release.git release-repo
+
+      - name: Copy artifacts to release repo
+        run: |
+          mkdir -p release-repo/releases/${{ github.ref_name }}
+          cp -r artifacts/*/* ./release-repo/releases/${{ github.ref_name }}/
+
+          # Attempt to find latest.json and copy it to root
+          LATEST_JSON=$(find artifacts -type f -name latest.json)
+          if [ -f "$LATEST_JSON" ]; then
+            cp "$LATEST_JSON" release-repo/latest.json
+            echo "Copied latest.json to root"
+          else
+            echo "latest.json not found"
+            exit 1
+          fi
+
+      - name: Commit and push to public repo
+        run: |
+          cd release-repo
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "Release ${{ github.ref_name }} for Windows"
+          git push
