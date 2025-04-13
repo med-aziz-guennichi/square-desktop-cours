@@ -1,0 +1,132 @@
+name: Build and Release Tauri App (Linux)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  PROJECT_NAME: studiffy-cours
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # Cache Rust dependencies
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      # Cache Bun/node_modules
+      - name: Cache Bun dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.bun
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/package.json') }}
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev \
+              build-essential \
+              curl \
+              wget \
+              libssl-dev \
+              libgtk-3-dev \
+              libayatana-appindicator3-dev \
+              librsvg2-dev
+
+      - name: Install Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+          profile: minimal
+
+      - name: Install dependencies
+        run: |
+          bun install
+
+      - name: Inject .env
+        run: |
+          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> .env
+
+      - name: Build Tauri App (AppImage)
+        run: |
+          bunx tauri build --target x86_64-unknown-linux-gnu --verbose
+
+      - name: Generate latest.json for Linux
+        run: |
+          version=$(echo "${{ github.ref_name }}" | sed 's/^v//')
+          appimage_path="src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage"
+          
+          if [ ! -f "$appimage_path" ]; then
+            echo "AppImage not found at $appimage_path"
+            exit 1
+          fi
+
+          cat <<EOF > latest-linux.json
+          {
+            "version": "$version",
+            "notes": "Release $version",
+            "pub_date": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')",
+            "platforms": {
+              "linux-x86_64": {
+                "signature": "",
+                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage"
+              }
+            }
+          }
+          EOF
+          
+          mv latest-linux.json src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-linux
+          path: |
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/latest-linux.json
+          retention-days: 1
+
+  release-linux:
+    name: Push Linux release
+    needs: build-linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: bundle-linux
+          path: ./artifacts-linux
+
+      - run: |
+          git clone https://x-access-token:${{ secrets.RELEASE_PAT }}@github.com/med-aziz-guennichi/studiffy-release.git release-repo
+          mkdir -p release-repo/releases/${{ github.ref_name }}/appimage
+          cp -r artifacts-linux/* release-repo/releases/${{ github.ref_name }}/
+          cp artifacts-linux/latest-linux.json release-repo/latest-linux.json || echo "latest-linux.json not found"
+
+      - run: |
+          cd release-repo
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "Linux Release ${{ github.ref_name }}"
+          git push

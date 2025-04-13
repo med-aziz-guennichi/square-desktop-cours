@@ -1,4 +1,4 @@
-name: Build and Release Tauri App (Windows only)
+name: Build and Release Tauri App (Windows)
 
 on:
   push:
