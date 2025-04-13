@@ -31,11 +31,15 @@ jobs:
         run: |
           echo VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} >> .env
 
-      - name: Install JS dependencies and build frontend
+      - name: Install Bun
         run: |
-          npm install --legacy-peer-deps
-          npm install --global typescript
-          npm run build
+          curl -fsSL https://bun.sh/install | bash
+          export PATH="$HOME/.bun/bin:$PATH"
+      
+      - name: Run beforeBuildCommand
+        run: |
+          bun install
+          bun run build
 
       - name: Install Tauri CLI
         run: |
