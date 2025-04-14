@@ -57,13 +57,17 @@ jobs:
               libpango1.0-dev \
               libcairo2-dev \
               libatk1.0-dev || true
+          pkg-config --modversion gtk+-3.0 || echo "gtk+-3.0 not found!"
 
       - name: Verify GTK installation
         run: |
-          pkg-config --modversion gtk+-3.0
-          pkg-config --modversion gdk-3.0
-          echo "PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
-          ls -la /usr/lib/x86_64-linux-gnu/pkgconfig/ | grep gdk
+            echo "PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
+            ls -la /usr/lib/x86_64-linux-gnu/pkgconfig/ | grep gtk
+            if [ ! -f /usr/lib/x86_64-linux-gnu/pkgconfig/gtk+-3.0.pc ]; then
+              echo "gtk+-3.0.pc not found in /usr/lib/x86_64-linux-gnu/pkgconfig/"
+              exit 1
+            fi
+            pkg-config --modversion gtk+-3.0
 
       - name: Install Bun
         run: |
