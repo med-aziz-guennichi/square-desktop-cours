@@ -88,7 +88,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PASSWORD }}
         run: bunx tauri build --verbose
 
-      - name: Post-build: Generate latest.json and package artifacts
+      - name: Generate latest.json and package artifacts
         shell: bash
         run: |
           version="${{ github.ref_name }}"
