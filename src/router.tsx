@@ -14,11 +14,9 @@ const CourPage = lazy(() => import('./pages/cours/cour-page'));
 const AjouterCoursPage = lazy(() => import('./pages/cours/ajouter-cours'));
 const CoursLayout = lazy(() => import('./pages/cours/cours-layout'));
 
-
 const withSuspense = (Component: React.ReactNode) => (
   <Suspense fallback={<FullPageLoader />}>{Component}</Suspense>
 );
-
 
 export const router = createBrowserRouter([
   {

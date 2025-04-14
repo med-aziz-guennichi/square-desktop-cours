@@ -1,7 +1,7 @@
-import { useBreadcrumb } from "@/context/BreadcrumbContext";
-import { Book, BookText, FilePlus2, Users2 } from "lucide-react";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useBreadcrumb } from '@/context/BreadcrumbContext';
+import { Book, BookText, FilePlus2, Users2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function AjouterCoursPage() {
   const { setSousPages } = useBreadcrumb();
@@ -11,7 +11,11 @@ export default function AjouterCoursPage() {
       { name: 'classes', link: '/dashboard/classes', icon: <Users2 size={16} /> },
       { name: 'matieres', link: () => navigate(-2), icon: <Book size={16} /> },
       { name: 'cours', link: () => navigate(-1), icon: <BookText size={16} /> },
-      { name: 'ajouter-cours', link: 'ajouter-cours', icon: <FilePlus2 size={16} /> }
+      {
+        name: 'ajouter-cours',
+        link: 'ajouter-cours',
+        icon: <FilePlus2 size={16} />,
+      },
     ]);
   }, [setSousPages, navigate]);
   return (
@@ -24,5 +28,5 @@ export default function AjouterCoursPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

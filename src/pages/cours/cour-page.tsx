@@ -44,9 +44,7 @@ export default function CourPage() {
           </sub>
         </div>
         <Button asChild>
-          <NavLink to={`ajouter-cours`}>
-            Ajouter cours
-          </NavLink>
+          <NavLink to={`ajouter-cours`}>Ajouter cours</NavLink>
         </Button>
       </div>
 
