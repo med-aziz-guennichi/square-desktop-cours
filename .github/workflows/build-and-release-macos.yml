@@ -1,8 +1,8 @@
-name: Build and Release Tauri App (Windows)
+name: Build and Release Tauri App (macOS)
 
 on:
   push:
-    branches: [windows-release]
+    branches: [test]
 
 env:
   PROJECT_NAME: studiffy-cours
@@ -10,8 +10,8 @@ env:
 
 jobs:
   build:
-    name: Build Windows
-    runs-on: windows-latest
+    name: Build macOS
+    runs-on: macos-latest
 
     steps:
       - name: Checkout source
@@ -22,9 +22,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ~\.cargo\registry
-            ~\.cargo\git
-            src-tauri\target
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       # Cache Bun/node_modules
@@ -33,19 +33,18 @@ jobs:
         with:
           path: |
             node_modules
-            ~\.bun
+            ~/.bun
           key: ${{ runner.os }}-bun-${{ hashFiles('**/package.json') }}
 
       - name: Install Bun
-        shell: pwsh
         run: |
-          irm bun.sh/install.ps1 | iex
-          Add-Content $env:GITHUB_PATH "$env:USERPROFILE\.bun\bin"
+          curl -fsSL https://bun.sh/install | bash
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: x86_64-pc-windows-msvc
+          targets: aarch64-apple-darwin
           profile: minimal
 
       - name: Install dependencies
@@ -54,7 +53,7 @@ jobs:
 
       - name: Inject .env
         run: |
-          echo VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} >> .env
+          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> .env
 
       - name: Build Tauri App
         env:
@@ -63,38 +62,46 @@ jobs:
         run: |
           bunx tauri build --verbose
 
-      - name: Verify MSI signature
-        shell: pwsh
+      - name: Verify App bundle
         run: |
-          $version = "${{ github.ref_name }}".TrimStart("v")
-          $sigPath = "src-tauri\target\release\bundle\msi\${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig"
-          if (!(Test-Path $sigPath)) {
-            Write-Error "Signature file not found: $sigPath"
+          version="${{ github.ref_name }}".v
+          app_path="src-tauri/target/release/bundle/macos/${{ env.PROJECT_NAME }}.app"
+          if [ ! -d "$app_path" ]; then
+            echo "App bundle not found: $app_path"
             exit 1
-          }
+          fi
 
       - name: Generate latest.json
-        shell: pwsh
         run: |
-          $version = "${{ github.ref_name }}".TrimStart("v")
-          $sig = Get-Content "src-tauri\target\release\bundle\msi\${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig" -Raw
-          @{
-            version = $version
-            notes = "Release $version"
-            pub_date = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
-            platforms = @{
-              "windows-x86_64" = @{
-                signature = $sig
-                url = "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi"
+          version="${{ github.ref_name }}".v
+          cat << EOF > src-tauri/target/release/bundle/latest.json
+          {
+            "version": "$version",
+            "notes": "Release $version",
+            "pub_date": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')",
+            "platforms": {
+              "darwin-aarch64": {
+                "signature": "",
+                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz"
               }
             }
-          } | ConvertTo-Json -Depth 3 | Out-File "src-tauri/target/release/bundle/latest.json" -Encoding UTF8
+          }
+          EOF
+
+      - name: Create tarball of app bundle
+        run: |
+          version="${{ github.ref_name }}".v
+          cd src-tauri/target/release/bundle/macos
+          tar -czf "${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz" "${{ env.PROJECT_NAME }}.app"
+          cd -
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: bundle-windows
-          path: src-tauri/target/release/bundle
+          name: bundle-macos
+          path: |
+            src-tauri/target/release/bundle/macos/${{ env.PROJECT_NAME }}_*.tar.gz
+            src-tauri/target/release/bundle/latest.json
           retention-days: 1
 
   release:
@@ -104,13 +111,13 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: bundle-windows
+          name: bundle-macos
           path: ./artifacts
 
       - run: |
           git clone https://x-access-token:${{ secrets.RELEASE_PAT }}@github.com/med-aziz-guennichi/studiffy-release.git release-repo
-          mkdir -p release-repo/releases/${{ github.ref_name }}
-          cp -r artifacts/* release-repo/releases/${{ github.ref_name }}/
+          mkdir -p release-repo/releases/${{ github.ref_name }}/macos
+          cp -r artifacts/* release-repo/releases/${{ github.ref_name }}/macos/
           cp artifacts/latest.json release-repo/latest.json || echo "latest.json not found"
 
       - run: |
