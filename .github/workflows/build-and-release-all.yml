@@ -170,28 +170,40 @@ jobs:
           }
           EOF
 
-      - run: |
+      - name: Clone and prepare release repo
+        run: |
           git clone https://x-access-token:${{ secrets.RELEASE_PAT }}@github.com/med-aziz-guennichi/studiffy-release.git release-repo
+          cd release-repo
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
           
+          # Reset any changes and pull latest
+          git reset --hard
+          git clean -fd
+          git pull origin main
+
+      - name: Copy release files
+        run: |
           # Create directories and copy files
           mkdir -p release-repo/releases/${{ github.ref_name }}/appimage
           mkdir -p release-repo/releases/${{ github.ref_name }}/macos
           mkdir -p release-repo/releases/${{ github.ref_name }}/msi
           
           # Copy platform-specific files
-          cp artifacts/linux/* release-repo/releases/${{ github.ref_name }}/appimage/
-          cp artifacts/macos/* release-repo/releases/${{ github.ref_name }}/macos/
-          cp artifacts/windows/* release-repo/releases/${{ github.ref_name }}/msi/
+          cp artifacts/linux/* release-repo/releases/${{ github.ref_name }}/appimage/ || echo "No Linux files to copy"
+          cp artifacts/macos/* release-repo/releases/${{ github.ref_name }}/macos/ || echo "No macOS files to copy"
+          cp artifacts/windows/* release-repo/releases/${{ github.ref_name }}/msi/ || echo "No Windows files to copy"
           
           # Copy the combined latest.json
           cp latest.json release-repo/latest.json
 
-      - run: |
+      - name: Commit and push changes
+        run: |
           cd release-repo
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git fetch origin main
-          git rebase origin/main
           git add .
-          git commit -m "Release ${{ github.ref_name }} (all platforms)"
-          git push --force-with-lease
+          if git diff-index --quiet HEAD --; then
+            echo "No changes to commit"
+          else
+            git commit -m "Release ${{ github.ref_name }} (all platforms)"
+            git push origin main
+          fi
