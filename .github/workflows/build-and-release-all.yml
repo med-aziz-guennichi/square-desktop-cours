@@ -102,89 +102,96 @@ jobs:
             app="src-tauri/target/release/bundle/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage"
             cp "$app" output/
             cp "$sig" output/
-            cat <<EOF > output/latest.json
-          {
-            "version": "$version",
-            "notes": "Release $version",
-            "pub_date": "$pub_date",
-            "platforms": {
-              "linux-x86_64": {
-                "signature": (Get-Content '$sig' -Raw),
-                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage"
-              }
-            }
-          }
-          EOF
             ;;
           macos)
             app="src-tauri/target/release/bundle/macos/${{ env.PROJECT_NAME }}.app"
             tarball="output/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz"
             tar -czf "$tarball" -C "$(dirname "$app")" "$(basename "$app")"
-            cat <<EOF > output/latest.json
-          {
-            "version": "$version",
-            "notes": "Release $version",
-            "pub_date": "$pub_date",
-            "platforms": {
-              "darwin-aarch64": {
-                "signature": "",
-                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz"
-              }
-            }
-          }
-          EOF
             ;;
           windows)
             sig="src-tauri/target/release/bundle/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig"
             app="src-tauri/target/release/bundle/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi"
             cp "$app" output/
             cp "$sig" output/
-            powershell -Command "@{
-              version = '$version'
-              notes = 'Release $version'
-              pub_date = '$pub_date'
-              platforms = @{
-                'windows-x86_64' = @{
-                  signature = (Get-Content '$sig' -Raw)
-                  url = 'https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi'
-                }
-              }
-            } | ConvertTo-Json -Depth 3 | Out-File -Encoding utf8 output/latest.json"
             ;;
           esac
-            
+
+    # Upload the platform-specific artifacts
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: bundle-${{ matrix.os }}
           path: output
           retention-days: 1
-  release:
-    name: Release to studiffy-release
-    needs: build
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        os: [linux, windows, macos]
 
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: bundle-${{ matrix.os }}
-          path: ./artifacts
+release:
+  name: Release to studiffy-release
+  needs: build
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: bundle-linux
+        path: ./artifacts/linux
+    - uses: actions/download-artifact@v4
+      with:
+        name: bundle-macos
+        path: ./artifacts/macos
+    - uses: actions/download-artifact@v4
+      with:
+        name: bundle-windows
+        path: ./artifacts/windows
 
-      - run: |
-          git clone https://x-access-token:${{ secrets.RELEASE_PAT }}@github.com/med-aziz-guennichi/studiffy-release.git release-repo
-          mkdir -p release-repo/releases/${{ github.ref_name }}/$( [[ "${{ matrix.os }}" == "macos" ]] && echo macos || ([[ "${{ matrix.os }}" == "windows" ]] && echo msi || echo appimage) )
-          cp -r artifacts/* release-repo/releases/${{ github.ref_name }}/$( [[ "${{ matrix.os }}" == "macos" ]] && echo macos || ([[ "${{ matrix.os }}" == "windows" ]] && echo msi || echo appimage) )/
-          cp artifacts/latest.json release-repo/latest.json || echo "latest.json not found"
+    - run: |
+        version="${{ github.ref_name }}"
+        version="${version#v}"
+        pub_date="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
-      - run: |
-          cd release-repo
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git fetch origin main
-          git rebase origin/main
-          git add .
-          git commit -m "Release ${{ github.ref_name }} (${{ matrix.os }})" || echo "No changes to commit"
-          git push --force-with-lease
+        # Generate the combined latest.json
+        cat <<EOF > latest.json
+        {
+          "version": "$version",
+          "notes": "Release $version",
+          "pub_date": "$pub_date",
+          "platforms": {
+            "linux-x86_64": {
+              "signature": "$(cat artifacts/linux/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage.sig | sed 's/"/\\"/g' | tr -d '\n')",
+              "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage"
+            },
+            "darwin-aarch64": {
+              "signature": "",
+              "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz"
+            },
+            "windows-x86_64": {
+              "signature": "$(cat artifacts/windows/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig | sed 's/"/\\"/g' | tr -d '\n')",
+              "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi"
+            }
+          }
+        }
+        EOF
+
+    - run: |
+        git clone https://x-access-token:${{ secrets.RELEASE_PAT }}@github.com/med-aziz-guennichi/studiffy-release.git release-repo
+        
+        # Create directories and copy files
+        mkdir -p release-repo/releases/${{ github.ref_name }}/appimage
+        mkdir -p release-repo/releases/${{ github.ref_name }}/macos
+        mkdir -p release-repo/releases/${{ github.ref_name }}/msi
+        
+        # Copy platform-specific files
+        cp artifacts/linux/* release-repo/releases/${{ github.ref_name }}/appimage/
+        cp artifacts/macos/* release-repo/releases/${{ github.ref_name }}/macos/
+        cp artifacts/windows/* release-repo/releases/${{ github.ref_name }}/msi/
+        
+        # Copy the combined latest.json
+        cp latest.json release-repo/latest.json
+
+    - run: |
+        cd release-repo
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git fetch origin main
+        git rebase origin/main
+        git add .
+        git commit -m "Release ${{ github.ref_name }} (all platforms)"
+        git push --force-with-lease
