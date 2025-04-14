@@ -1,0 +1,187 @@
+name: Build and Release Tauri App
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  PROJECT_NAME: studiffy-cours
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build and Bundle (${{ matrix.os }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        os: [linux, windows, macos]
+        include:
+          - os: linux
+            runner: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+          - os: windows
+            runner: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: macos
+            runner: macos-latest
+            target: aarch64-apple-darwin
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.bun
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/package.json') }}
+
+      - name: Install Bun
+        shell: bash
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+        if: matrix.os != 'windows'
+
+      - name: Install Bun (Windows)
+        shell: pwsh
+        run: |
+          irm bun.sh/install.ps1 | iex
+          Add-Content $env:GITHUB_PATH "$env:USERPROFILE\.bun\bin"
+        if: matrix.os == 'windows'
+
+      - name: Install system dependencies (Linux only)
+        if: matrix.os == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev libglib2.0-dev patchelf
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          profile: minimal
+
+      - name: Install frontend dependencies
+        run: bun install
+
+      - name: Inject .env
+        shell: bash
+        run: echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> .env
+
+      - name: Build Tauri app
+        env:
+          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PASSWORD }}
+        run: bunx tauri build --verbose
+
+      - name: Post-build: Generate latest.json and package artifacts
+        shell: bash
+        run: |
+          version="${{ github.ref_name }}"
+          version="${version#v}"
+          pub_date="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+
+          mkdir -p output
+          case "${{ matrix.os }}" in
+            linux)
+              app="src-tauri/target/${{ matrix.target }}/release/bundle/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage"
+              cp "$app" output/
+              cat <<EOF > output/latest.json
+              {
+                "version": "$version",
+                "notes": "Release $version",
+                "pub_date": "$pub_date",
+                "platforms": {
+                  "linux-x86_64": {
+                    "signature": "",
+                    "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage"
+                  }
+                }
+              }
+              EOF
+              ;;
+            macos)
+              app="src-tauri/target/release/bundle/macos/${{ env.PROJECT_NAME }}.app"
+              tarball="output/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz"
+              tar -czf "$tarball" -C "$(dirname "$app")" "$(basename "$app")"
+              cat <<EOF > output/latest.json
+              {
+                "version": "$version",
+                "notes": "Release $version",
+                "pub_date": "$pub_date",
+                "platforms": {
+                  "darwin-aarch64": {
+                    "signature": "",
+                    "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz"
+                  }
+                }
+              }
+              EOF
+              ;;
+            windows)
+              sig="src-tauri/target/release/bundle/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig"
+              app="src-tauri/target/release/bundle/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi"
+              cp "$app" output/
+              cp "$sig" output/
+              powershell -Command "@{
+                version = '$version'
+                notes = 'Release $version'
+                pub_date = '$pub_date'
+                platforms = @{
+                  'windows-x86_64' = @{
+                    signature = (Get-Content '$sig' -Raw)
+                    url = 'https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi'
+                  }
+                }
+              } | ConvertTo-Json -Depth 3 | Out-File -Encoding utf8 output/latest.json"
+              ;;
+          esac
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-${{ matrix.os }}
+          path: output
+          retention-days: 1
+
+  release:
+    name: Release to studiffy-release
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [linux, windows, macos]
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: bundle-${{ matrix.os }}
+          path: ./artifacts
+
+      - run: |
+          git clone https://x-access-token:${{ secrets.RELEASE_PAT }}@github.com/med-aziz-guennichi/studiffy-release.git release-repo
+          mkdir -p release-repo/releases/${{ github.ref_name }}/$( [[ "${{ matrix.os }}" == "macos" ]] && echo macos || ([[ "${{ matrix.os }}" == "windows" ]] && echo msi || echo appimage) )
+          cp -r artifacts/* release-repo/releases/${{ github.ref_name }}/$( [[ "${{ matrix.os }}" == "macos" ]] && echo macos || ([[ "${{ matrix.os }}" == "windows" ]] && echo msi || echo appimage) )/
+          cp artifacts/latest.json release-repo/latest.json || echo "latest.json not found"
+
+      - run: |
+          cd release-repo
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "Release ${{ github.ref_name }} (${{ matrix.os }})"
+          git push

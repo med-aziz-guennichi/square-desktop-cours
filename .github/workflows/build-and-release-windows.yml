@@ -2,8 +2,7 @@ name: Build and Release Tauri App (Windows)
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [windows-release]
 
 env:
   PROJECT_NAME: studiffy-cours
