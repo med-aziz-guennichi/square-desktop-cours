@@ -105,6 +105,7 @@ jobs:
             ;;
           macos)
             app="src-tauri/target/release/bundle/macos/${{ env.PROJECT_NAME }}.app"
+            sig="src-tauri/target/release/bundle/macos/${{ env.PROJECT_NAME }}.app.tar.gz.sig"
             tarball="output/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz"
             tar -czf "$tarball" -C "$(dirname "$app")" "$(basename "$app")"
             ;;
@@ -159,7 +160,7 @@ jobs:
                 "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage"
               },
               "darwin-aarch64": {
-                "signature": "",
+                "signature": "$(cat artifacts/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz.sig | base64 -w 0 | sed 's/"/\\"/g')",
                 "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz"
               },
               "windows-x86_64": {
