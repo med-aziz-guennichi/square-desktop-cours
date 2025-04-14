@@ -51,7 +51,7 @@ jobs:
               libssl-dev \
               libgtk-3-dev \
               libayatana-appindicator3-dev \
-              librsvg2-dev \
+              librsvg2-dev || true # Add || true to prevent failing if package is unavailable
 
       - name: Install Bun
         run: |
