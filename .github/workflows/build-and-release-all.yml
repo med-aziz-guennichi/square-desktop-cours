@@ -183,6 +183,8 @@ jobs:
           cd release-repo
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          git fetch origin main
+          git rebase origin/main
           git add .
-          git commit -m "Release ${{ github.ref_name }} (${{ matrix.os }})"
-          git push
+          git commit -m "Release ${{ github.ref_name }} (${{ matrix.os }})" || echo "No changes to commit"
+          git push --force-with-lease
