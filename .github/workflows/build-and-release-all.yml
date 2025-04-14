@@ -157,7 +157,7 @@ jobs:
           name: bundle-${{ matrix.os }}
           path: output
           retention-days: 1
-    release:
+  release:
     name: Release to studiffy-release
     needs: build
     runs-on: ubuntu-latest
