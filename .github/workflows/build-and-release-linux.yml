@@ -2,8 +2,7 @@ name: Build and Release Tauri App (Linux)
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
 
 env:
   PROJECT_NAME: studiffy-cours
@@ -71,10 +70,15 @@ jobs:
       - name: Inject .env
         run: |
           echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> .env
-
-      - name: Build Tauri App (AppImage)
+      - name: Install tauri dependencies
         run: |
-          bunx tauri build --target x86_64-unknown-linux-gnu --verbose
+          sudo apt-get update
+          sudo apt-get install -y libglib2.0-dev
+
+      - name: Build the project
+        env:
+          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig
+        run: cargo build --release
 
       - name: Generate latest.json for Linux
         run: |
