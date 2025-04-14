@@ -1,6 +1,7 @@
 import { getLessons } from '@/apis/lesson/query-slice';
 import { CourseCard } from '@/components/cards/subject-card';
 import SubjectCardSketlon from '@/components/sketlon/subject-card';
+import { Button } from '@/components/ui/button';
 import { cardVariants } from '@/constants/animations';
 import { useBreadcrumb } from '@/context/BreadcrumbContext';
 import { useScreenWidth } from '@/hooks/screen-size';
@@ -11,7 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Book, BookText, Users2 } from 'lucide-react';
 import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { NavLink, useNavigate, useParams } from 'react-router-dom';
 
 export default function CourPage() {
   const { setSousPages } = useBreadcrumb();
@@ -42,6 +43,11 @@ export default function CourPage() {
             {data?.data?.length} cours disponibles
           </sub>
         </div>
+        <Button asChild>
+          <NavLink to={`ajouter-cours`}>
+            Ajouter cours
+          </NavLink>
+        </Button>
       </div>
 
       <div

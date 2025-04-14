@@ -1,19 +1,29 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import FullPageLoader from './components/full-page-loader';
 import AppLayout from './layout/app-layout';
 import GlobalLayout from './layout/global-layout';
 import { PrivateRoute, PublicRoute } from './lib/route-guard';
+
 import Login from './pages/auth/login';
-import Error from './pages/error';
-const MatierePage = React.lazy(() => import('./pages/matiere/matier-page'));
-const ClassePage = React.lazy(() => import('./pages/classe/classe-page'));
-const CourPage = React.lazy(() => import('./pages/cours/cour-page'));
+import ErrorPage from './pages/error';
+
+const MatierePage = lazy(() => import('./pages/matiere/matier-page'));
+const ClassePage = lazy(() => import('./pages/classe/classe-page'));
+const CourPage = lazy(() => import('./pages/cours/cour-page'));
+const AjouterCoursPage = lazy(() => import('./pages/cours/ajouter-cours'));
+const CoursLayout = lazy(() => import('./pages/cours/cours-layout'));
+
+
+const withSuspense = (Component: React.ReactNode) => (
+  <Suspense fallback={<FullPageLoader />}>{Component}</Suspense>
+);
+
 
 export const router = createBrowserRouter([
   {
     element: <GlobalLayout />,
-    errorElement: <Error />,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: '/',
@@ -24,44 +34,36 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: '/dashboard/classes',
+        path: '/dashboard',
         element: (
           <PrivateRoute>
-            <AppLayout>
-              <Suspense fallback={<FullPageLoader />}>
-                <ClassePage />
-              </Suspense>
-            </AppLayout>
+            <AppLayout />
           </PrivateRoute>
         ),
-        hydrateFallbackElement: <FullPageLoader />,
-      },
-      {
-        path: '/dashboard/classes/matiere/:classeId',
-        // loader: matiereLoader,
-        element: (
-          <PrivateRoute>
-            <AppLayout>
-              <Suspense fallback={<FullPageLoader />}>
-                <MatierePage />
-              </Suspense>
-            </AppLayout>
-          </PrivateRoute>
-        ),
-        hydrateFallbackElement: <FullPageLoader />,
-      },
-      {
-        path: '/dashboard/classes/:matiereId/cours',
-        element: (
-          <PrivateRoute>
-            <AppLayout>
-              <Suspense fallback={<FullPageLoader />}>
-                <CourPage />
-              </Suspense>
-            </AppLayout>
-          </PrivateRoute>
-        ),
-        hydrateFallbackElement: <FullPageLoader />,
+        children: [
+          {
+            path: 'classes',
+            element: withSuspense(<ClassePage />),
+          },
+          {
+            path: 'classes/matiere/:classeId',
+            element: withSuspense(<MatierePage />),
+          },
+          {
+            path: 'classes/:matiereId/cours',
+            element: withSuspense(<CoursLayout />),
+            children: [
+              {
+                index: true,
+                element: withSuspense(<CourPage />),
+              },
+              {
+                path: 'ajouter-cours',
+                element: withSuspense(<AjouterCoursPage />),
+              },
+            ],
+          },
+        ],
       },
     ],
   },
