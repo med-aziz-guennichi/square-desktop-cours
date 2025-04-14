@@ -98,8 +98,10 @@ jobs:
           mkdir -p output
           case "${{ matrix.os }}" in
           linux)
-            app="src-tauri/target/${{ matrix.target }}/release/bundle/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage"
+            sig="src-tauri/target/release/bundle/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage.sig"
+            app="src-tauri/target/release/bundle/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage"
             cp "$app" output/
+            cp "$sig" output/
             cat <<EOF > output/latest.json
           {
             "version": "$version",
@@ -107,7 +109,7 @@ jobs:
             "pub_date": "$pub_date",
             "platforms": {
               "linux-x86_64": {
-                "signature": "",
+                "signature": (Get-Content '$sig' -Raw),
                 "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage"
               }
             }
