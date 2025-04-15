@@ -99,7 +99,7 @@ jobs:
           case "${{ matrix.os }}" in
           linux)
             sig="src-tauri/target/release/bundle/deb/${{ env.PROJECT_NAME }}_${version}_amd64.deb.sig"
-            app="src-tauri/target/release/bundle/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.deb"
+            app="src-tauri/target/release/bundle/deb/${{ env.PROJECT_NAME }}_${version}_amd64.deb"
             cp "$app" output/
             cp "$sig" output/
             ;;
