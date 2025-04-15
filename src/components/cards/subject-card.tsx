@@ -15,6 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 import { BookOpen, GraduationCap, Share2, Star } from 'lucide-react';
 
 interface CourseCardProps {
@@ -26,13 +27,15 @@ interface CourseCardProps {
     avatar: string;
   };
   description: string;
-  isCourse?: boolean;
+  badge?: string;
   isFavorite?: boolean;
   price?: number | null;
   isFree?: boolean;
   onShareClick?: (id: string) => void;
   onFavoriteClick?: (id: string) => void;
   onClick?: (id: string) => void;
+  badgeIcon?: React.ReactNode;
+  isPreview?: boolean;
 }
 
 export function CourseCard({
@@ -40,23 +43,28 @@ export function CourseCard({
   title,
   instructor,
   description,
-  isCourse = false,
+  badge,
   isFavorite = false,
   price = null,
   isFree = false,
-  onShareClick = () => {},
-  onFavoriteClick = () => {},
-  onClick = () => {},
+  isPreview = false,
+  badgeIcon = <GraduationCap className='h-3 w-3' />,
+  onShareClick = () => { },
+  onFavoriteClick = () => { },
+  onClick = () => { },
 }: CourseCardProps) {
   return (
     <Card
-      className="overflow-hidden transition-all cursor-pointer relative hover:shadow-lg hover:shadow-primary/15 hover:cursor-pointer"
+      className={cn(
+        "overflow-hidden transition-all relative",
+        isPreview ? 'cursor-default hover:shadow-none' : 'hover:cursor-pointer hover:shadow-lg hover:shadow-primary/15',
+      )}
       onClick={() => onClick(id)}
     >
       {/* Course indicator badge */}
       <div className="absolute top-0 left-0 bg-primary text-primary-foreground rounded-br-md px-2 py-1 text-xs font-medium flex items-center gap-1 z-10">
-        <GraduationCap className="h-3 w-3" />
-        <span>{isCourse ? 'Cours' : 'Matiere'}</span>
+        {badgeIcon}
+        <span>{badge}</span>
       </div>
 
       {/* Price or Free badge */}
@@ -76,6 +84,7 @@ export function CourseCard({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
+                    disabled={isPreview}
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-full"
@@ -104,6 +113,7 @@ export function CourseCard({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-full"
+                    disabled={isPreview}
                     onClick={(e) => {
                       e.stopPropagation();
                       onShareClick(id);
@@ -150,7 +160,7 @@ export function CourseCard({
           <BookOpen className="h-4 w-4 text-muted-foreground" />
           <span className="text-xs text-muted-foreground">Matériel de cours</span>
         </div>
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" disabled={isPreview}>
           Voir les détails
         </Button>
       </CardFooter>
