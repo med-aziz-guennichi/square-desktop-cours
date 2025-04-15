@@ -98,8 +98,8 @@ jobs:
           mkdir -p output
           case "${{ matrix.os }}" in
           linux)
-            sig="src-tauri/target/release/bundle/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage.sig"
-            app="src-tauri/target/release/bundle/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage"
+            sig="src-tauri/target/release/bundle/deb/${{ env.PROJECT_NAME }}_${version}_amd64.deb.sig"
+            app="src-tauri/target/release/bundle/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.deb"
             cp "$app" output/
             cp "$sig" output/
             ;;
@@ -156,8 +156,8 @@ jobs:
             "pub_date": "$pub_date",
             "platforms": {
               "linux-x86_64": {
-                "signature": "$(cat artifacts/linux/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage.sig | sed 's/"/\\"/g' | tr -d '\n')",
-                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/appimage/${{ env.PROJECT_NAME }}_${version}_amd64.AppImage"
+                "signature": "$(cat artifacts/linux/${{ env.PROJECT_NAME }}_${version}_amd64.deb.sig | sed 's/"/\\"/g' | tr -d '\n')",
+                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/deb/${{ env.PROJECT_NAME }}_${version}_amd64.deb"
               },
               "darwin-aarch64": {
                 "signature": "$(cat artifacts/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz.sig | base64 -w 0 | sed 's/"/\\"/g')",
@@ -186,12 +186,12 @@ jobs:
       - name: Copy release files
         run: |
           # Create directories and copy files
-          mkdir -p release-repo/releases/${{ github.ref_name }}/appimage
+          mkdir -p release-repo/releases/${{ github.ref_name }}/deb
           mkdir -p release-repo/releases/${{ github.ref_name }}/macos
           mkdir -p release-repo/releases/${{ github.ref_name }}/msi
           
           # Copy platform-specific files
-          cp artifacts/linux/* release-repo/releases/${{ github.ref_name }}/appimage/ || echo "No Linux files to copy"
+          cp artifacts/linux/* release-repo/releases/${{ github.ref_name }}/deb/ || echo "No Linux files to copy"
           cp artifacts/macos/* release-repo/releases/${{ github.ref_name }}/macos/ || echo "No macOS files to copy"
           cp artifacts/windows/* release-repo/releases/${{ github.ref_name }}/msi/ || echo "No Windows files to copy"
           
