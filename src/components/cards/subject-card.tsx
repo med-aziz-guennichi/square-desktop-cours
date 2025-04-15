@@ -48,16 +48,18 @@ export function CourseCard({
   price = null,
   isFree = false,
   isPreview = false,
-  badgeIcon = <GraduationCap className='h-3 w-3' />,
-  onShareClick = () => { },
-  onFavoriteClick = () => { },
-  onClick = () => { },
+  badgeIcon = <GraduationCap className="h-3 w-3" />,
+  onShareClick = () => {},
+  onFavoriteClick = () => {},
+  onClick = () => {},
 }: CourseCardProps) {
   return (
     <Card
       className={cn(
-        "overflow-hidden transition-all relative",
-        isPreview ? 'cursor-default hover:shadow-none' : 'hover:cursor-pointer hover:shadow-lg hover:shadow-primary/15',
+        'overflow-hidden transition-all relative',
+        isPreview
+          ? 'cursor-default hover:shadow-none'
+          : 'hover:cursor-pointer hover:shadow-lg hover:shadow-primary/15',
       )}
       onClick={() => onClick(id)}
     >

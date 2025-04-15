@@ -80,7 +80,7 @@ export default function MatierePage() {
                     key={matiere?.subject?._id}
                     id={matiere?.subject?._id}
                     title={matiere?.subject?.name}
-                    badge='Matiere'
+                    badge="Matiere"
                     instructor={{
                       name: matiere?.instructor?.firstName || 'Unknown',
                       surname: matiere?.instructor?.lastName || 'Unknown',

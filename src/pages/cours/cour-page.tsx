@@ -91,7 +91,7 @@ export default function CourPage() {
                       surname: cours?.instructorId?.lastName || 'Unknown',
                       avatar: `${import.meta.env.VITE_API_BASE_URL}/${cours?.instructorId?.imageUrl}`,
                     }}
-                    badge='Cours'
+                    badge="Cours"
                     description={cours?.description}
                     onShareClick={(id) => console.warn(`Partager le cours ${id}`)}
                     onClick={(id) => console.warn(id)}

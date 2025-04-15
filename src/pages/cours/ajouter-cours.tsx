@@ -1,15 +1,14 @@
 // pages/cours/ajouter-cours.tsx
+import { CourseCard } from '@/components/cards/subject-card';
+import { ChaptersForm } from '@/components/form/add-chapters-form';
+import { AddCoursForm } from '@/components/form/add-cours-form';
+import { AddCoursSchemaType } from '@/components/form/schemas/add-cours-schema';
 import { useBreadcrumb } from '@/context/BreadcrumbContext';
-import { useNavigate } from 'react-router-dom';
+import { Book, BookText, Eye, FilePlus2, Users2 } from 'lucide-react';
 import { useEffect } from 'react';
 import { FormProvider, SubmitHandler } from 'react-hook-form';
-import { Book, BookText, Eye, FilePlus2, Users2 } from 'lucide-react';
-import { AddCoursForm } from '@/components/form/add-cours-form';
+import { useNavigate } from 'react-router-dom';
 import { useAddCoursForm } from './hooks/use-add-cours-form';
-import { AddCoursSchemaType } from '@/components/form/schemas/add-cours-schema';
-import { ChaptersForm } from '@/components/form/add-chapters-form';
-import { CourseCard } from '@/components/cards/subject-card';
-
 
 export default function AjouterCoursPage() {
   const { setSousPages } = useBreadcrumb();
@@ -43,22 +42,26 @@ export default function AjouterCoursPage() {
         </div>
         {/* <Button onClick={form.handleSubmit(onSubmit)}>Submit</Button> */}
         <form className="container mx-auto px-8 py-6 flex flex-col gap-10">
-          <div className='grid grid-cols-2 gap-6'>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <AddCoursForm />
-            <CourseCard
-              onClick={() => onSubmit}
-              id='1'
-              title={form.watch('title') || "Aziz Guennichi"}
-              description={form.watch('description') || "this is the first Description"}
-              instructor={{
-                name: 'John Doe',
-                surname: 'Doe',
-                avatar: 'https://via.placeholder.com/150',
-              }}
-              badge='Preview'
-              isPreview
-              badgeIcon={<Eye className='h-4 w-4' />}
-            />
+            <div className="hidden md:block">
+              <CourseCard
+                onClick={() => onSubmit}
+                id="1"
+                title={form.watch('title') || 'Aziz Guennichi'}
+                description={
+                  form.watch('description') || 'this is the first Description'
+                }
+                instructor={{
+                  name: 'John Doe',
+                  surname: 'Doe',
+                  avatar: 'https://via.placeholder.com/150',
+                }}
+                badge="Preview"
+                isPreview
+                badgeIcon={<Eye className="h-4 w-4" />}
+              />
+            </div>
           </div>
           <ChaptersForm />
         </form>
@@ -66,4 +69,3 @@ export default function AjouterCoursPage() {
     </FormProvider>
   );
 }
-

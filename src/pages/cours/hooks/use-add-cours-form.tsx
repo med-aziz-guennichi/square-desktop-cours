@@ -1,26 +1,29 @@
 // hooks/useAddCoursForm.ts
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { AddCoursSchema, AddCoursSchemaType } from "@/components/form/schemas/add-cours-schema";
+import {
+  AddCoursSchema,
+  AddCoursSchemaType,
+} from '@/components/form/schemas/add-cours-schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useFieldArray, useForm } from 'react-hook-form';
 
 export const useAddCoursForm = () => {
-    const methods = useForm<AddCoursSchemaType>({
-        resolver: zodResolver(AddCoursSchema),
-        defaultValues: {
-            title: "",
-            description: "",
-            sharedSubjectId: "",
-            chapters: [{ description: "", position: 0, title: "", quizzes: [""], studyMaterials: [], type: "lesson" }],
-        },
-    });
+  const methods = useForm<AddCoursSchemaType>({
+    resolver: zodResolver(AddCoursSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      sharedSubjectId: '',
+      // chapters: [{ description: "", position: 0, title: "", quizzes: [""], studyMaterials: [], type: "lesson" }],
+    },
+  });
 
-    const chapterFieldArray = useFieldArray({
-        control: methods.control,
-        name: "chapters",
-    });
+  const chapterFieldArray = useFieldArray({
+    control: methods.control,
+    name: 'chapters',
+  });
 
-    return {
-        ...methods,
-        chapterFieldArray,
-    };
+  return {
+    ...methods,
+    chapterFieldArray,
+  };
 };
