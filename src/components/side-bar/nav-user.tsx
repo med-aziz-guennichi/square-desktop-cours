@@ -51,7 +51,10 @@ export function NavUser() {
         navigate('/', { replace: true });
       }
     } catch (error) {
-      console.error(error);
+      console.error('Logout error:', error);
+      queryClient.clear();
+      removeCredentials();
+      navigate('/', { replace: true });
     }
   };
 
