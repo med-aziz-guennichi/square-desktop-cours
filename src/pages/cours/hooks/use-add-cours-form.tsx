@@ -2,7 +2,7 @@
 import {
   AddCoursSchema,
   AddCoursSchemaType,
-} from '@/components/form/schemas/add-cours-schema';
+} from '@/components/form/cours/schemas/add-cours-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFieldArray, useForm } from 'react-hook-form';
 
@@ -12,8 +12,7 @@ export const useAddCoursForm = () => {
     defaultValues: {
       title: '',
       description: '',
-      sharedSubjectId: '',
-      // chapters: [{ description: "", position: 0, title: "", quizzes: [""], studyMaterials: [], type: "lesson" }],
+      chapters: [],
     },
   });
 

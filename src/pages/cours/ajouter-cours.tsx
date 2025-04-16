@@ -1,21 +1,57 @@
 // pages/cours/ajouter-cours.tsx
 import { CourseCard } from '@/components/cards/subject-card';
-import { ChaptersForm } from '@/components/form/add-chapters-form';
-import { AddCoursForm } from '@/components/form/add-cours-form';
-import { AddCoursSchemaType } from '@/components/form/schemas/add-cours-schema';
+import { ChaptersForm } from '@/components/form/cours/add-chapters-form';
+import { AddCoursForm } from '@/components/form/cours/add-cours-form';
+import { ClickedShapterForm } from '@/components/form/cours/clicked-shapter-form';
+import { AddCoursSchemaType } from '@/components/form/cours/schemas/add-cours-schema';
+import { Button } from '@/components/ui/button';
 import { useBreadcrumb } from '@/context/BreadcrumbContext';
-import { Book, BookText, Eye, FilePlus2, Users2 } from 'lucide-react';
-import { useEffect } from 'react';
+import { Book, BookText, Eye, FilePlus2, Loader2, Users2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { FormProvider, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useAddCoursForm } from './hooks/use-add-cours-form';
+import { useCreateLessonMutation } from './hooks/use-create-lesson-mutation';
+import { toast } from 'sonner';
+
+export interface ClickedChapter {
+  id: string | null;
+  index: number | null;
+  title: string;
+  description: string;
+  type: 'Video' | 'Document' | 'Quiz' | ''; // or just `string` if dynamic
+  quizzes: string[];
+  studyMaterials: {
+    fileName: string;
+    displayName: string;
+  }[];
+  position: number;
+}
 
 export default function AjouterCoursPage() {
   const { setSousPages } = useBreadcrumb();
+  const { mutate: createLesson, isPending } = useCreateLessonMutation();
+  const [clickedShapter, setClickedShapter] = useState<ClickedChapter>({
+    id: null,
+    index: null,
+    title: '',
+    description: '',
+    type: '',
+    quizzes: [],
+    studyMaterials: [],
+    position: 0,
+  });
   const navigate = useNavigate();
   const form = useAddCoursForm();
   const onSubmit: SubmitHandler<AddCoursSchemaType> = async (data) => {
-    console.warn(data);
+    try {
+      createLesson(data);
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        'Une erreur est survenue lors de la création du cours. Veuillez réessayer.',
+      );
+    }
   };
   useEffect(() => {
     setSousPages([
@@ -29,7 +65,6 @@ export default function AjouterCoursPage() {
       },
     ]);
   }, [setSousPages, navigate]);
-
   return (
     <FormProvider {...form}>
       <div className="flex flex-col min-h-screen">
@@ -38,9 +73,15 @@ export default function AjouterCoursPage() {
             <div className="flex items-center gap-4">
               <h1 className="text-3xl font-bold">Ajouter un contenu à la classe</h1>
             </div>
+            <Button
+              disabled={form.formState.isSubmitting}
+              onClick={form.handleSubmit(onSubmit)}
+            >
+              {isPending && <Loader2 className="animate-spin" />}
+              Ajouter!
+            </Button>
           </div>
         </div>
-        {/* <Button onClick={form.handleSubmit(onSubmit)}>Submit</Button> */}
         <form className="container mx-auto px-8 py-6 flex flex-col gap-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <AddCoursForm />
@@ -48,9 +89,9 @@ export default function AjouterCoursPage() {
               <CourseCard
                 onClick={() => onSubmit}
                 id="1"
-                title={form.watch('title') || 'Aziz Guennichi'}
+                title={form.watch('title') || 'Untitled'}
                 description={
-                  form.watch('description') || 'this is the first Description'
+                  form.watch('description') || 'Make your first description'
                 }
                 instructor={{
                   name: 'John Doe',
@@ -63,7 +104,14 @@ export default function AjouterCoursPage() {
               />
             </div>
           </div>
-          <ChaptersForm />
+          {clickedShapter.id ? (
+            <ClickedShapterForm
+              clickedShapter={clickedShapter}
+              setClickedShapter={setClickedShapter}
+            />
+          ) : (
+            <ChaptersForm setClickedShapter={setClickedShapter} />
+          )}
         </form>
       </div>
     </FormProvider>
