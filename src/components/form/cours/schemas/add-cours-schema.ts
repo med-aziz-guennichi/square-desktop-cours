@@ -13,6 +13,8 @@ export const ChapterSchema = z.object({
       }),
     )
     .optional(),
+  typeDocument: z.enum(['word', 'excel', 'upload']).optional(),
+  jsonFiles: z.string().optional(),
   files: z.any().optional(),
   quizzes: z.array(z.string()).optional(),
 });

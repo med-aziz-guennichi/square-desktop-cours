@@ -40,7 +40,7 @@ export default function CourPage() {
         <div>
           <h1 className="text-3xl font-bold mb-2">Liste des Cours</h1>
           <sub className="font-bold text-gray-600">
-            {data?.data?.length} cours disponibles
+            {data?.length} cours disponibles
           </sub>
         </div>
         <Button asChild>
@@ -73,7 +73,7 @@ export default function CourPage() {
             </>
           ) : (
             <>
-              {data?.data?.map((cours: Cours) => (
+              {data?.map((cours: Cours) => (
                 <motion.div
                   key={cours._id}
                   initial="hidden"
@@ -87,14 +87,15 @@ export default function CourPage() {
                     id={cours?._id}
                     title={cours?.title}
                     instructor={{
-                      name: cours?.instructorId?.firstName || 'Unknown',
-                      surname: cours?.instructorId?.lastName || 'Unknown',
-                      avatar: `${import.meta.env.VITE_API_BASE_URL}/${cours?.instructorId?.imageUrl}`,
+                      name: cours?.creator?.firstName || 'Unknown',
+                      surname: cours?.creator?.lastName || 'Unknown',
+                      avatar: `${import.meta.env.VITE_API_BASE_URL}/${cours?.creator?.imageUrl}`,
                     }}
                     badge="Cours"
                     description={cours?.description}
                     onShareClick={(id) => console.warn(`Partager le cours ${id}`)}
                     onClick={(id) => console.warn(id)}
+                    chapters={cours?.chapters.length || 0}
                   />
                 </motion.div>
               ))}

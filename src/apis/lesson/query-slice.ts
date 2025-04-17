@@ -4,7 +4,7 @@ import { instance } from '@/lib/axios';
 export async function getLessons(subjectId: string) {
   try {
     const response = await instance.get(
-      `${API_ENDPOINT.LESSONS}?subjectId=${subjectId}`,
+      `${API_ENDPOINT.LESSONS}/${subjectId}`,
     );
     return response.data;
   } catch (error) {

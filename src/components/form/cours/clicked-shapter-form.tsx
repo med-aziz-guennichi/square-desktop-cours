@@ -27,30 +27,55 @@ import { ArrowLeft } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { FileUploadCircularProgressDemo } from './upload-files';
+import { TextEditorOne } from './text-editor-one';
 
 export const ClickedShapterForm = ({
-    clickedShapter,
-    setClickedShapter,
+    clickedChapter,
+    setClickedChapter,
 }: {
-    clickedShapter: ClickedChapter;
-    setClickedShapter: (chapter: ClickedChapter) => void;
+    clickedChapter: ClickedChapter;
+    setClickedChapter: (chapter: ClickedChapter) => void;
 }) => {
     const form = useFormContext();
-    const [selectedValue, setSelectedValue] = useState<string>('Video');
+    const [selectedValue, setSelectedValue] = useState<string>(clickedChapter.type || 'Video');
+    const [documentType, setDocumentType] = useState<string>(clickedChapter.typeDocument || 'word');
 
+    // Initialize form values based on clickedChapter
     useEffect(() => {
-        if (clickedShapter.index !== null) {
-            const formType = form.getValues(`chapters.${clickedShapter.index}.type`);
-
-            // Avoid updating state if value is already in sync
-            if (!formType) {
-                form.setValue(`chapters.${clickedShapter.index}.type`, 'Video');
-                setSelectedValue('Video');
-            } else {
-                setSelectedValue(formType);
+        if (clickedChapter.index !== null) {
+            // Only initialize if values aren't already set
+            if (!form.getValues(`chapters.${clickedChapter.index}.type`)) {
+                form.setValue(`chapters.${clickedChapter.index}.type`, clickedChapter.type || 'Video');
+            }
+            if (!form.getValues(`chapters.${clickedChapter.index}.typeDocument`) && clickedChapter.type === 'Document') {
+                form.setValue(`chapters.${clickedChapter.index}.typeDocument`, clickedChapter.typeDocument || 'word');
             }
         }
-    }, [clickedShapter.index, form]);
+    }, [clickedChapter.index, clickedChapter.type, clickedChapter.typeDocument, form]);
+
+    const handleTypeChange = (val: string) => {
+        setSelectedValue(val);
+        form.setValue(`chapters.${clickedChapter.index}.type`, val);
+        // Update clickedChapter to preserve the type when exiting
+        setClickedChapter({
+            ...clickedChapter,
+            type: val as "Video" | "Document" | "Quiz",
+        });
+    };
+
+    const handleDocumentTypeChange = (type: string) => {
+        setDocumentType(type);
+        form.setValue(`chapters.${clickedChapter.index}.typeDocument`, type);
+        // Update clickedChapter to preserve the document type when exiting
+        setClickedChapter({
+            ...clickedChapter,
+            typeDocument: type
+        });
+    };
+
+    if (clickedChapter.index === null) return null;
+
+    const chapterTitle = form.watch(`chapters.${clickedChapter.index}.title`) || 'Untitled';
 
     return (
         <Card>
@@ -61,50 +86,41 @@ export const ClickedShapterForm = ({
                             variant="ghost"
                             size="icon"
                             onClick={() =>
-                                setClickedShapter({
-                                    id: null,
-                                    index: null,
-                                    title: '',
-                                    description: '',
-                                    type: '',
-                                    quizzes: [],
-                                    studyMaterials: [],
-                                    position: 0,
+                                setClickedChapter({
+                                    ...clickedChapter,
+                                    id: null, // Only reset index to exit
                                 })
                             }
                         >
                             <ArrowLeft size={20} />
                         </Button>
                         <CardTitle className="font-semibold truncate overflow-hidden whitespace-nowrap max-w-[400px]">
-                            Contenu du {form.watch('chapters')[clickedShapter.index!].title || 'Untitled'}
+                            Contenu du {chapterTitle}
                         </CardTitle>
                     </div>
-                    <div>
-                        <Select value={selectedValue} onValueChange={(val) => {
-                            setSelectedValue(val);
-                            form.setValue(`chapters.${clickedShapter.index}.type`, val);
-                        }}>
+                    <div className="flex gap-2">
+                        <Select value={selectedValue} onValueChange={handleTypeChange}>
                             <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder={selectedValue} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem
-                                    value="Video"
-                                >
-                                    Video
-                                </SelectItem>
-                                <SelectItem
-                                    value="Document"
-                                >
-                                    Document
-                                </SelectItem>
-                                <SelectItem
-                                    value="Quiz"
-                                >
-                                    Quiz
-                                </SelectItem>
+                                <SelectItem value="Video">Video</SelectItem>
+                                <SelectItem value="Document">Document</SelectItem>
+                                <SelectItem value="Quiz">Quiz</SelectItem>
                             </SelectContent>
                         </Select>
+                        {selectedValue === 'Document' && (
+                            <Select value={documentType} onValueChange={handleDocumentTypeChange}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Document Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="word">Text Editor</SelectItem>
+                                    <SelectItem value="excel">Spreadsheet Editor</SelectItem>
+                                    <SelectItem value="upload">Upload File</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        )}
                     </div>
                 </div>
                 <CardDescription>Organisez votre cours en modules et leçons</CardDescription>
@@ -113,15 +129,12 @@ export const ClickedShapterForm = ({
                 <div className="space-y-5">
                     <FormField
                         control={form.control}
-                        name={`chapters.${clickedShapter.index}.title`}
+                        name={`chapters.${clickedChapter.index}.title`}
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Titre</FormLabel>
                                 <FormControl>
-                                    <Input
-                                        placeholder="Ex: Introduction"
-                                        {...field}
-                                    />
+                                    <Input placeholder="Ex: Introduction" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -129,7 +142,7 @@ export const ClickedShapterForm = ({
                     />
                     <FormField
                         control={form.control}
-                        name={`chapters.${clickedShapter.index}.description`}
+                        name={`chapters.${clickedChapter.index}.description`}
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Description</FormLabel>
@@ -148,18 +161,24 @@ export const ClickedShapterForm = ({
                     <FileUploadCircularProgressDemo
                         accept="video/*"
                         maxFiles={5}
-                        index={clickedShapter.index!}
+                        index={clickedChapter.index}
                         form={form}
                     />
                 ) : selectedValue === 'Document' ? (
-                    <FileUploadCircularProgressDemo
-                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.md,.rtf"
-                        maxFiles={10}
-                        index={clickedShapter.index!}
-                        form={form}
-                    />
+                    documentType === 'upload' ? (
+                        <FileUploadCircularProgressDemo
+                            accept=".pdf,.doc,.docx,.xls,.xlsx"
+                            maxFiles={5}
+                            index={clickedChapter.index}
+                            form={form}
+                        />
+                    ) : documentType === 'word' ? (
+                        <TextEditorOne form={form} index={clickedChapter.index} />
+                    ) : (
+                        <p>Spreadsheet editor coming soon</p>
+                    )
                 ) : (
-                    <></>
+                    <>Quizz</>
                 )}
             </CardContent>
         </Card>

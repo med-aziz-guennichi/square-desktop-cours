@@ -4,5 +4,6 @@ import { IUser } from './user.interface';
 export interface Cours extends BaseModel {
   title: string;
   description: string;
-  instructorId: IUser;
+  creator: IUser;
+  chapters: string[];
 }

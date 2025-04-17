@@ -8,7 +8,6 @@ import {
     FileUploadItemDelete,
     FileUploadItemMetadata,
     FileUploadItemPreview,
-    FileUploadItemProgress,
     FileUploadList,
     FileUploadTrigger,
 } from '@/components/ui/file-upload';
@@ -149,61 +148,83 @@ export function FileUploadCircularProgressDemo({
     };
 
     const onUpload = React.useCallback(
-        async (
-            newFiles: File[],
-            {
-                onProgress,
-                onSuccess,
-                onError,
-            }: {
-                onProgress: (file: File, progress: number) => void;
-                onSuccess: (file: File) => void;
-                onError: (file: File, error: Error) => void;
-            },
-        ) => {
-            const controller = new AbortController();
-
-            try {
-                await Promise.all(
-                    newFiles.map(async (file) => {
-                        const currentFiles: File[] = form.getValues(`chapters.${index}.files`) ?? [];
-                        try {
-                            const filename = await uploadFileInChunks(
-                                file,
-                                (f, progress) => {
-                                    // Ensure progress updates are passed through
-                                    onProgress(f, progress);
-                                },
-                                controller.signal,
-                            );
-
-                            const currentStudyMaterials: StudyMaterial[] =
-                                form.getValues(`chapters.${index}.studyMaterials`) ?? [];
-
-                            form.setValue(`chapters.${index}.files`, [...currentFiles, file]);
-                            form.setValue(`chapters.${index}.studyMaterials`, [
-                                ...currentStudyMaterials,
-                                {
-                                    fileName: filename,
-                                    displayName: file.name,
-                                },
-                            ]);
-
-                            onSuccess(file);
-                        } catch (err) {
-                            const error = err instanceof Error ? err : new Error('Unknown upload error');
-                            onError(file, error);
-                            throw error;
-                        }
-                    }),
-                );
-            } catch (err) {
-                console.error('Upload error:', err);
-            }
+      async (
+        newFiles: File[],
+        {
+          onProgress,
+          onSuccess,
+          onError,
+        }: {
+          onProgress: (file: File, progress: number) => void;
+          onSuccess: (file: File) => void;
+          onError: (file: File, error: Error) => void;
         },
-        [form, index],
-    );
+      ) => {
+        const controller = new AbortController();
+    
+        try {
+          await Promise.all(
+            newFiles.map(async (file) => {
+    
+              try {
+                // Show toast for progress
+                toast.promise(
+                  new Promise((resolve, reject) => {
+                      const handleUpload = async () => {
+                          try {
+                              const filename = await uploadFileInChunks(
+                                  file,
+                                  (f, progress) => {
+                                      onProgress(f, progress); // still call original handler
+                                      toast.loading(`Uploading ${file.name}: ${progress}%`, {
+                                          id: file.name,
+                                      });
+                                  },
+                                  controller.signal,
+                              );
 
+                              const currentStudyMaterials: StudyMaterial[] =
+                                  form.getValues(`chapters.${index}.studyMaterials`) ?? [];
+
+                              
+                              form.setValue(`chapters.${index}.studyMaterials`, [
+                                  ...currentStudyMaterials,
+                                  {
+                                      fileName: filename,
+                                      displayName: file.name,
+                                  },
+                              ]);
+
+                              onSuccess(file); // still call original handler
+                              resolve(file);
+                          } catch (err) {
+                              const error = err instanceof Error ? err : new Error('Unknown upload error');
+                              onError(file, error); // still call original handler
+                              reject(error);
+                          }
+                      };
+
+                      handleUpload();
+                  }),
+                  {
+                    loading: `Uploading ${file.name}...`,
+                    success: `${file.name} uploaded successfully`,
+                    error: (error) => `${file.name} failed to upload: ${error.message}`,
+                    id: file.name,
+                  },
+                );
+              } catch (err) {
+                console.error('Inner upload error:', err);
+              }
+            }),
+          );
+        } catch (err) {
+          console.error('Upload error:', err);
+        }
+      },
+      [form, index],
+    );
+    
     const onFileReject = React.useCallback((file: File, message: string) => {
         toast.error(message, {
             description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
@@ -219,6 +240,7 @@ export function FileUploadCircularProgressDemo({
                     value={files}
                     onValueChange={(newFiles) => {
                         setFiles(newFiles);
+                        form.setValue(`chapters.${index}.files`, newFiles);
                     }}
                     maxFiles={maxFiles}
                     className="w-full"
@@ -246,9 +268,7 @@ export function FileUploadCircularProgressDemo({
                     <FileUploadList orientation="horizontal">
                         {files.map((file, i) => (
                             <FileUploadItem key={`${file.name}-${file.size}-${i}`} value={file} className="p-0">
-                                <FileUploadItemPreview className="size-20 [&>svg]:size-12">
-                                    <FileUploadItemProgress size={50} />
-                                </FileUploadItemPreview>
+                                <FileUploadItemPreview className="size-15" />
                                 <FileUploadItemMetadata className="sr-only" />
                                 <FileUploadItemDelete asChild>
                                     <Button
