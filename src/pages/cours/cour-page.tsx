@@ -94,7 +94,7 @@ export default function CourPage() {
                     badge="Cours"
                     description={cours?.description}
                     onShareClick={(id) => console.warn(`Partager le cours ${id}`)}
-                    onClick={(id) => console.warn(id)}
+                    onClick={(id) => navigate(`cours/${id}`)}
                     chapters={cours?.chapters.length || 0}
                   />
                 </motion.div>

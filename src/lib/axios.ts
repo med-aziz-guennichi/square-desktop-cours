@@ -7,6 +7,7 @@ import axios, {
   CreateAxiosDefaults,
   InternalAxiosRequestConfig,
 } from 'axios';
+import { toast } from 'sonner';
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -63,7 +64,10 @@ instance.interceptors.response.use(
 
         return instance(originalRequest);
       } catch (error) {
-        if (error instanceof AxiosError && error.response?.status === 403) {
+        if (error instanceof AxiosError && error.response?.status === 401) {
+          toast.error(
+            'Votre session a expiré. Veuillez vous reconnecter.',
+          )
           useUserStore.getState().removeCredentials();
           return;
         }

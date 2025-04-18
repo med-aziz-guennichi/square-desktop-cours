@@ -13,6 +13,8 @@ const ClassePage = lazy(() => import('./pages/classe/classe-page'));
 const CourPage = lazy(() => import('./pages/cours/cour-page'));
 const AjouterCoursPage = lazy(() => import('./pages/cours/ajouter-cours'));
 const CoursLayout = lazy(() => import('./pages/cours/cours-layout'));
+const CoursDetailsPage = lazy(() => import('./pages/cours/cours-details'));
+const CoursDetailsLayout = lazy(() => import('./layout/cours-details-layout'));
 
 const withSuspense = (Component: React.ReactNode) => (
   <Suspense fallback={<FullPageLoader />}>{Component}</Suspense>
@@ -59,6 +61,19 @@ export const router = createBrowserRouter([
                 path: 'ajouter-cours',
                 element: withSuspense(<AjouterCoursPage />),
               },
+              {
+                path: 'cours/:coursId',
+                element: withSuspense(<CoursDetailsLayout />),
+                children: [
+                  {
+                    path: 'chapitre/:chapitreId',
+                    element: withSuspense(<CoursDetailsPage />),
+                  },
+                  {
+
+                  }
+                ]
+              }
             ],
           },
         ],

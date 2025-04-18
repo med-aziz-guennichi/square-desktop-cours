@@ -159,7 +159,7 @@ export const ClickedShapterForm = ({
                 </div>
                 {selectedValue === 'Video' ? (
                     <FileUploadCircularProgressDemo
-                        accept="video/*"
+                        accept="video/*,.mp4,.mkv,.avi,.webm,.mov"
                         maxFiles={5}
                         index={clickedChapter.index}
                         form={form}
@@ -167,7 +167,7 @@ export const ClickedShapterForm = ({
                 ) : selectedValue === 'Document' ? (
                     documentType === 'upload' ? (
                         <FileUploadCircularProgressDemo
-                            accept=".pdf,.doc,.docx,.xls,.xlsx"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg"
                             maxFiles={5}
                             index={clickedChapter.index}
                             form={form}
