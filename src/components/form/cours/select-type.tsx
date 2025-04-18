@@ -1,19 +1,19 @@
-import { useEffect, useState } from "react"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { FieldValues, UseFormReturn } from "react-hook-form";
+} from '@/components/ui/select';
+import { useEffect, useState } from 'react';
+import { FieldValues, UseFormReturn } from 'react-hook-form';
 
 interface SelectTypeProps {
   openType: boolean;
@@ -23,8 +23,14 @@ interface SelectTypeProps {
   onSelect: (type: string) => void;
 }
 
-export function SelectType({ openType, setOpenType, index, form, onSelect }: SelectTypeProps) {
-  const [selectedValue, setSelectedValue] = useState<string>("word");
+export function SelectType({
+  openType,
+  setOpenType,
+  index,
+  form,
+  onSelect,
+}: SelectTypeProps) {
+  const [selectedValue, setSelectedValue] = useState<string>('word');
 
   useEffect(() => {
     if (index !== null) {
@@ -47,10 +53,7 @@ export function SelectType({ openType, setOpenType, index, form, onSelect }: Sel
           <DialogTitle>Please select your type of document</DialogTitle>
           <DialogDescription>
             <div className="*:not-first:mt-2">
-              <Select 
-                value={selectedValue} 
-                onValueChange={handleValueChange}
-              >
+              <Select value={selectedValue} onValueChange={handleValueChange}>
                 <SelectTrigger className="w-full mt-2">
                   <SelectValue placeholder="Choose a document type" />
                 </SelectTrigger>

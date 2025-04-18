@@ -162,7 +162,9 @@ export function CourseCard({
       <CardFooter className="border-t pt-3 pb-3">
         <div className="flex items-center gap-2 mr-auto">
           <BookOpen className="h-4 w-4 text-muted-foreground" />
-          <span className="text-xs text-muted-foreground">{chapters} Matériel de cours</span>
+          <span className="text-xs text-muted-foreground">
+            {chapters} Matériel de cours
+          </span>
         </div>
         <Button variant="ghost" size="sm" disabled={isPreview}>
           Voir les détails

@@ -65,9 +65,7 @@ instance.interceptors.response.use(
         return instance(originalRequest);
       } catch (error) {
         if (error instanceof AxiosError && error.response?.status === 401) {
-          toast.error(
-            'Votre session a expiré. Veuillez vous reconnecter.',
-          )
+          toast.error('Votre session a expiré. Veuillez vous reconnecter.');
           useUserStore.getState().removeCredentials();
           return;
         }

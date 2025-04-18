@@ -1,26 +1,26 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import * as ProgressPrimitive from "@radix-ui/react-progress";
+import * as ProgressPrimitive from '@radix-ui/react-progress';
+import * as React from 'react';
 
-import { cn } from "@/lib/utils";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from '@/lib/utils';
+import { cva, type VariantProps } from 'class-variance-authority';
 
-const progressVariants = cva("h-full w-full flex-1 bg-primary transition-all", {
+const progressVariants = cva('h-full w-full flex-1 bg-primary transition-all', {
   variants: {
     variant: {
-      default: "bg-sky-600",
-      success: "bg-emerald-700",
+      default: 'bg-sky-600',
+      success: 'bg-emerald-700',
     },
   },
   defaultVariants: {
-    variant: "default",
+    variant: 'default',
   },
 });
 
 export interface ProgressProps
   extends React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof progressVariants> { }
+    VariantProps<typeof progressVariants> {}
 
 type CombinedProgressProps = ProgressProps &
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>;
@@ -32,8 +32,8 @@ const Progress = React.forwardRef<
   <ProgressPrimitive.Root
     ref={ref}
     className={cn(
-      "relative h-4 w-full overflow-hidden rounded-full bg-secondary",
-      className
+      'relative h-4 w-full overflow-hidden rounded-full bg-secondary',
+      className,
     )}
     {...props}
   >

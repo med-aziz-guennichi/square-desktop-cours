@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { invoke } from '@tauri-apps/api/core';
 import { EyeIcon, EyeOffIcon, Loader2 } from 'lucide-react';
+import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import {
   Form,
@@ -16,15 +17,14 @@ import {
   FormLabel,
   FormMessage,
 } from '../ui/form';
-import { useState } from 'react';
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'form'>) {
-  const [isVisible, setIsVisible] = useState<boolean>(false)
+  const [isVisible, setIsVisible] = useState<boolean>(false);
 
-  const toggleVisibility = () => setIsVisible((prevState) => !prevState)
+  const toggleVisibility = () => setIsVisible((prevState) => !prevState);
   const methods = useForm<SignInFormType>({
     resolver: zodResolver(SignInFormSchema),
     defaultValues: {
@@ -87,12 +87,17 @@ export function LoginForm({
                   <FormLabel>Mot de passe</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Input placeholder="**********" type={isVisible ? "text" : "password"} className="pe-9" {...field} />
+                      <Input
+                        placeholder="**********"
+                        type={isVisible ? 'text' : 'password'}
+                        className="pe-9"
+                        {...field}
+                      />
                       <button
                         className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                         type="button"
                         onClick={toggleVisibility}
-                        aria-label={isVisible ? "Hide password" : "Show password"}
+                        aria-label={isVisible ? 'Hide password' : 'Show password'}
                         aria-pressed={isVisible}
                         aria-controls="password"
                       >

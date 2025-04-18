@@ -10,9 +10,9 @@ import { Book, BookText, Eye, FilePlus2, Loader2, Users2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FormProvider, SubmitHandler } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAddCoursForm } from './hooks/use-add-cours-form';
 import { useCreateLessonMutation } from './hooks/use-create-lesson-mutation';
-import { toast } from 'sonner';
 
 export interface ClickedChapter {
   id: string | null;
@@ -31,8 +31,8 @@ export interface ClickedChapter {
 
 export default function AjouterCoursPage() {
   const { setSousPages } = useBreadcrumb();
-  const {matiereId} = useParams();
-  
+  const { matiereId } = useParams();
+
   const { mutate: createLesson, isPending } = useCreateLessonMutation(matiereId!);
   const [clickedShapter, setClickedShapter] = useState<ClickedChapter>({
     id: null,
@@ -109,8 +109,8 @@ export default function AjouterCoursPage() {
           </div>
           {clickedShapter.id ? (
             <ClickedShapterForm
-            clickedChapter={clickedShapter}
-            setClickedChapter={setClickedShapter}
+              clickedChapter={clickedShapter}
+              setClickedChapter={setClickedShapter}
             />
           ) : (
             <ChaptersForm setClickedShapter={setClickedShapter} />
