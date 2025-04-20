@@ -35,7 +35,7 @@ export const Breadcrumb = () => {
             <React.Fragment key={index}>
               <BreadcrumbItem>
                 {index === sousPages.length - 1 ? (
-                  <BreadcrumbPage className="inline-flex items-center gap-1.5 capitalize cursor-pointer">
+                  <BreadcrumbPage className="inline-flex items-center gap-1.5 capitalize cursor-pointer max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                     {page.icon}
                     {page.name}
                   </BreadcrumbPage>

@@ -82,7 +82,7 @@ export function CourseCard({
 
       <CardHeader className="pb-2 pt-8">
         <div className="flex items-start justify-between">
-          <CardTitle className="text-lg font-medium">{title}</CardTitle>
+          <CardTitle className="text-lg font-medium line-clamp-1">{title}</CardTitle>
           <div className="flex space-x-1">
             <TooltipProvider>
               <Tooltip>
@@ -156,7 +156,7 @@ export function CourseCard({
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground line-clamp-3">{description}</p>
+        <p className="text-sm text-muted-foreground line-clamp-1">{description}</p>
       </CardContent>
 
       <CardFooter className="border-t pt-3 pb-3">

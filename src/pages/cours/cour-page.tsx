@@ -7,6 +7,7 @@ import { useBreadcrumb } from '@/context/BreadcrumbContext';
 import { useScreenWidth } from '@/hooks/screen-size';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { useUserStore } from '@/store/user-store';
 import { Cours } from '@/types/cours.interface';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -15,18 +16,13 @@ import { useEffect } from 'react';
 import { NavLink, useNavigate, useParams } from 'react-router-dom';
 
 export default function CourPage() {
-  const { setSousPages } = useBreadcrumb();
   const { matiereId } = useParams();
+  const { setSousPages } = useBreadcrumb();
+  const user = useUserStore().decodedUser;
   const width = useScreenWidth();
   const isMediumScreen = width >= 769 && width <= 1434;
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['cours', matiereId],
-    queryFn: () => getLessons(matiereId!),
-    enabled: !!matiereId,
-  });
   useEffect(() => {
     setSousPages([
       { name: 'classes', link: '/dashboard/classes', icon: <Users2 size={16} /> },
@@ -34,6 +30,11 @@ export default function CourPage() {
       { name: 'cours', link: '/cours', icon: <BookText size={16} /> },
     ]);
   }, [setSousPages, navigate]);
+  const { data, isLoading } = useQuery({
+    queryKey: ['cours', matiereId],
+    queryFn: () => getLessons(matiereId!),
+    enabled: !!matiereId,
+  });
   return (
     <div className="container mx-auto py-10 px-10">
       <div className="flex justify-between items-center mb-8">
@@ -43,9 +44,13 @@ export default function CourPage() {
             {data?.length} cours disponibles
           </sub>
         </div>
-        <Button asChild>
-          <NavLink to={`ajouter-cours`}>Ajouter cours</NavLink>
-        </Button>
+        {
+          user?.role !== "student" && (
+            <Button asChild>
+              <NavLink to={`ajouter-cours`}>Ajouter cours</NavLink>
+            </Button>
+          )
+        }
       </div>
 
       <div
