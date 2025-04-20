@@ -6,10 +6,7 @@ interface CourseSidebarProps {
   course: Cours;
   progressCount: number;
 }
-export const CourseSidebar = async ({
-  course,
-  progressCount,
-}: CourseSidebarProps) => {
+export const CourseSidebar = ({ course, progressCount }: CourseSidebarProps) => {
   return (
     <div className="h-full border-r flex flex-col overflow-y-auto shadow-sm">
       <div className="p-8 flex flex-col border-b">
@@ -24,6 +21,7 @@ export const CourseSidebar = async ({
             key={chapter._id}
             id={chapter._id}
             label={chapter.title}
+            type={chapter.type}
             isCompleted={!!chapter.userProgress?.[0]?.isCompleted}
           />
         ))}

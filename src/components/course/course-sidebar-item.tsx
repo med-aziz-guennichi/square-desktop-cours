@@ -1,20 +1,23 @@
 import { cn } from '@/lib/utils';
-import { CheckCircle, PlayCircle } from 'lucide-react';
+import { CheckCircle, ClipboardMinus, PlayCircle } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export function CourseSidebarItem({
   id,
   label,
   isCompleted,
+  type,
 }: {
   id: string;
   label: string;
   isCompleted: boolean;
+  type: string;
 }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const isActive = pathname.includes(id);
-  const Icon = isCompleted ? CheckCircle : PlayCircle;
+  const isDocument = type === 'Document';
+  const Icon = isCompleted ? CheckCircle : isDocument ? ClipboardMinus : PlayCircle;
   return (
     <>
       <button

@@ -20,6 +20,9 @@ const baseConfig: CreateAxiosDefaults = {
 export const instanceWithoutInterceptors = axios.create(baseConfig);
 
 export const instance = axios.create(baseConfig);
+export const golangInstance = axios.create({
+  baseURL: `https://email.studiffy.com`,
+});
 
 instance.interceptors.request.use(
   function (config) {

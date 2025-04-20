@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 import App from './App';
 import { BreadcrumbProvider } from './context/BreadcrumbContext';
 import './index.css';
+import { ConfettiProvider } from './providers/confetti-provider';
 import { ThemeProvider } from './providers/theme-provider';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
@@ -12,6 +13,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <LoadingBarContainer>
         <BreadcrumbProvider>
+          <ConfettiProvider />
           <App />
         </BreadcrumbProvider>
       </LoadingBarContainer>

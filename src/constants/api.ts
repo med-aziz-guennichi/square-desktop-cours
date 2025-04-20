@@ -11,4 +11,6 @@ export const API_ENDPOINT = {
   ONELESSON: `${BASE_URL}/training-company/get-new-lesson`,
   PROGRESS: `${BASE_URL}/training-company/get-progress`,
   CHAPTER: `${BASE_URL}/training-company/get-chapter`,
+  CHAPTER_PROGRESS: `${BASE_URL}/training-company/get-chapter-progress`,
+  MARK_CHAPTER_COMPLETED: `${BASE_URL}/training-company/mark-chapter-completed`,
 };

@@ -69,7 +69,6 @@ export const router = createBrowserRouter([
                     path: 'chapitre/:chapitreId',
                     element: withSuspense(<CoursDetailsPage />),
                   },
-                  {},
                 ],
               },
             ],

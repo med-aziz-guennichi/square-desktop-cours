@@ -12,8 +12,8 @@ import {
   FileUploadTrigger,
 } from '@/components/ui/file-upload';
 import { FormField } from '@/components/ui/form';
-import { instance } from '@/lib/axios';
-import axios from 'axios';
+import { golangInstance as instance } from '@/lib/axios';
+import { AxiosProgressEvent } from 'axios';
 import { Upload, X } from 'lucide-react';
 import * as React from 'react';
 import { FieldValues, UseFormReturn } from 'react-hook-form';
@@ -24,6 +24,7 @@ interface FileUploadCircularProgressDemoProps {
   form: UseFormReturn<FieldValues, object, FieldValues>;
   index: number;
   accept: string;
+  enterpriseId?: string;
 }
 
 interface StudyMaterial {
@@ -31,13 +32,12 @@ interface StudyMaterial {
   displayName: string;
 }
 
-const CHUNK_SIZE = 1024 * 1024 * 20; // 20 MB
-
 export function FileUploadCircularProgressDemo({
   maxFiles,
   form,
   index,
   accept,
+  enterpriseId,
 }: FileUploadCircularProgressDemoProps) {
   const [files, setFiles] = React.useState<File[]>(() => {
     const initialFiles = form.getValues(`chapters.${index}.files`);
@@ -49,7 +49,6 @@ export function FileUploadCircularProgressDemo({
       if (name === `chapters.${index}.files`) {
         const watchedFiles = values.chapters?.[index]?.files ?? [];
         setFiles((prevFiles) => {
-          // Compare based on file names and sizes
           const prevFilesStr = prevFiles.map((f) => `${f.name}-${f.size}`).join(',');
           const newFilesStr = watchedFiles
             .map((f: File) => `${f.name}-${f.size}`)
@@ -65,91 +64,34 @@ export function FileUploadCircularProgressDemo({
     return () => subscription.unsubscribe();
   }, [form, index]);
 
-  const uploadFileInChunks = async (
-    file: File,
-    onProgress: (file: File, progress: number) => void,
-    signal?: AbortSignal,
-  ): Promise<string> => {
-    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-    const fileExtension = file.name.split('.').pop();
-    let filename: string | null = null;
+  const uploadFile = React.useCallback(
+    async (
+      file: File,
+      onProgress: (file: File, progress: number) => void,
+    ): Promise<string> => {
+      const formData = new FormData();
+      formData.append('enterpriseId', enterpriseId!);
+      formData.append('file', file);
 
-    for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-      const start = chunkIndex * CHUNK_SIZE;
-      const end = Math.min(start + CHUNK_SIZE, file.size);
-      const chunkBlob = file.slice(start, end);
-      const chunkFile = new File([chunkBlob], `chunk.${fileExtension}`, {
-        type: file.type,
-      });
+      // Track upload progress
+      const config = {
+        onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total!,
+          );
+          onProgress(file, percentCompleted);
+        },
+      };
 
-      let uploadSuccess = false;
-      let retryCount = 0;
-      const maxRetries = 3;
-
-      while (!uploadSuccess && retryCount < maxRetries) {
-        try {
-          const formData = new FormData();
-          formData.append('folder', 'lesson');
-          formData.append('chunkIndex', chunkIndex.toString());
-          formData.append('chunkCount', totalChunks.toString());
-          formData.append('filename', filename ?? '');
-          formData.append('chunk', chunkFile);
-
-          if (chunkIndex === 0) {
-            const res = await instance.post(
-              '/file-manager/create-initial-chunk',
-              formData,
-              { signal },
-            );
-            filename = res.data?.data?.filename;
-            if (!filename) throw new Error('Filename not returned by server.');
-          } else {
-            if (!filename) {
-              throw new Error('Filename missing before continuing upload.');
-            }
-            await instance.post('/file-manager/upload-chunk', formData, {
-              headers: { 'Content-Type': 'application/octet-stream' },
-              signal,
-            });
-          }
-
-          // Update progress after each successful chunk upload
-          const progress = ((chunkIndex + 1) / totalChunks) * 100;
-          onProgress(file, progress);
-          uploadSuccess = true;
-        } catch (err) {
-          if (axios.isCancel(err)) {
-            return Promise.reject(new Error('Upload canceled'));
-          }
-
-          retryCount++;
-          if (retryCount >= maxRetries) {
-            throw err instanceof Error
-              ? err
-              : new Error('Upload failed after retries');
-          }
-
-          await new Promise((resolve) => setTimeout(resolve, 1000 * retryCount));
-        }
+      const response = await instance.post('/upload', formData, config);
+      if (!response.data.success) {
+        throw new Error('File upload failed');
       }
-    }
 
-    if (!filename) {
-      throw new Error('Filename not available for finalization');
-    }
-
-    const finalize = await instance.post(
-      '/file-manager/combine-chunks',
-      { folder: 'lesson', filename, chunkCount: totalChunks },
-      { signal },
-    );
-
-    if (finalize.status !== 200) {
-      throw new Error('Failed to finalize chunked upload');
-    }
-
-    return filename;
-  };
+      return response.data.filename; // Or use response.data.path if your API returns the stored path
+    },
+    [enterpriseId],
+  );
 
   const onUpload = React.useCallback(
     async (
@@ -164,71 +106,51 @@ export function FileUploadCircularProgressDemo({
         onError: (file: File, error: Error) => void;
       },
     ) => {
-      const controller = new AbortController();
-
       try {
         await Promise.all(
           newFiles.map(async (file) => {
             try {
-              // Show toast for progress
-              toast.promise(
-                new Promise((resolve, reject) => {
-                  const handleUpload = async () => {
-                    try {
-                      const filename = await uploadFileInChunks(
-                        file,
-                        (f, progress) => {
-                          onProgress(f, progress); // still call original handler
-                          toast.loading(`Uploading ${file.name}: ${progress}%`, {
-                            id: file.name,
-                          });
-                        },
-                        controller.signal,
-                      );
-
-                      const currentStudyMaterials: StudyMaterial[] =
-                        form.getValues(`chapters.${index}.studyMaterials`) ?? [];
-
-                      form.setValue(`chapters.${index}.studyMaterials`, [
-                        ...currentStudyMaterials,
-                        {
-                          fileName: filename,
-                          displayName: file.name,
-                        },
-                      ]);
-
-                      onSuccess(file); // still call original handler
-                      resolve(file);
-                    } catch (err) {
-                      const error =
-                        err instanceof Error
-                          ? err
-                          : new Error('Unknown upload error');
-                      onError(file, error); // still call original handler
-                      reject(error);
-                    }
-                  };
-
-                  handleUpload();
+              await toast.promise(
+                uploadFile(file, (f, progress) => {
+                  onProgress(f, progress);
+                  toast.loading(`Uploading ${file.name}: ${progress}%`, {
+                    id: file.name,
+                  });
                 }),
                 {
                   loading: `Uploading ${file.name}...`,
-                  success: `${file.name} uploaded successfully`,
-                  error: (error) =>
-                    `${file.name} failed to upload: ${error.message}`,
+                  success: (filename) => {
+                    const currentStudyMaterials: StudyMaterial[] =
+                      form.getValues(`chapters.${index}.studyMaterials`) ?? [];
+
+                    form.setValue(`chapters.${index}.studyMaterials`, [
+                      ...currentStudyMaterials,
+                      {
+                        fileName: filename,
+                        displayName: file.name,
+                      },
+                    ]);
+
+                    onSuccess(file);
+                    return `${file.name} uploaded successfully`;
+                  },
+                  error: (error) => {
+                    onError(file, error);
+                    return `${file.name} failed to upload: ${error.message}`;
+                  },
                   id: file.name,
                 },
               );
             } catch (err) {
-              console.error('Inner upload error:', err);
+              console.error('Upload error:', err);
             }
           }),
         );
       } catch (err) {
-        console.error('Upload error:', err);
+        console.error('Batch upload error:', err);
       }
     },
-    [form, index],
+    [uploadFile, form, index],
   );
 
   const onFileReject = React.useCallback((file: File, message: string) => {

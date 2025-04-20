@@ -56,7 +56,7 @@ export default defineConfig([{
 
     rules: {
         "react/react-in-jsx-scope": "off",
-        "no-console": ["warn", { allow: ["warn", "error"] }],
+        "no-console": ["error", { allow: ["warn", "error"] }],
         "react/prop-types": "off"
     },
 }]);

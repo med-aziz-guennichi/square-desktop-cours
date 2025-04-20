@@ -1,11 +1,12 @@
+import { cn } from '@/lib/utils';
 import { useUserStore } from '@/store/user-store';
 import { Chapters } from '@/types/cours.interface';
-import { ScrollArea } from '@radix-ui/react-scroll-area';
 import { Play } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '../ui/card';
-import { ScrollBar } from '../ui/scroll-area';
+import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { DocumentGallery } from './document-gallery';
 import { VideoPlayer } from './video-player';
 
 export function CourseContent({ data }: { data: Chapters }) {
@@ -13,6 +14,7 @@ export function CourseContent({ data }: { data: Chapters }) {
     data?.studyMaterials?.[0]?.fileName,
   );
   const user = useUserStore().decodedUser;
+
   useEffect(() => {
     if (!activeVideo) {
       setActiveVideo(data?.studyMaterials?.[0]?.fileName);
@@ -63,24 +65,30 @@ export function CourseContent({ data }: { data: Chapters }) {
             )}
           </div>
         ) : data?.type === 'Document' ? (
-          <Tabs defaultValue="document-1" className="w-full">
-            <TabsList className="grid grid-cols-3 mb-4">
+          <Tabs defaultValue="document-1">
+            <TabsList
+              className={cn(
+                'grid mb-4',
+                `grid-cols-${data.studyMaterials.length} gap-2`,
+              )}
+            >
               {data.studyMaterials.map((material, index) => (
                 <TabsTrigger key={index} value={`document-${index + 1}`}>
                   {material.displayName || `Document ${index + 1}`}
                 </TabsTrigger>
               ))}
             </TabsList>
-            {data.studyMaterials.map((_, index) => (
+
+            {data.studyMaterials.map((material, index) => (
               <TabsContent
                 key={index}
                 value={`document-${index + 1}`}
-                className="border rounded-lg p-4"
+                className="space-y-4"
               >
-                {/* <iframe
-                  src={`${import.meta.env.VITE_API_BASE_URL}/document/${material.fileName}`}
-                  className="w-full h-[600px]"
-                /> */}
+                <DocumentGallery
+                  enterprise={user?.enterprise || ''}
+                  documentData={material}
+                />
               </TabsContent>
             ))}
           </Tabs>

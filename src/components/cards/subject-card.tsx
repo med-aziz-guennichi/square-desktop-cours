@@ -58,7 +58,7 @@ export function CourseCard({
   return (
     <Card
       className={cn(
-        'overflow-hidden transition-all relative',
+        'overflow-hidden transition-all relative h-[350px] max-h-[350px] rounded-lg shadow-md',
         isPreview
           ? 'cursor-default hover:shadow-none'
           : 'hover:cursor-pointer hover:shadow-lg hover:shadow-primary/15',

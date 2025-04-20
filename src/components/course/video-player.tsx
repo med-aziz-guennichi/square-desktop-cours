@@ -5,6 +5,7 @@ import {
   PlaybackRateMenuButton,
   Player,
 } from 'video-react';
+import 'video-react/dist/video-react.css'; // Import video-react styles
 
 export function VideoPlayer({ url }: { url: string }) {
   const playerRef = useRef(null);

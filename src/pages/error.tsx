@@ -2,14 +2,14 @@ import { Link, useRouteError } from 'react-router-dom';
 
 const Error = () => {
   const error = useRouteError() as { status?: number; message?: string };
-
+  const path = window.location.pathname;
   if (error.status === 404) {
     return (
       <main className="grid min-h-[100vh] place-items-center px-8">
         <div className="text-center">
           <p className="text-9xl font-semibold text-primary">404</p>
           <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">
-            page not found
+            page not found at <span className="text-primary">{path}</span>
           </h1>
           <p className="mt-6 text-lg leading-7">
             Sorry, we couldn&apos;t find the page you&apos;re looking for.

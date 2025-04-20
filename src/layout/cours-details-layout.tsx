@@ -1,15 +1,17 @@
 import { getOneLesson, getProgress } from '@/apis/lesson/query-slice';
 import { CourseSidebar } from '@/components/course/course-sidebar';
 import { useBreadcrumb } from '@/context/BreadcrumbContext';
+import { Progress } from '@/types/cours.interface';
 import { useQueries } from '@tanstack/react-query';
 import { BookText, Users2 } from 'lucide-react';
 import { useEffect } from 'react';
-import { Outlet, useParams } from 'react-router-dom';
+import { Outlet, useNavigate, useParams } from 'react-router-dom';
 
 export default function CoursDetailsLayout() {
   const { setSousPages } = useBreadcrumb();
-  const { coursId, matiereId } = useParams();
-  // classes/:matiereId/cours
+  const { coursId, matiereId, chapitreId } = useParams();
+  const navigate = useNavigate();
+
   const {
     '0': { data, isLoading },
     '1': { data: progress, isLoading: isLoadingProgress },
@@ -27,6 +29,44 @@ export default function CoursDetailsLayout() {
       },
     ],
   });
+
+  useEffect(() => {
+    if (!isLoading && !isLoadingProgress && data && !chapitreId) {
+      // Find the last completed chapter
+      const chapters = data.chapters || [];
+      const sortedChapters = [...chapters].sort((a, b) => a.position - b.position);
+
+      let lastCompletedIndex = -1;
+
+      for (let i = 0; i < sortedChapters.length; i++) {
+        const chapter = sortedChapters[i];
+        const isComplete = chapter.userProgress?.some(
+          (up: Progress) => up.isComplete,
+        );
+        if (isComplete) {
+          lastCompletedIndex = i;
+        } else {
+          break; // Stop at the first incomplete chapter after completed ones
+        }
+      }
+
+      // Navigate to the next chapter after the last completed one
+      if (lastCompletedIndex < sortedChapters.length - 1) {
+        const nextChapterIndex = lastCompletedIndex + 1;
+        const nextChapterId = sortedChapters[nextChapterIndex]?._id;
+        if (nextChapterId) {
+          navigate(`chapitre/${nextChapterId}`, { replace: true });
+        }
+      } else if (sortedChapters.length > 0) {
+        // If all chapters are completed or no chapters are completed, navigate to the first chapter
+        const firstChapterId = sortedChapters[0]?._id;
+        if (firstChapterId) {
+          navigate(`chapitre/${firstChapterId}`, { replace: true });
+        }
+      }
+    }
+  }, [isLoading, isLoadingProgress, data, chapitreId, navigate]);
+
   useEffect(() => {
     setSousPages([
       { name: 'classes', link: '/dashboard/classes', icon: <Users2 size={16} /> },
@@ -38,6 +78,7 @@ export default function CoursDetailsLayout() {
       { name: data?.title, link: 'cours-details', icon: <BookText size={16} /> },
     ]);
   }, [setSousPages, data?.title, matiereId]);
+
   return (
     <>
       {isLoading || isLoadingProgress ? (

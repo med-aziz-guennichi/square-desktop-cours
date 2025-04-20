@@ -24,3 +24,9 @@ export interface StudyMaterials {
   displayName: string;
   fileName: string;
 }
+
+export interface Progress {
+  chapterId: string;
+  userId: string;
+  isComplete: boolean;
+}

@@ -23,10 +23,12 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ClickedChapter } from '@/pages/cours/ajouter-cours';
+import { useUserStore } from '@/store/user-store';
 import { ArrowLeft } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { TextEditorOne } from './text-editor-one';
+import { UploadDocuments } from './upload-documents';
 import { FileUploadCircularProgressDemo } from './upload-files';
 
 export const ClickedShapterForm = ({
@@ -37,6 +39,7 @@ export const ClickedShapterForm = ({
   setClickedChapter: (chapter: ClickedChapter) => void;
 }) => {
   const form = useFormContext();
+  const user = useUserStore().decodedUser;
   const [selectedValue, setSelectedValue] = useState<string>(
     clickedChapter.type || 'Video',
   );
@@ -174,10 +177,11 @@ export const ClickedShapterForm = ({
             maxFiles={5}
             index={clickedChapter.index}
             form={form}
+            enterpriseId={user?.enterprise}
           />
         ) : selectedValue === 'Document' ? (
           documentType === 'upload' ? (
-            <FileUploadCircularProgressDemo
+            <UploadDocuments
               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg"
               maxFiles={5}
               index={clickedChapter.index}
