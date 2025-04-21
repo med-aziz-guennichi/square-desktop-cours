@@ -91,7 +91,7 @@ export default function CoursDetailsPage() {
           <p className="mt-4 text-muted-foreground line-clamp-2 break-all">
             {data?.chapter?.description}
           </p>
-          <CourseContent data={data} />
+          <CourseContent data={data?.chapter} />
         </div>
       )}
       <Button
