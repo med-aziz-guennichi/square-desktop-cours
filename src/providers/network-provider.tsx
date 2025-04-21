@@ -10,26 +10,45 @@ const NetworkStatusContext = createContext<NetworkStatusContextType>({
 });
 
 export function NetworkStatusProvider({ children }: { children: ReactNode }) {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-      toast.info('You are now back online!');
+    const checkConnection = async () => {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3000); // 3s timeout
+
+        await fetch('https://www.google.com/', {
+          mode: 'no-cors',
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeout);
+        updateStatus(true);
+      } catch (error) {
+        console.error(error);
+        updateStatus(false);
+      }
     };
 
-    const handleOffline = () => {
-      setIsOnline(false);
-      toast.warning('You are now offline! Some features may not work.');
+    let previousStatus = true;
+    const updateStatus = (status: boolean) => {
+      if (status !== previousStatus) {
+        setIsOnline(status);
+        previousStatus = status;
+        if (status) {
+          toast.success('You are now back online!');
+        } else {
+          toast.warning('You are now offline. Some features may not work.');
+        }
+      }
     };
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    // Start interval to ping every 5 seconds
+    const interval = setInterval(checkConnection, 5000);
+    checkConnection(); // run on mount
 
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
+    return () => clearInterval(interval);
   }, []);
 
   return (
