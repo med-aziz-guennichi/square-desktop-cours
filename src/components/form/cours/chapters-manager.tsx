@@ -165,6 +165,7 @@ export function ChaptersManager({
                   isActive={activeId === field.id}
                   onRemove={() => remove(index)}
                   setClickedShapter={setClickedShapter}
+                  formErrors={formErrors}
                   onEdit={() =>
                     setEditingChapter({
                       index,
@@ -222,6 +223,7 @@ interface SortableChapterItemProps {
   onRemove: () => void;
   onEdit: () => void;
   setClickedShapter: (chapter: ClickedChapter) => void;
+  formErrors: FieldErrors<FieldValues>;
 }
 
 function SortableChapterItem({
@@ -232,6 +234,7 @@ function SortableChapterItem({
   onRemove,
   onEdit,
   setClickedShapter,
+  formErrors,
 }: SortableChapterItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id,
@@ -243,6 +246,7 @@ function SortableChapterItem({
     transition,
     zIndex: isActive ? 10 : 1,
   };
+
   return (
     <div
       ref={setNodeRef}
@@ -283,6 +287,7 @@ function SortableChapterItem({
             }
           }}
         >
+          <div className='flex items-center justify-between'>
           <div className="flex items-center gap-2">
             <div
               className="px-2 py-4 cursor-grab touch-none flex items-center justify-center text-muted-foreground hover:text-foreground"
@@ -295,6 +300,21 @@ function SortableChapterItem({
               <span className="font-medium">{title || `Chapitre ${index + 1}`}</span>
             </div>
           </div>
+          <div>
+          {Array.isArray(formErrors?.chapters) && (
+            <>
+              {(formErrors.chapters[index]?.title || formErrors.chapters[index]?.description) && (
+                <Alert variant="destructive" className='border-0 '>
+                  <AlertDescription>
+                    {`Veuillez cliquer sur le chapitre ${index + 1} pour compléter les détails.`}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </>
+          )}
+          </div>
+          </div>
+         
           <div className="flex items-center gap-1 mr-4">
             <Button
               type="button"

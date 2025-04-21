@@ -16,8 +16,9 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
-import { NavLink, useLocation } from 'react-router-dom';
+import {useLocation } from 'react-router-dom';
 import { SoonBadge } from '../ui/soon-button';
+import { InterceptedNavLink } from './intercepted-navLink';
 
 export function NavMain({
   items,
@@ -49,11 +50,11 @@ export function NavMain({
                 tooltip={item.title}
                 isActive={location.pathname === item.url}
               >
-                <NavLink to={item.url} aria-disabled={item.disabled}>
+                <InterceptedNavLink to={item.url} disabled={item.disabled}>
                   <item.icon />
                   <span>{item.title}</span>
                   {item.disabled && <SoonBadge />}
-                </NavLink>
+                </InterceptedNavLink>
               </SidebarMenuButton>
               {item.items?.length ? (
                 <>

@@ -7,13 +7,21 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { useBreadcrumb } from '@/context/BreadcrumbContext';
+import { useSafeNavigation } from '@/hooks/use-save-navigation';
 import { Home } from 'lucide-react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ActionConfirmationDialog } from './save-navigation-dialog';
 
 export const Breadcrumb = () => {
   const navigate = useNavigate();
   const { sousPages } = useBreadcrumb();
+  const {
+    showConfirm,
+    attemptAction,
+    executePendingAction,
+    cancelAction,
+  } = useSafeNavigation();
   return (
     <div>
       <BreadcrumbComponent className="flex">
@@ -42,11 +50,14 @@ export const Breadcrumb = () => {
                 ) : (
                   <BreadcrumbLink
                     onClick={() => {
-                      if (typeof page.link === 'string') {
-                        navigate(page.link);
-                      } else {
-                        page.link();
+                      const action = () => {
+                        if (typeof page.link === 'string') {
+                          navigate(page.link);
+                        } else {
+                          page.link();
+                        }
                       }
+                      attemptAction(action);
                     }}
                     className="inline-flex items-center gap-1.5 capitalize cursor-pointer"
                   >
@@ -60,6 +71,11 @@ export const Breadcrumb = () => {
           ))}
         </BreadcrumbList>
       </BreadcrumbComponent>
+      <ActionConfirmationDialog
+        open={showConfirm}
+        onConfirm={executePendingAction}
+        onCancel={cancelAction}
+      />
     </div>
   );
 };

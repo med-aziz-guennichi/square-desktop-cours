@@ -12,7 +12,7 @@ import {
   FileUploadTrigger,
 } from '@/components/ui/file-upload';
 import { FormField } from '@/components/ui/form';
-import { golangInstance as instance } from '@/lib/axios';
+import { cancelAllRequests, golangInstance as instance } from '@/lib/axios';
 import { AxiosProgressEvent } from 'axios';
 import { Upload, X } from 'lucide-react';
 import * as React from 'react';
@@ -93,6 +93,19 @@ export function FileUploadCircularProgressDemo({
     [enterpriseId],
   );
 
+  const removeFile = React.useCallback(
+    (fileToRemove: File) => {
+      setFiles((prevFiles) => {
+        const newFiles = prevFiles.filter(
+          (file) => `${file.name}-${file.size}` !== `${fileToRemove.name}-${fileToRemove.size}`,
+        );
+        form.setValue(`chapters.${index}.files`, newFiles);
+        return newFiles;
+      });
+    },
+    [form, index],
+  );
+
   const onUpload = React.useCallback(
     async (
       newFiles: File[],
@@ -136,12 +149,14 @@ export function FileUploadCircularProgressDemo({
                   },
                   error: (error) => {
                     onError(file, error);
+                    removeFile(file);
                     return `${file.name} failed to upload: ${error.message}`;
                   },
                   id: file.name,
                 },
               );
             } catch (err) {
+              removeFile(file);
               console.error('Upload error:', err);
             }
           }),
@@ -150,7 +165,7 @@ export function FileUploadCircularProgressDemo({
         console.error('Batch upload error:', err);
       }
     },
-    [uploadFile, form, index],
+    [uploadFile, form, index, removeFile],
   );
 
   const onFileReject = React.useCallback((file: File, message: string) => {
@@ -206,6 +221,10 @@ export function FileUploadCircularProgressDemo({
                   <Button
                     variant="secondary"
                     size="icon"
+                    onClick={() => {
+                      cancelAllRequests();
+                      removeFile(file);
+                    }}
                     className="-top-1 -right-1 absolute size-5 rounded-full"
                   >
                     <X className="size-3" />

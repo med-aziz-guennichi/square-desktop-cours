@@ -27,7 +27,6 @@ export default function GlobalLayout() {
 
   const isLoading =
     navigation.state === 'loading' || navigation.state === 'submitting';
-
   useEffect(() => {
     checkForUpdates(
       setUpdateStatus,
@@ -38,7 +37,7 @@ export default function GlobalLayout() {
   }, []);
 
   return (
-    <CustomContextMenu>
+      <CustomContextMenu>
       {isLoading && <FullPageLoader isLoading={isLoading} />}
       <Outlet />
 
@@ -62,6 +61,6 @@ export default function GlobalLayout() {
           </DialogDescription>
         </DialogContent>
       </Dialog>
-    </CustomContextMenu>
+      </CustomContextMenu>
   );
 }

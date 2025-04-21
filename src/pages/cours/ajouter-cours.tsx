@@ -13,6 +13,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAddCoursForm } from './hooks/use-add-cours-form';
 import { useCreateLessonMutation } from './hooks/use-create-lesson-mutation';
+import { isRequestInProgress } from '@/lib/axios';
 
 export interface ClickedChapter {
   id: string | null;
@@ -77,7 +78,7 @@ export default function AjouterCoursPage() {
               <h1 className="text-3xl font-bold">Ajouter un contenu à la classe</h1>
             </div>
             <Button
-              disabled={form.formState.isSubmitting}
+              disabled={form.formState.isSubmitting || isRequestInProgress()}
               onClick={form.handleSubmit(onSubmit)}
             >
               {isPending && <Loader2 className="animate-spin" />}

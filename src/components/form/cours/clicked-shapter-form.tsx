@@ -30,6 +30,8 @@ import { useFormContext } from 'react-hook-form';
 import { TextEditorOne } from './text-editor-one';
 import { UploadDocuments } from './upload-documents';
 import { FileUploadCircularProgressDemo } from './upload-files';
+import { useSafeNavigation } from '@/hooks/use-save-navigation';
+import { ActionConfirmationDialog } from '@/components/save-navigation-dialog';
 
 export const ClickedShapterForm = ({
   clickedChapter,
@@ -40,6 +42,12 @@ export const ClickedShapterForm = ({
 }) => {
   const form = useFormContext();
   const user = useUserStore().decodedUser;
+  const {
+    showConfirm,
+    attemptAction,
+    executePendingAction,
+    cancelAction,
+  } = useSafeNavigation();
   const [selectedValue, setSelectedValue] = useState<string>(
     clickedChapter.type || 'Video',
   );
@@ -94,108 +102,121 @@ export const ClickedShapterForm = ({
   const chapterTitle =
     form.watch(`chapters.${clickedChapter.index}.title`) || 'Untitled';
 
+    const handleBackClick = (e: { preventDefault: () => void; }) => {
+      e.preventDefault();
+      const action = () => {
+        setClickedChapter({
+          ...clickedChapter,
+          id: null,
+        });
+      };
+    
+      attemptAction(action);
+    };
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() =>
-                setClickedChapter({
-                  ...clickedChapter,
-                  id: null, // Only reset index to exit
-                })
-              }
-            >
-              <ArrowLeft size={20} />
-            </Button>
-            <CardTitle className="font-semibold truncate overflow-hidden whitespace-nowrap max-w-[400px]">
-              Contenu du {chapterTitle}
-            </CardTitle>
-          </div>
-          <div className="flex gap-2">
-            <Select value={selectedValue} onValueChange={handleTypeChange}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder={selectedValue} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Video">Video</SelectItem>
-                <SelectItem value="Document">Document</SelectItem>
-                <SelectItem value="Quiz">Quiz</SelectItem>
-              </SelectContent>
-            </Select>
-            {selectedValue === 'Document' && (
-              <Select value={documentType} onValueChange={handleDocumentTypeChange}>
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleBackClick}
+              >
+                <ArrowLeft size={20} />
+              </Button>
+              <CardTitle className="font-semibold truncate overflow-hidden whitespace-nowrap max-w-[400px]">
+                Contenu du {chapterTitle}
+              </CardTitle>
+            </div>
+            <div className="flex gap-2">
+              <Select value={selectedValue} onValueChange={handleTypeChange}>
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Document Type" />
+                  <SelectValue placeholder={selectedValue} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="word">Text Editor</SelectItem>
-                  <SelectItem value="excel">Spreadsheet Editor</SelectItem>
-                  <SelectItem value="upload">Upload File</SelectItem>
+                  <SelectItem value="Video">Video</SelectItem>
+                  <SelectItem value="Document">Document</SelectItem>
+                  <SelectItem value="Quiz">Quiz</SelectItem>
                 </SelectContent>
               </Select>
-            )}
+              {selectedValue === 'Document' && (
+                <Select value={documentType} onValueChange={handleDocumentTypeChange}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Document Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="word">Text Editor</SelectItem>
+                    <SelectItem value="excel">Spreadsheet Editor</SelectItem>
+                    <SelectItem value="upload">Upload File</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
           </div>
-        </div>
-        <CardDescription>Organisez votre cours en modules et leçons</CardDescription>
-      </CardHeader>
-      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-5">
-          <FormField
-            control={form.control}
-            name={`chapters.${clickedChapter.index}.title`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Titre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ex: Introduction" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name={`chapters.${clickedChapter.index}.description`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="Description du chapitre..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        {selectedValue === 'Video' ? (
-          <FileUploadCircularProgressDemo
-            accept="video/*,.mp4,.mkv,.avi,.webm,.mov"
-            maxFiles={5}
-            index={clickedChapter.index}
-            form={form}
-            enterpriseId={user?.enterprise}
-          />
-        ) : selectedValue === 'Document' ? (
-          documentType === 'upload' ? (
-            <UploadDocuments
-              accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg"
+          <CardDescription>Organisez votre cours en modules et leçons</CardDescription>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-5">
+            <FormField
+              control={form.control}
+              name={`chapters.${clickedChapter.index}.title`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Titre</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: Introduction" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`chapters.${clickedChapter.index}.description`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Description du chapitre..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          {selectedValue === 'Video' ? (
+            <FileUploadCircularProgressDemo
+              accept="video/*,.mp4,.mkv,.avi,.webm,.mov"
               maxFiles={5}
               index={clickedChapter.index}
               form={form}
+              enterpriseId={user?.enterprise}
             />
-          ) : documentType === 'word' ? (
-            <TextEditorOne form={form} index={clickedChapter.index} />
+          ) : selectedValue === 'Document' ? (
+            documentType === 'upload' ? (
+              <UploadDocuments
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg"
+                maxFiles={5}
+                index={clickedChapter.index}
+                form={form}
+              />
+            ) : documentType === 'word' ? (
+              <TextEditorOne form={form} index={clickedChapter.index} />
+            ) : (
+              <p>Spreadsheet editor coming soon</p>
+            )
           ) : (
-            <p>Spreadsheet editor coming soon</p>
-          )
-        ) : (
-          <>Quizz</>
-        )}
-      </CardContent>
-    </Card>
+            <>Quizz</>
+          )}
+        </CardContent>
+      </Card>
+      <ActionConfirmationDialog
+        open={showConfirm}
+        onConfirm={executePendingAction}
+        onCancel={cancelAction}
+      />
+    </>
   );
 };
