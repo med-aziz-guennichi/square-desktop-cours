@@ -44,13 +44,11 @@ export default function CourPage() {
             {data?.length} cours disponibles
           </sub>
         </div>
-        {
-          user?.role !== "student" && (
-            <Button asChild>
-              <NavLink to={`ajouter-cours`}>Ajouter cours</NavLink>
-            </Button>
-          )
-        }
+        {user?.role !== 'student' && (
+          <Button asChild>
+            <NavLink to={`ajouter-cours`}>Ajouter cours</NavLink>
+          </Button>
+        )}
       </div>
 
       <div

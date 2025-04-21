@@ -6,6 +6,7 @@ import App from './App';
 import { BreadcrumbProvider } from './context/BreadcrumbContext';
 import './index.css';
 import { ConfettiProvider } from './providers/confetti-provider';
+import { NetworkStatusProvider } from './providers/network-provider';
 import { ThemeProvider } from './providers/theme-provider';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
@@ -14,7 +15,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
       <LoadingBarContainer>
         <BreadcrumbProvider>
           <ConfettiProvider />
-          <App />
+          <NetworkStatusProvider>
+            <App />
+          </NetworkStatusProvider>
         </BreadcrumbProvider>
       </LoadingBarContainer>
       <Toaster richColors theme="dark" />
