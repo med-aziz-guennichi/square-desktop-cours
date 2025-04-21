@@ -32,10 +32,10 @@ export const ActionConfirmationDialog = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>
+          <AlertDialogCancel onClick={onConfirm}>
             Fermer quand même
           </AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>
+          <AlertDialogAction onClick={onCancel}>
             Continuer l’édition
           </AlertDialogAction>
         </AlertDialogFooter>
