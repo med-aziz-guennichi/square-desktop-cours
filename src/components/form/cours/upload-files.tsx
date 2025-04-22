@@ -13,11 +13,13 @@ import {
 } from '@/components/ui/file-upload';
 import { FormField } from '@/components/ui/form';
 import { cancelAllRequests, golangInstance as instance } from '@/lib/axios';
+import { invoke } from '@tauri-apps/api/core';
 import { AxiosProgressEvent } from 'axios';
 import { Upload, X } from 'lucide-react';
 import * as React from 'react';
 import { FieldValues, UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
+
 
 interface FileUploadCircularProgressDemoProps {
   maxFiles: number;
@@ -31,6 +33,22 @@ interface StudyMaterial {
   fileName: string;
   displayName: string;
 }
+
+async function resizeVideo(filePath: string, width: number, height: number): Promise<string> {
+  try {
+    const resizedPath = await invoke<string>('resize_video', {
+      inputPath: filePath,
+      width,
+      height,
+    });
+
+    return resizedPath;
+  } catch (error) {
+    console.error('Video resizing failed:', error);
+    throw new Error('Video resizing failed');
+  }
+}
+
 
 export function FileUploadCircularProgressDemo({
   maxFiles,
@@ -69,29 +87,54 @@ export function FileUploadCircularProgressDemo({
       file: File,
       onProgress: (file: File, progress: number) => void,
     ): Promise<string> => {
-      const formData = new FormData();
-      formData.append('enterpriseId', enterpriseId!);
-      formData.append('file', file);
+      try {
+        // Save the uploaded file locally in the backend
+        const filePath = await invoke<string>('save_uploaded_file', {
+          file: await file.arrayBuffer(),
+          fileName: file.name
+        });
 
-      // Track upload progress
-      const config = {
-        onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total!,
-          );
-          onProgress(file, percentCompleted);
-        },
-      };
+        // Resize the video and get the output path
+        const resizedPath = await resizeVideo(filePath, 640, 360);
 
-      const response = await instance.post('/upload', formData, config);
-      if (!response.data.success) {
-        throw new Error('File upload failed');
+        // Instead of fetching file://, read the resized file as a Blob
+        const resizedBlob = await invoke("read_resized_file", {
+          path: resizedPath
+        }).then((fileBuffer) => {
+          const buffer = fileBuffer as ArrayBuffer;
+          return new Blob([buffer], { type: 'video/mp4' });
+        });
+
+        const resizedFile = new File([resizedBlob], file.name, { type: file.type });
+
+        const formData = new FormData();
+        formData.append('enterpriseId', enterpriseId!);
+        formData.append('file', resizedFile);
+
+        const config = {
+          onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total!
+            );
+            onProgress(file, percentCompleted);
+          },
+        };
+
+        const response = await instance.post('/upload', formData, config);
+        if (!response.data.success) {
+          throw new Error('File upload failed');
+        }
+
+        return response.data.filename;
+      } catch (error) {
+        console.error('Upload with resize failed:', error);
+        throw error;
       }
-
-      return response.data.filename; // Or use response.data.path if your API returns the stored path
     },
     [enterpriseId],
   );
+
+
 
   const removeFile = React.useCallback(
     (fileToRemove: File) => {
