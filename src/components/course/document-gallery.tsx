@@ -110,7 +110,7 @@ export function DocumentGallery({
       </div>
     );
   }
-
+  console.warn(isError, !docPreview?.images?.length)
   if (isError || !docPreview?.images?.length) {
     return (
       <div className="flex items-center justify-center h-64 text-muted-foreground">

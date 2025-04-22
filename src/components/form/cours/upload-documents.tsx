@@ -297,3 +297,5 @@ export function UploadDocuments({
     />
   );
 }
+
+export default UploadDocuments;

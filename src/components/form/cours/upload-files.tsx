@@ -238,3 +238,5 @@ export function FileUploadCircularProgressDemo({
     />
   );
 }
+
+export default FileUploadCircularProgressDemo;

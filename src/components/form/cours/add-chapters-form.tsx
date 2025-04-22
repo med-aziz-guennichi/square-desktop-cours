@@ -10,7 +10,7 @@ import {
 } from '../../ui/card';
 import { ChaptersManager } from './chapters-manager';
 
-export const ChaptersForm = ({
+const ChaptersForm = ({
   setClickedShapter,
 }: {
   setClickedShapter: (chapter: ClickedChapter) => void;
@@ -44,3 +44,5 @@ export const ChaptersForm = ({
     </>
   );
 };
+
+export default ChaptersForm;

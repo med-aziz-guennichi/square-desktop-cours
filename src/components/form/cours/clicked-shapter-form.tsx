@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -24,16 +25,18 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { ClickedChapter } from '@/pages/cours/ajouter-cours';
 import { useUserStore } from '@/store/user-store';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { TextEditorOne } from './text-editor-one';
-import { UploadDocuments } from './upload-documents';
-import { FileUploadCircularProgressDemo } from './upload-files';
 import { useSafeNavigation } from '@/hooks/use-save-navigation';
 import { ActionConfirmationDialog } from '@/components/save-navigation-dialog';
 
-export const ClickedShapterForm = ({
+const TextEditorOne = lazy(() => import('./text-editor-one'));
+const UploadDocuments = lazy(() => import('./upload-documents'));
+const FileUploadCircularProgressDemo = lazy(() => import('./upload-files'));
+
+
+const ClickedShapterForm = ({
   clickedChapter,
   setClickedChapter,
 }: {
@@ -102,17 +105,17 @@ export const ClickedShapterForm = ({
   const chapterTitle =
     form.watch(`chapters.${clickedChapter.index}.title`) || 'Untitled';
 
-    const handleBackClick = (e: { preventDefault: () => void; }) => {
-      e.preventDefault();
-      const action = () => {
-        setClickedChapter({
-          ...clickedChapter,
-          id: null,
-        });
-      };
-    
-      attemptAction(action);
+  const handleBackClick = (e: { preventDefault: () => void; }) => {
+    e.preventDefault();
+    const action = () => {
+      setClickedChapter({
+        ...clickedChapter,
+        id: null,
+      });
     };
+
+    attemptAction(action);
+  };
   return (
     <>
       <Card>
@@ -187,29 +190,36 @@ export const ClickedShapterForm = ({
             />
           </div>
           {selectedValue === 'Video' ? (
-            <FileUploadCircularProgressDemo
-              accept="video/*,.mp4,.mkv,.avi,.webm,.mov"
-              maxFiles={5}
-              index={clickedChapter.index}
-              form={form}
-              enterpriseId={user?.enterprise}
-            />
-          ) : selectedValue === 'Document' ? (
-            documentType === 'upload' ? (
-              <UploadDocuments
-                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg"
+            <Suspense fallback={<Loader2 className="animate-spin" />}>
+              <FileUploadCircularProgressDemo
+                accept="video/*,.mp4,.mkv,.avi,.webm,.mov"
                 maxFiles={5}
                 index={clickedChapter.index}
                 form={form}
+                enterpriseId={user?.enterprise}
               />
+            </Suspense>
+          ) : selectedValue === 'Document' ? (
+            documentType === 'upload' ? (
+              <Suspense fallback={<Loader2 className="animate-spin" />}>
+                <UploadDocuments
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg"
+                  maxFiles={5}
+                  index={clickedChapter.index}
+                  form={form}
+                />
+              </Suspense>
             ) : documentType === 'word' ? (
-              <TextEditorOne form={form} index={clickedChapter.index} />
+              <Suspense fallback={<Loader2 className="animate-spin" />}>
+                <TextEditorOne form={form} index={clickedChapter.index} />
+              </Suspense>
             ) : (
               <p>Spreadsheet editor coming soon</p>
             )
           ) : (
             <>Quizz</>
           )}
+
         </CardContent>
       </Card>
       <ActionConfirmationDialog
@@ -220,3 +230,5 @@ export const ClickedShapterForm = ({
     </>
   );
 };
+
+export default ClickedShapterForm;

@@ -1,8 +1,8 @@
-// pages/cours/ajouter-cours.tsx
+import { lazy, Suspense } from 'react';
+const ChaptersForm = lazy(() => import('@/components/form/cours/add-chapters-form'));
+const ClickedShapterForm = lazy(() => import('@/components/form/cours/clicked-shapter-form'));
 import { CourseCard } from '@/components/cards/subject-card';
-import { ChaptersForm } from '@/components/form/cours/add-chapters-form';
 import { AddCoursForm } from '@/components/form/cours/add-cours-form';
-import { ClickedShapterForm } from '@/components/form/cours/clicked-shapter-form';
 import { AddCoursSchemaType } from '@/components/form/cours/schemas/add-cours-schema';
 import { Button } from '@/components/ui/button';
 import { useBreadcrumb } from '@/context/BreadcrumbContext';
@@ -108,14 +108,17 @@ export default function AjouterCoursPage() {
               />
             </div>
           </div>
-          {clickedShapter.id ? (
-            <ClickedShapterForm
-              clickedChapter={clickedShapter}
-              setClickedChapter={setClickedShapter}
-            />
-          ) : (
-            <ChaptersForm setClickedShapter={setClickedShapter} />
-          )}
+          <Suspense fallback={
+            <Loader2 className="animate-spin" />}>
+            {clickedShapter.id ? (
+              <ClickedShapterForm
+                clickedChapter={clickedShapter}
+                setClickedChapter={setClickedShapter}
+              />
+            ) : (
+              <ChaptersForm setClickedShapter={setClickedShapter} />
+            )}
+          </Suspense>
         </form>
       </div>
     </FormProvider>

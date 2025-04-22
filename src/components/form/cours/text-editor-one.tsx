@@ -4,7 +4,7 @@ import '@blocknote/mantine/style.css';
 import { useCreateBlockNote } from '@blocknote/react';
 import { FieldValues, UseFormReturn } from 'react-hook-form';
 
-export function TextEditorOne({
+function TextEditorOne({
   form,
   index,
 }: {
@@ -30,3 +30,5 @@ export function TextEditorOne({
     </div>
   );
 }
+
+export default TextEditorOne;

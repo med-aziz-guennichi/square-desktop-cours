@@ -1,15 +1,13 @@
-import { cn } from '@/lib/utils';
 import { useUserStore } from '@/store/user-store';
 import { Chapters } from '@/types/cours.interface';
 import { Play } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Card, CardContent } from '../ui/card';
-import { ScrollArea, ScrollBar } from '../ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { ScrollArea } from '../ui/scroll-area';
 import { DocumentGallery } from './document-gallery';
 import { VideoPlayer } from './video-player';
 
 export function CourseContent({ data }: { data: Chapters }) {
+  const [activeIndex, setActiveIndex] = useState(0);
   const [activeVideo, setActiveVideo] = useState(
     data?.studyMaterials?.[0]?.fileName,
   );
@@ -32,70 +30,64 @@ export function CourseContent({ data }: { data: Chapters }) {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="space-y-4">
-        {data?.type === 'Video' ? (
-          <div className="space-y-4">
-            {/* Main Video Player */}
-            <div className="rounded-lg overflow-hidden border bg-card">
-              <VideoPlayer
-                url={`${import.meta.env.VITE_API_BASE_URL}/desktop-app/video/${user?.enterprise}/${activeVideo}`}
-              />
-            </div>
-
-            {/* Video Gallery (only show if there are multiple videos) */}
-            {data.studyMaterials.length > 1 && (
-              <Card>
-                <CardContent className="p-4">
-                  <h3 className="text-lg font-medium mb-3">Video Gallery</h3>
-                  <ScrollArea className="w-full whitespace-nowrap">
-                    <div className="flex gap-4 pb-2">
-                      {data.studyMaterials.map((material, index) => (
-                        <VideoThumbnail
-                          key={index}
-                          title={material.displayName || `Video ${index + 1}`}
-                          isActive={material.fileName === activeVideo}
-                          onClick={() => setActiveVideo(material.fileName)}
-                        />
-                      ))}
-                    </div>
-                    <ScrollBar orientation="horizontal" />
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        ) : data?.type === 'Document' ? (
-          <Tabs defaultValue="document-1">
-            <TabsList
-              className={cn(
-                'grid mb-4',
-                `grid-cols-${data.studyMaterials.length} gap-2`,
-              )}
-            >
-              {data.studyMaterials.map((material, index) => (
-                <TabsTrigger key={index} value={`document-${index + 1}`}>
-                  {material.displayName || `Document ${index + 1}`}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            {data.studyMaterials.map((material, index) => (
-              <TabsContent
-                key={index}
-                value={`document-${index + 1}`}
-                className="space-y-4"
-              >
-                <DocumentGallery
-                  enterprise={user?.enterprise || ''}
-                  documentData={material}
+      <div className="flex flex-row gap-6">
+        {/* Left: Main content area */}
+        <div className="flex-1">
+          {data?.type === 'Document' ? (
+            <DocumentGallery
+              enterprise={user?.enterprise || ''}
+              documentData={data.studyMaterials[activeIndex]}
+            />
+          ) : data?.type === 'Video' ? (
+            <div className="space-y-4">
+              <div className="rounded-lg overflow-hidden border bg-card">
+                <VideoPlayer
+                  url={`${import.meta.env.VITE_API_BASE_URL}/desktop-app/video/${user?.enterprise}/${data.studyMaterials[activeIndex].fileName}`}
                 />
-              </TabsContent>
-            ))}
-          </Tabs>
-        ) : (
-          <div className="flex items-center justify-center h-64 text-muted-foreground">
-            Unsupported content type
-          </div>
+              </div>
+
+              {data.studyMaterials.length > 1 && (
+                <ScrollArea className="w-full whitespace-nowrap">
+                  <div className="flex gap-4 pb-2">
+                    {data.studyMaterials.map((material, index) => (
+                      <VideoThumbnail
+                        key={index}
+                        title={material.displayName || `Video ${index + 1}`}
+                        isActive={index === activeIndex}
+                        onClick={() => setActiveIndex(index)}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-64 text-muted-foreground">
+              Unsupported content type
+            </div>
+          )}
+        </div>
+
+        {/* Right: Sidebar with list */}
+        {data?.type === 'Document' && (
+          <aside className="w-64 border-l pl-4">
+            <ScrollArea className="max-h-[500px]">
+              <div className="space-y-2">
+                {data.studyMaterials.map((material, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveIndex(index)}
+                    className={`block w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${index === activeIndex
+                      ? 'bg-primary text-white'
+                      : 'hover:bg-muted'
+                      }`}
+                  >
+                    {material.displayName || `Document ${index + 1}`}
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
+          </aside>
         )}
       </div>
     </div>
