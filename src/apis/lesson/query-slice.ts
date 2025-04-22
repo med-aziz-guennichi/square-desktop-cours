@@ -75,6 +75,34 @@ export async function markChapterAsCompleted(chapterId: string) {
   }
 }
 
+export async function deleteLesson(lessonId: string) {
+  try {
+    const response = await instance.delete(
+      `${API_ENDPOINT.DELETE_LESSON}/${lessonId}`,
+    );
+    return response.data;
+  } catch (error) {
+    toast.error("Une erreur s'est produite lors de la suppression du cours.");
+    console.error('Failed to delete lesson', error);
+  }
+}
+
+export const useDeleteLesson = (lessonId: string, matiereId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => deleteLesson(lessonId),
+    mutationKey: ['delete-lesson', lessonId],
+    onError: (error) => {
+      toast.error("Une erreur s'est produite lors de la suppression du cours.");
+      console.error('Failed to delete lesson', error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cours', matiereId] });
+      toast.success('Cours supprimé avec succès.');
+    },
+  });
+}
+
 export const useMarkChapterAsCompleted = (chapterId: string, coursId: string) => {
   const queryClient = useQueryClient();
   return useMutation({

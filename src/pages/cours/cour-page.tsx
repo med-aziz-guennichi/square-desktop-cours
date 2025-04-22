@@ -99,6 +99,7 @@ export default function CourPage() {
                     onShareClick={(id) => console.warn(`Partager le cours ${id}`)}
                     onClick={(id) => navigate(`cours/${id}`)}
                     chapters={cours?.chapters.length || 0}
+                    subjectId={matiereId}
                   />
                 </motion.div>
               ))}
