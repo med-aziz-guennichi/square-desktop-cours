@@ -2,7 +2,6 @@ import { AppSidebar } from '@/components/side-bar/app-sidebar';
 import { SiteHeader } from '@/components/side-bar/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { useUserStore } from '@/store/user-store';
-import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
@@ -13,8 +12,7 @@ export default function AppLayout() {
     const applyProtection = async () => {
       try {
         if (["student", "instructor", "responsable"].includes(user!.role!)) {
-          const window = getCurrentWindow();
-          await invoke('enable_protection', { window });
+          await getCurrentWindow().setContentProtected(true);
         }
       } catch (error) {
         console.error('Failed to enable protection:', error);
@@ -26,8 +24,7 @@ export default function AppLayout() {
     return () => {
       const cleanup = async () => {
         try {
-          const window = getCurrentWindow();
-          await invoke('disable_protection', { window });
+          await getCurrentWindow().setContentProtected(false);
         } catch (error) {
           console.error('Failed to disable protection:', error);
         }
