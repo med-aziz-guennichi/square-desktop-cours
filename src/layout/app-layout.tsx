@@ -1,37 +1,37 @@
 import { AppSidebar } from '@/components/side-bar/app-sidebar';
 import { SiteHeader } from '@/components/side-bar/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { useUserStore } from '@/store/user-store';
-import { getCurrentWindow } from '@tauri-apps/api/window';
-import { useEffect } from 'react';
+// import { useUserStore } from '@/store/user-store';
+// import { getCurrentWindow } from '@tauri-apps/api/window';
+// import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 
 export default function AppLayout() {
-  const user = useUserStore().decodedUser;
-  useEffect(() => {
-    const applyProtection = async () => {
-      try {
-        if (["student", "instructor", "responsable"].includes(user!.role!)) {
-          await getCurrentWindow().setContentProtected(true);
-        }
-      } catch (error) {
-        console.error('Failed to enable protection:', error);
-      }
-    };
+  // const user = useUserStore().decodedUser;
+  // useEffect(() => {
+  //   const applyProtection = async () => {
+  //     try {
+  //       if (["student", "instructor", "responsable"].includes(user!.role!)) {
+  //         await getCurrentWindow().setContentProtected(true);
+  //       }
+  //     } catch (error) {
+  //       console.error('Failed to enable protection:', error);
+  //     }
+  //   };
 
-    applyProtection();
+  //   applyProtection();
 
-    return () => {
-      const cleanup = async () => {
-        try {
-          await getCurrentWindow().setContentProtected(false);
-        } catch (error) {
-          console.error('Failed to disable protection:', error);
-        }
-      };
-      cleanup();
-    };
-  }, [user]);
+  //   return () => {
+  //     const cleanup = async () => {
+  //       try {
+  //         await getCurrentWindow().setContentProtected(false);
+  //       } catch (error) {
+  //         console.error('Failed to disable protection:', error);
+  //       }
+  //     };
+  //     cleanup();
+  //   };
+  // }, [user]);
   return (
     <SidebarProvider>
       <AppSidebar variant="inset" />
