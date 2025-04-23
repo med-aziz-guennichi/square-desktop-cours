@@ -113,9 +113,9 @@ jobs:
             cp "$sig" output/
             ;;
           macos)
-            app="src-tauri/target/release/bundle/macos/${{ env.PROJECT_NAME }}.app"
-            sig="src-tauri/target/release/bundle/macos/${{ env.PROJECT_NAME }}.app.tar.gz.sig"
-            tarball="output/${{ env.PROJECT_NAME }}_${version}_x86_64.app.tar.gz"
+            app="src-tauri/target/x86_64-apple-darwin/release/bundle/macos/${{ env.PROJECT_NAME }}.app.tar.gz"
+            sig="src-tauri/target/x86_64-apple-darwin/release/bundle/macos/${{ env.PROJECT_NAME }}.app.tar.gz.sig"
+            tarball="output/${{ env.PROJECT_NAME }}_${version}.app.tar.gz"
             tar -czf "$tarball" -C "$(dirname "$app")" "$(basename "$app")"
             ;;
           windows)
@@ -170,7 +170,7 @@ jobs:
               },
               "darwin-aarch64": {
                 "signature": "$(cat artifacts/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz.sig | base64 -w 0 | sed 's/"/\\"/g')",
-                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}_x86_64.app.tar.gz"
+                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}.app.tar.gz"
               },
               "windows-x86_64": {
                 "signature": "$(cat artifacts/windows/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig | sed 's/"/\\"/g' | tr -d '\n')",
