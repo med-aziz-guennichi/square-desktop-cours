@@ -11,31 +11,21 @@ env:
 
 jobs:
   build:
-    name: Build and Bundle (${{ matrix.target }})
+    name: Build and Bundle (${{ matrix.os }})
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
+        os: [linux, windows, macos]
         include:
           - os: linux
             runner: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
-            artifact_name: linux
           - os: windows
             runner: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_name: windows
           - os: macos
-            runner: macos-12
+            runner: macos-latest
             target: x86_64-apple-darwin
-            artifact_name: macos-x86_64
-          - os: macos
-            runner: macos-12
-            target: aarch64-apple-darwin
-            artifact_name: macos-aarch64
-            # For Apple Silicon builds, we need to set some additional env vars
-            env:
-              MACOSX_DEPLOYMENT_TARGET: "11.0"
-              SDKROOT: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
 
     steps:
       - name: Checkout source
@@ -48,7 +38,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             src-tauri/target
-          key: ${{ runner.os }}-${{ matrix.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Bun dependencies
         uses: actions/cache@v3
@@ -84,18 +74,6 @@ jobs:
           targets: ${{ matrix.target }}
           profile: minimal
 
-      # For macOS ARM builds, we need to ensure we're using the correct architecture
-      - name: Setup macOS ARM build environment
-        if: matrix.target == 'aarch64-apple-darwin'
-        run: |
-          echo "Setting up ARM build environment"
-          # Ensure we're building for ARM64
-          export ARCHFLAGS="-arch arm64"
-          # Make sure we're using the correct SDK
-          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-          echo "ARCHFLAGS=-arch arm64" >> $GITHUB_ENV
-          echo "RUSTFLAGS=-C link-arg=-arch -C link-arg=arm64" >> $GITHUB_ENV
-
       - name: Install frontend dependencies
         run: bun install
 
@@ -104,18 +82,20 @@ jobs:
         run: echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> .env
 
       - name: Build Tauri app
+        if: matrix.os == 'macos'
         env:
           PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PASSWORD }}
-        run: |
-          if [ "${{ matrix.target }}" == "aarch64-apple-darwin" ]; then
-            # Explicitly set the architecture for Apple Silicon builds
-            echo "Building for Apple Silicon"
-            export CC="clang -target arm64-apple-macos11"
-            export CXX="clang++ -target arm64-apple-macos11"
-          fi
-          bunx tauri build --target ${{ matrix.target }} --verbose
+        run: bunx tauri build --target x86_64-apple-darwin --verbose
+
+      - name: Build Tauri app
+        if: matrix.os != 'macos'
+        env:
+          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PASSWORD }}
+        run: bunx tauri build
 
       - name: Generate latest.json and package artifacts
         shell: bash
@@ -127,34 +107,30 @@ jobs:
           mkdir -p output
           case "${{ matrix.os }}" in
           linux)
-            sig="src-tauri/target/${{ matrix.target }}/release/bundle/deb/${{ env.PROJECT_NAME }}_${version}_amd64.deb.sig"
-            app="src-tauri/target/${{ matrix.target }}/release/bundle/deb/${{ env.PROJECT_NAME }}_${version}_amd64.deb"
+            sig="src-tauri/target/release/bundle/deb/${{ env.PROJECT_NAME }}_${version}_amd64.deb.sig"
+            app="src-tauri/target/release/bundle/deb/${{ env.PROJECT_NAME }}_${version}_amd64.deb"
             cp "$app" output/
             cp "$sig" output/
             ;;
           macos)
-            app="src-tauri/target/${{ matrix.target }}/release/bundle/macos/${{ env.PROJECT_NAME }}.app"
-            sig="src-tauri/target/${{ matrix.target }}/release/bundle/macos/${{ env.PROJECT_NAME }}.app.tar.gz.sig"
-            if [ "${{ matrix.target }}" == "aarch64-apple-darwin" ]; then
-              tarball="output/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz"
-            else
-              tarball="output/${{ env.PROJECT_NAME }}_${version}_x86_64.app.tar.gz"
-            fi
+            app="src-tauri/target/release/bundle/macos/${{ env.PROJECT_NAME }}.app"
+            sig="src-tauri/target/release/bundle/macos/${{ env.PROJECT_NAME }}.app.tar.gz.sig"
+            tarball="output/${{ env.PROJECT_NAME }}_${version}_x86_64.app.tar.gz"
             tar -czf "$tarball" -C "$(dirname "$app")" "$(basename "$app")"
-            cp "$sig" output/
             ;;
           windows)
-            sig="src-tauri/target/${{ matrix.target }}/release/bundle/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig"
-            app="src-tauri/target/${{ matrix.target }}/release/bundle/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi"
+            sig="src-tauri/target/release/bundle/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig"
+            app="src-tauri/target/release/bundle/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi"
             cp "$app" output/
             cp "$sig" output/
             ;;
           esac
 
+    # Upload the platform-specific artifacts
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: bundle-${{ matrix.artifact_name }}
+          name: bundle-${{ matrix.os }}
           path: output
           retention-days: 1
 
@@ -169,12 +145,8 @@ jobs:
           path: ./artifacts/linux
       - uses: actions/download-artifact@v4
         with:
-          name: bundle-macos-x86_64
-          path: ./artifacts/macos-x86_64
-      - uses: actions/download-artifact@v4
-        with:
-          name: bundle-macos-aarch64
-          path: ./artifacts/macos-aarch64
+          name: bundle-macos
+          path: ./artifacts/macos
       - uses: actions/download-artifact@v4
         with:
           name: bundle-windows
@@ -196,13 +168,9 @@ jobs:
                 "signature": "$(cat artifacts/linux/${{ env.PROJECT_NAME }}_${version}_amd64.deb.sig | sed 's/"/\\"/g' | tr -d '\n')",
                 "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/deb/${{ env.PROJECT_NAME }}_${version}_amd64.deb"
               },
-              "darwin-x86_64": {
-                "signature": "$(cat artifacts/macos-x86_64/${{ env.PROJECT_NAME }}_${version}_x86_64.app.tar.gz.sig | base64 -w 0 | sed 's/"/\\"/g')",
-                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}_x86_64.app.tar.gz"
-              },
               "darwin-aarch64": {
-                "signature": "$(cat artifacts/macos-aarch64/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz.sig | base64 -w 0 | sed 's/"/\\"/g')",
-                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz"
+                "signature": "$(cat artifacts/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz.sig | base64 -w 0 | sed 's/"/\\"/g')",
+                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}_x86_64.app.tar.gz"
               },
               "windows-x86_64": {
                 "signature": "$(cat artifacts/windows/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig | sed 's/"/\\"/g' | tr -d '\n')",
@@ -233,8 +201,7 @@ jobs:
           
           # Copy platform-specific files
           cp artifacts/linux/* release-repo/releases/${{ github.ref_name }}/deb/ || echo "No Linux files to copy"
-          cp artifacts/macos-x86_64/* release-repo/releases/${{ github.ref_name }}/macos/ || echo "No macOS x86_64 files to copy"
-          cp artifacts/macos-aarch64/* release-repo/releases/${{ github.ref_name }}/macos/ || echo "No macOS aarch64 files to copy"
+          cp artifacts/macos/* release-repo/releases/${{ github.ref_name }}/macos/ || echo "No macOS files to copy"
           cp artifacts/windows/* release-repo/releases/${{ github.ref_name }}/msi/ || echo "No Windows files to copy"
           
           # Copy the combined latest.json
