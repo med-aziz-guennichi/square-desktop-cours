@@ -15,17 +15,24 @@ jobs:
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        os: [linux, windows, macos]
+        os: [linux, windows, macos-intel, macos-arm]
         include:
           - os: linux
             runner: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
+            artifact_name: linux
           - os: windows
             runner: windows-latest
             target: x86_64-pc-windows-msvc
-          - os: macos
-            runner: macos-latest
+            artifact_name: windows
+          - os: macos-intel
+            runner: macos-12
             target: x86_64-apple-darwin
+            artifact_name: macos-intel
+          - os: macos-arm
+            runner: macos-12
+            target: aarch64-apple-darwin
+            artifact_name: macos-arm
 
     steps:
       - name: Checkout source
@@ -103,11 +110,19 @@ jobs:
             cp "$app" output/
             cp "$sig" output/
             ;;
-          macos)
+          macos-intel)
+            app="src-tauri/target/release/bundle/macos/${{ env.PROJECT_NAME }}.app"
+            sig="src-tauri/target/release/bundle/macos/${{ env.PROJECT_NAME }}.app.tar.gz.sig"
+            tarball="output/${{ env.PROJECT_NAME }}_${version}_x86_64.app.tar.gz"
+            tar -czf "$tarball" -C "$(dirname "$app")" "$(basename "$app")"
+            cp "$sig" output/${{ env.PROJECT_NAME }}_${version}_x86_64.app.tar.gz.sig
+            ;;
+          macos-arm)
             app="src-tauri/target/release/bundle/macos/${{ env.PROJECT_NAME }}.app"
             sig="src-tauri/target/release/bundle/macos/${{ env.PROJECT_NAME }}.app.tar.gz.sig"
             tarball="output/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz"
             tar -czf "$tarball" -C "$(dirname "$app")" "$(basename "$app")"
+            cp "$sig" output/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz.sig
             ;;
           windows)
             sig="src-tauri/target/release/bundle/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig"
@@ -117,11 +132,10 @@ jobs:
             ;;
           esac
 
-    # Upload the platform-specific artifacts
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: bundle-${{ matrix.os }}
+          name: bundle-${{ matrix.artifact_name }}
           path: output
           retention-days: 1
 
@@ -136,8 +150,12 @@ jobs:
           path: ./artifacts/linux
       - uses: actions/download-artifact@v4
         with:
-          name: bundle-macos
-          path: ./artifacts/macos
+          name: bundle-macos-intel
+          path: ./artifacts/macos-intel
+      - uses: actions/download-artifact@v4
+        with:
+          name: bundle-macos-arm
+          path: ./artifacts/macos-arm
       - uses: actions/download-artifact@v4
         with:
           name: bundle-windows
@@ -159,8 +177,12 @@ jobs:
                 "signature": "$(cat artifacts/linux/${{ env.PROJECT_NAME }}_${version}_amd64.deb.sig | sed 's/"/\\"/g' | tr -d '\n')",
                 "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/deb/${{ env.PROJECT_NAME }}_${version}_amd64.deb"
               },
+              "darwin-x86_64": {
+                "signature": "$(cat artifacts/macos-intel/${{ env.PROJECT_NAME }}_${version}_x86_64.app.tar.gz.sig | base64 -w 0 | sed 's/"/\\"/g')",
+                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}_x86_64.app.tar.gz"
+              },
               "darwin-aarch64": {
-                "signature": "$(cat artifacts/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz.sig | base64 -w 0 | sed 's/"/\\"/g')",
+                "signature": "$(cat artifacts/macos-arm/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz.sig | base64 -w 0 | sed 's/"/\\"/g')",
                 "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz"
               },
               "windows-x86_64": {
@@ -192,7 +214,8 @@ jobs:
           
           # Copy platform-specific files
           cp artifacts/linux/* release-repo/releases/${{ github.ref_name }}/deb/ || echo "No Linux files to copy"
-          cp artifacts/macos/* release-repo/releases/${{ github.ref_name }}/macos/ || echo "No macOS files to copy"
+          cp artifacts/macos-intel/* release-repo/releases/${{ github.ref_name }}/macos/ || echo "No macOS Intel files to copy"
+          cp artifacts/macos-arm/* release-repo/releases/${{ github.ref_name }}/macos/ || echo "No macOS ARM files to copy"
           cp artifacts/windows/* release-repo/releases/${{ github.ref_name }}/msi/ || echo "No Windows files to copy"
           
           # Copy the combined latest.json
