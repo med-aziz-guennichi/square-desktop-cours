@@ -7,6 +7,8 @@ import {
   ChevronsRight,
   Maximize,
   Minimize,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '../ui/button';
@@ -26,7 +28,9 @@ export function DocumentGallery({
   const [currentPage, setCurrentPage] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [zoom, setZoom] = useState(1);
   const imageContainerRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   const {
     data: docPreview,
@@ -39,25 +43,26 @@ export function DocumentGallery({
     itemsPerPage,
   );
 
-  const toggleFullScreen = () => {
-    if (!imageContainerRef.current) return;
-
-    if (!isFullScreen) {
-      if (imageContainerRef.current.requestFullscreen) {
-        imageContainerRef.current.requestFullscreen();
+  const toggleFullScreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await imageContainerRef.current?.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
       }
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
+    } catch (err) {
+      console.error('Fullscreen error:', err);
     }
   };
 
   useEffect(() => {
     const handleFullScreenChange = () => {
       setIsFullScreen(!!document.fullscreenElement);
+      // Reset zoom when exiting fullscreen
+      if (!document.fullscreenElement) {
+        setZoom(1);
+      }
     };
-
     document.addEventListener('fullscreenchange', handleFullScreenChange);
     return () => {
       document.removeEventListener('fullscreenchange', handleFullScreenChange);
@@ -68,49 +73,51 @@ export function DocumentGallery({
 
   const nextImage = () => {
     if (!docPreview?.images) return;
-
     if (currentImageIndex < docPreview.images.length - 1) {
       setCurrentImageIndex(currentImageIndex + 1);
     } else if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
       setCurrentImageIndex(0);
     }
+    setZoom(1); // Reset zoom when changing images
   };
 
   const prevImage = () => {
     if (!docPreview?.images) return;
-
     if (currentImageIndex > 0) {
       setCurrentImageIndex(currentImageIndex - 1);
     } else if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
       setCurrentImageIndex(itemsPerPage - 1);
     }
+    setZoom(1); // Reset zoom when changing images
   };
 
   const goToFirstPage = () => {
     setCurrentPage(1);
     setCurrentImageIndex(0);
+    setZoom(1);
   };
 
   const goToLastPage = () => {
     setCurrentPage(totalPages);
     setCurrentImageIndex(0);
+    setZoom(1);
   };
 
   if (isLoading) {
     return (
       <div className="space-y-4">
         <Skeleton className="w-full h-[70vh]" />
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto py-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="w-20 h-28" />
+            <Skeleton key={i} className="w-20 h-28 flex-shrink-0" />
           ))}
         </div>
       </div>
     );
   }
-  console.warn(isError, !docPreview?.images?.length)
+
   if (isError || !docPreview?.images?.length) {
     return (
       <div className="flex items-center justify-center h-64 text-muted-foreground">
@@ -124,22 +131,53 @@ export function DocumentGallery({
 
   return (
     <div className="space-y-4">
-      {/* Main Document Image */}
+      {/* Main Image Container */}
       <div
         ref={imageContainerRef}
-        className={`relative rounded-lg overflow-hidden border bg-card ${isFullScreen ? 'fixed inset-0 z-50 bg-white p-4' : ''}`}
+        className={`relative rounded-lg border bg-card overflow-hidden ${isFullScreen
+          ? 'fixed inset-0 z-50 bg-background'
+          : 'w-full'
+          }`}
       >
-        <img
-          src={docPreview.images[currentImageIndex]}
-          alt={`${documentData.displayName} - Page ${absoluteImageIndex}`}
-          className={`w-full h-auto mx-auto ${isFullScreen ? 'object-contain h-full' : 'max-h-[70vh] object-contain'}`}
-        />
+        <div
+          className={`${isFullScreen ? 'h-full w-full overflow-auto' : 'max-h-[70vh] overflow-hidden'}`}
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            height: isFullScreen ? '100%' : 'auto',
+          }}
+        >
 
-        <div className="absolute inset-0 flex items-center justify-between p-2">
+          <div
+            style={{
+              transform: `scale(${zoom})`,
+              transformOrigin: 'top left',
+              transition: 'transform 0.3s ease',
+              display: 'inline-block',
+            }}
+          >
+            <img
+              ref={imageRef}
+              src={docPreview.images[currentImageIndex]}
+              alt={`${documentData.displayName} - Page ${absoluteImageIndex}`}
+              style={{
+                maxWidth: '100%',
+                height: 'auto',
+                objectFit: 'contain',
+                display: 'block',
+              }}
+            />
+          </div>
+
+        </div>
+
+        {/* Navigation Buttons */}
+        <div className="absolute inset-0 flex items-center justify-between p-2 pointer-events-none">
           <Button
             variant="ghost"
             size="icon"
-            className="bg-background/80 hover:bg-background"
+            className="bg-background/80 hover:bg-background pointer-events-auto"
             onClick={prevImage}
             disabled={currentPage === 1 && currentImageIndex === 0}
           >
@@ -148,7 +186,7 @@ export function DocumentGallery({
           <Button
             variant="ghost"
             size="icon"
-            className="bg-background/80 hover:bg-background"
+            className="bg-background/80 hover:bg-background pointer-events-auto"
             onClick={nextImage}
             disabled={
               currentPage === totalPages &&
@@ -159,7 +197,8 @@ export function DocumentGallery({
           </Button>
         </div>
 
-        <div className="absolute bottom-4 left-0 right-0 text-center">
+        {/* Bottom Center Controls */}
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center">
           <div className="inline-flex items-center gap-2 bg-background/80 px-4 py-1 rounded-full text-sm">
             <Button
               variant="ghost"
@@ -185,32 +224,50 @@ export function DocumentGallery({
           </div>
         </div>
 
-        {/* Fullscreen Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-2 right-2 bg-background/80 hover:bg-background"
-          onClick={toggleFullScreen}
-        >
-          {isFullScreen ? (
-            <Minimize className="h-5 w-5" />
-          ) : (
-            <Maximize className="h-5 w-5" />
+        {/* Fullscreen + Zoom Buttons (top right) */}
+        <div className="absolute top-2 right-2 flex gap-2 bg-background/80 p-1 rounded-md">
+          {isFullScreen && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setZoom((z) => Math.min(z + 0.2, 3))}
+              >
+                <ZoomIn className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setZoom((z) => Math.max(z - 0.2, 0.5))}
+              >
+                <ZoomOut className="h-5 w-5" />
+              </Button>
+            </>
           )}
-        </Button>
+          <Button variant="ghost" size="icon" onClick={toggleFullScreen}>
+            {isFullScreen ? (
+              <Minimize className="h-5 w-5" />
+            ) : (
+              <Maximize className="h-5 w-5" />
+            )}
+          </Button>
+        </div>
       </div>
 
-      {/* Thumbnail Gallery - Hide in fullscreen mode */}
+      {/* Thumbnails */}
       {!isFullScreen && (
-        <div className="flex flex-wrap gap-2 justify-center">
+        <div className="flex overflow-x-auto py-2 gap-2">
           {docPreview.images.map((image, index) => (
             <button
               key={index}
-              className={`
-                flex-shrink-0 w-20 h-28 rounded-md overflow-hidden border-2 transition-all
-                ${currentImageIndex === index ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}
-              `}
-              onClick={() => setCurrentImageIndex(index)}
+              className={`flex-shrink-0 w-20 h-28 rounded-md overflow-hidden border-2 transition-all ${currentImageIndex === index
+                ? 'border-primary ring-2 ring-primary/20'
+                : 'border-border hover:border-primary/50'
+                }`}
+              onClick={() => {
+                setCurrentImageIndex(index);
+                setZoom(1);
+              }}
             >
               <img
                 src={image}
@@ -222,13 +279,17 @@ export function DocumentGallery({
         </div>
       )}
 
-      {/* Pagination Controls - Hide in fullscreen mode */}
+      {/* Pagination Controls */}
       {!isFullScreen && totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-2 flex-wrap">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            onClick={() => {
+              setCurrentPage((p) => Math.max(1, p - 1));
+              setCurrentImageIndex(0);
+              setZoom(1);
+            }}
             disabled={currentPage === 1}
           >
             Previous
@@ -239,7 +300,11 @@ export function DocumentGallery({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            onClick={() => {
+              setCurrentPage((p) => Math.min(totalPages, p + 1));
+              setCurrentImageIndex(0);
+              setZoom(1);
+            }}
             disabled={currentPage === totalPages}
           >
             Next

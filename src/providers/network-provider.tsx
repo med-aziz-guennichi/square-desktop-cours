@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { flushRetryQueue } from '@/lib/retry-queue';
 
 type NetworkStatusContextType = {
   isOnline: boolean;
@@ -16,7 +17,7 @@ export function NetworkStatusProvider({ children }: { children: ReactNode }) {
     const checkConnection = async () => {
       try {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 3000); // 3s timeout
+        const timeout = setTimeout(() => controller.abort(), 3000);
 
         await fetch('https://www.google.com/', {
           mode: 'no-cors',
@@ -37,16 +38,16 @@ export function NetworkStatusProvider({ children }: { children: ReactNode }) {
         setIsOnline(status);
         previousStatus = status;
         if (status) {
-          toast.success('You are now back online!');
+          toast.success('Vous êtes à nouveau en ligne.');
+          flushRetryQueue();
         } else {
-          toast.warning('You are now offline. Some features may not work.');
+          toast.warning('Vous êtes hors ligne. Certaines fonctionnalités peuvent être limitées.');
         }
       }
     };
 
-    // Start interval to ping every 5 seconds
     const interval = setInterval(checkConnection, 5000);
-    checkConnection(); // run on mount
+    checkConnection();
 
     return () => clearInterval(interval);
   }, []);

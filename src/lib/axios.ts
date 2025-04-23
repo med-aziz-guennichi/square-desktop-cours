@@ -7,6 +7,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios';
 import { toast } from 'sonner';
+import { queueRetryRequest } from './retry-queue';
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -23,7 +24,6 @@ const generateRequestId = () => `req_${Date.now()}_${++requestCounter}`;
 export const addActiveRequest = (config: InternalAxiosRequestConfig): CustomAxiosRequestConfig => {
   const enhancedConfig = config as CustomAxiosRequestConfig;
 
-  // Track only if this is a golangInstance request
   if (enhancedConfig._isGolang) {
     const controller = new AbortController();
     const requestId = generateRequestId();
@@ -63,7 +63,7 @@ export const golangInstance = axios.create({
   baseURL: `https://email.studiffy.com`,
 });
 
-// === Interceptors (ONLY for golangInstance) ===
+// === Interceptors for golangInstance ===
 golangInstance.interceptors.request.use(
   (config) => {
     const enhancedConfig = { ...config, _isGolang: true };
@@ -77,15 +77,32 @@ golangInstance.interceptors.response.use(
     removeActiveRequest(response.config);
     return response;
   },
-  (error: AxiosError) => {
-    if (!axios.isCancel(error) && (error as AxiosError).config) {
-      removeActiveRequest((error as AxiosError).config);
+  async (error: AxiosError) => {
+    const originalRequest = error.config as CustomAxiosRequestConfig;
+
+    if (!axios.isCancel(error) && originalRequest) {
+      removeActiveRequest(originalRequest);
     }
+
+    // Retry on network failure
+    if (!error.response && !axios.isCancel(error)) {
+      queueRetryRequest(() => {
+        return golangInstance(originalRequest)
+          .then((res) => {
+            toast.success('Reconnexion réussie, la requête a été relancée.');
+            return res;
+          })
+          .catch(() => {
+            toast.error('Échec lors de la tentative de reconnexion.');
+          });
+      });
+    }
+
     return Promise.reject(error);
   }
 );
 
-// === instance (with auth refresh logic, no tracking) ===
+// === Interceptors for instance (with auth refresh + retry) ===
 instance.interceptors.request.use(
   (config) => {
     const accessToken = useUserStore.getState().user?.accessToken;
@@ -102,6 +119,7 @@ instance.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as CustomAxiosRequestConfig;
 
+    // Token expired (custom 498 code)
     if (
       error.response?.status === 498 &&
       originalRequest &&
@@ -132,11 +150,25 @@ instance.interceptors.response.use(
       }
     }
 
+    // Retry on network failure
+    if (!error.response && !axios.isCancel(error)) {
+      queueRetryRequest(() => {
+        return instance(originalRequest)
+          .then((res) => {
+            toast.success('Reconnexion réussie, la requête a été relancée.');
+            return res;
+          })
+          .catch(() => {
+            toast.error('Échec lors de la tentative de reconnexion.');
+          });
+      });
+    }
+
     return Promise.reject(error);
   }
 );
 
-// === Status/Utility functions (same names) ===
+// === Utility ===
 export const getRequestStatus = () => ({
   isRequestInProgress: isRequestInProgress(),
   activeRequests: activeRequests.size,

@@ -49,6 +49,12 @@ export default function AjouterCoursPage() {
   const form = useAddCoursForm();
   const onSubmit: SubmitHandler<AddCoursSchemaType> = async (data) => {
     try {
+      if (isRequestInProgress()) {
+        toast.warning(
+          'Une autre requête est en cours. Veuillez patienter avant de soumettre une nouvelle requête.',
+        );
+        return;
+      }
       createLesson(data);
     } catch (error) {
       console.error(error);
@@ -78,7 +84,7 @@ export default function AjouterCoursPage() {
               <h1 className="text-3xl font-bold">Ajouter un contenu à la classe</h1>
             </div>
             <Button
-              disabled={form.formState.isSubmitting || isRequestInProgress()}
+              disabled={form.formState.isSubmitting}
               onClick={form.handleSubmit(onSubmit)}
             >
               {isPending && <Loader2 className="animate-spin" />}
