@@ -95,7 +95,7 @@ jobs:
           PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PASSWORD }}
-        run: bunx tauri build --verbose
+        run: bunx tauri build
 
       - name: Generate latest.json and package artifacts
         shell: bash
@@ -113,9 +113,9 @@ jobs:
             cp "$sig" output/
             ;;
           macos)
-            app="src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/${{ env.PROJECT_NAME }}_${version}_x64.dmg"
+            app="src-tauri/target/x86_64-apple-darwin/release/bundle/macos/${{ env.PROJECT_NAME }}.app.tar.gz"
             sig="src-tauri/target/x86_64-apple-darwin/release/bundle/macos/${{ env.PROJECT_NAME }}.app.tar.gz.sig"
-            tarball="output/${{ env.PROJECT_NAME }}_${version}_x64.dmg"
+            tarball="output/${{ env.PROJECT_NAME }}_${version}.app.tar.gz"
             tar -czf "$tarball" -C "$(dirname "$app")" "$(basename "$app")"
             ;;
           windows)
@@ -170,7 +170,7 @@ jobs:
               },
               "darwin-x86_64": {
                 "signature": "$(cat artifacts/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz.sig | base64 -w 0 | sed 's/"/\\"/g')",
-                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}_x64.dmg"
+                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}.app.tar.gz"
               },
               "windows-x86_64": {
                 "signature": "$(cat artifacts/windows/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig | sed 's/"/\\"/g' | tr -d '\n')",
