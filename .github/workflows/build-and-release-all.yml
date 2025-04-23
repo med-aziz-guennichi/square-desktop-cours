@@ -95,7 +95,7 @@ jobs:
           PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PASSWORD }}
-        run: bunx tauri build
+        run: bunx tauri build --verbose
 
       - name: Generate latest.json and package artifacts
         shell: bash
@@ -113,7 +113,7 @@ jobs:
             cp "$sig" output/
             ;;
           macos)
-            app="src-tauri/target/x86_64-apple-darwin/release/bundle/macos/${{ env.PROJECT_NAME }}.app.tar.gz"
+            app="src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/${{ env.PROJECT_NAME }}_${version}_x64.dmg"
             sig="src-tauri/target/x86_64-apple-darwin/release/bundle/macos/${{ env.PROJECT_NAME }}.app.tar.gz.sig"
             tarball="output/${{ env.PROJECT_NAME }}_${version}.app.tar.gz"
             tar -czf "$tarball" -C "$(dirname "$app")" "$(basename "$app")"
@@ -168,9 +168,9 @@ jobs:
                 "signature": "$(cat artifacts/linux/${{ env.PROJECT_NAME }}_${version}_amd64.deb.sig | sed 's/"/\\"/g' | tr -d '\n')",
                 "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/deb/${{ env.PROJECT_NAME }}_${version}_amd64.deb"
               },
-              "darwin-aarch64": {
+              "darwin-x86_64": {
                 "signature": "$(cat artifacts/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz.sig | base64 -w 0 | sed 's/"/\\"/g')",
-                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}.app.tar.gz"
+                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/dmg/${{ env.PROJECT_NAME }}_${version}_x64.dmg"
               },
               "windows-x86_64": {
                 "signature": "$(cat artifacts/windows/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig | sed 's/"/\\"/g' | tr -d '\n')",
