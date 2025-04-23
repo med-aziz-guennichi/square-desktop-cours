@@ -67,28 +67,38 @@ export function FileUploadCircularProgressDemo({
   const uploadFile = React.useCallback(
     async (
       file: File,
-      onProgress: (file: File, progress: number) => void,
+      onProgress: (file: File, progress: number, eta?: string) => void,
     ): Promise<string> => {
       const formData = new FormData();
       formData.append('enterpriseId', enterpriseId!);
       formData.append('file', file);
 
-      // Track upload progress
+      const startTime = Date.now();
+
       const config = {
         onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total!,
-          );
-          onProgress(file, percentCompleted);
+          const now = Date.now();
+          const timeElapsed = (now - startTime) / 1000; // seconds
+          const loaded = progressEvent.loaded;
+          const total = progressEvent.total ?? file.size;
+          const percentCompleted = Math.round((loaded * 100) / total);
+
+          const speed = loaded / timeElapsed; // bytes per second
+          const remainingBytes = total - loaded;
+          const estimatedSeconds = remainingBytes / speed;
+          const eta = new Date(estimatedSeconds * 1000).toISOString().substr(14, 5); // mm:ss
+
+          onProgress(file, percentCompleted, eta);
         },
       };
 
       const response = await instance.post('/upload', formData, config);
+
       if (!response.data.success) {
         throw new Error('File upload failed');
       }
 
-      return response.data.filename; // Or use response.data.path if your API returns the stored path
+      return response.data.filename;
     },
     [enterpriseId],
   );
@@ -124,11 +134,12 @@ export function FileUploadCircularProgressDemo({
           newFiles.map(async (file) => {
             try {
               await toast.promise(
-                uploadFile(file, (f, progress) => {
+                uploadFile(file, (f, progress, eta) => {
                   onProgress(f, progress);
-                  toast.loading(`Uploading ${file.name}: ${progress}%`, {
-                    id: file.name,
-                  });
+                  toast.loading(
+                    `Uploading ${file.name}: ${progress}%${eta ? ` (Time Remaining: ${eta})` : ''}`,
+                    { id: file.name },
+                  );
                 }),
                 {
                   loading: `Uploading ${file.name}...`,
