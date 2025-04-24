@@ -15,6 +15,8 @@ const AjouterCoursPage = lazy(() => import('./pages/cours/ajouter-cours'));
 const CoursLayout = lazy(() => import('./pages/cours/cours-layout'));
 const CoursDetailsPage = lazy(() => import('./pages/cours/cours-details'));
 const CoursDetailsLayout = lazy(() => import('./layout/cours-details-layout'));
+// ----------------------------------------------- VIDEO CONFERANCE
+const VideoConferancePage = lazy(() => import('./pages/video-conferance/video-conferance-page'));
 
 const withSuspense = (Component: React.ReactNode) => (
   <Suspense fallback={<FullPageLoader />}>{Component}</Suspense>
@@ -41,6 +43,10 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
         children: [
+          {
+            path:'conferance',
+            element: withSuspense(<VideoConferancePage />),
+          },
           {
             path: 'classes',
             element: withSuspense(<ClassePage />),

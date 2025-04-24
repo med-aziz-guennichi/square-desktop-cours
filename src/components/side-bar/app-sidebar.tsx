@@ -78,9 +78,8 @@ const data = {
   conference: [
     {
       title: 'Réunions',
-      url: '#',
+      url: '/dashboard/conferance',
       icon: Video,
-      disabled: true,
     },
   ],
   bibliotheque: [

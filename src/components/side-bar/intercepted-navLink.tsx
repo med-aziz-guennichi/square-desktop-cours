@@ -18,6 +18,7 @@ interface InterceptedNavLinkProps {
   children: ReactNode;
   disabled?: boolean;
   className?: string;
+  dataActive?:boolean;
 }
 
 export function InterceptedNavLink({
@@ -25,6 +26,7 @@ export function InterceptedNavLink({
   children,
   disabled,
   className,
+  dataActive
 }: InterceptedNavLinkProps) {
   const navigate = useNavigate();
   const [showDialog, setShowDialog] = useState(false);
@@ -63,6 +65,7 @@ export function InterceptedNavLink({
   return (
     <>
       <NavLink 
+        data-active={dataActive}
         to={to} 
         onClick={handleClick} 
         aria-disabled={disabled} 
