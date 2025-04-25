@@ -29,7 +29,7 @@ jobs:
         run: bun run format:write
 
       - name: Code Review GPT
-        uses: mattzcarey/code-review-gpt@v0.1.11
+        uses: mattzcarey/code-review-gpt@v0.8.0
         with:
           GITHUB_TOKEN: ${{ github.token }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
