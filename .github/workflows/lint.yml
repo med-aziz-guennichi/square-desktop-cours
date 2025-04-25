@@ -30,7 +30,7 @@ jobs:
 
       - name: Send Code to Hugging Face for Review
         run: |
-          curl -X POST https://api-inference.huggingface.co/models/<hugging-face-model-name> \
+          curl -X POST https://api-inference.huggingface.co/models/bigcode/starcoderbase-1b \
             -H "Authorization: Bearer ${{ secrets.HUGGINGFACE_API_KEY }}" \
             -d '{"inputs": "Please review the following code: <your_code_here>"}' \
             -o result.json
