@@ -1,6 +1,5 @@
 # Studiffy Cours Desktop
 
-![Project Banner](https://via.placeholder.com/1200x400?text=Studiffy+Cours+Desktop+Application)
 
 A professional-grade desktop application for educational content management and course creation, leveraging modern web technologies with native desktop capabilities through Tauri.
 
