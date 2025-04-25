@@ -13,7 +13,7 @@ export default function AppLayout() {
       if (['student', 'instructor', 'responsable'].includes(user!.role!)) {
         getCurrentWindow().setContentProtected(true).catch(console.error);
       }
-    }, 1000); // Delay by 1 second
+    }, 1000);
 
     return () => {
       clearTimeout(timer);
