@@ -1,6 +1,8 @@
 name: Frontend Lint Check
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -11,15 +13,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
-      - name: Install dependencies
+      - name: Install deps
         run: bun install
 
       - name: Run ESLint
@@ -27,24 +27,3 @@ jobs:
 
       - name: Run Prettier
         run: bun run format:write
-
-      - name: Fetch Pull Request Diff
-        id: pr_diff
-        run: |
-          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -o pr_diff.patch \
-            "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
-        
-      - name: Send Code to Hugging Face for Review (Starcoder)
-        run: |
-          # Read the diff content
-          CODE_DIFF=$(cat pr_diff.patch)
-
-          # Send to Hugging Face for code review
-          curl -X POST https://api-inference.huggingface.co/models/bigcode/starcoderbase-1b \
-            -H "Authorization: Bearer ${{ secrets.HUGGINGFACE_API_KEY }}" \
-            -d '{"inputs": "Please review the following code: '"$CODE_DIFF"'"}' \
-            -o result.json
-
-      - name: Display Hugging Face Review Result
-        run: cat result.json
