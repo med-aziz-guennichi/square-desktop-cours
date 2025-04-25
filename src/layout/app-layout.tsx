@@ -6,6 +6,12 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 
+/**
+ * Provides the main application layout with sidebar, header, and routed content.
+ *
+ * @remark
+ * Enables content protection for users with the roles "student", "instructor", or "responsable" while the layout is mounted, and disables it on unmount or user change.
+ */
 export default function AppLayout() {
   const user = useUserStore().decodedUser;
   useEffect(() => {
