@@ -27,3 +27,6 @@ jobs:
 
       - name: Run Prettier
         run: bun run format:write
+        
+      - name: Code Review GPT
+        uses: mattzcarey/code-review-gpt@v0.8.0
