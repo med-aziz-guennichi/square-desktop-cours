@@ -1,8 +1,6 @@
 name: Frontend Lint Check
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 
@@ -14,7 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # needed to get full history for BASE_SHA
+          fetch-depth: 0
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -30,18 +28,10 @@ jobs:
       - name: Run Prettier
         run: bun run format:write
 
-      - name: Set BASE_SHA
-        id: set-base-sha
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "BASE_SHA=${{ github.event.pull_request.base.sha }}" >> $GITHUB_ENV
-          else
-            echo "BASE_SHA=${{ github.event.before }}" >> $GITHUB_ENV
-          fi
-
       - name: Code Review GPT
-        uses: mattzcarey/code-review-gpt@v0.8.0
-        env:
+        uses: mattzcarey/code-review-gpt@v0.1.11
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_SHA: ${{ env.BASE_SHA }}
+          MODEL: "gpt-4o"
+          REVIEW_LANGUAGE: "English"
