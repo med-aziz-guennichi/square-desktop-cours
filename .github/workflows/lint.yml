@@ -28,10 +28,22 @@ jobs:
       - name: Run Prettier
         run: bun run format:write
 
-      - name: Code Review GPT
-        uses: mattzcarey/code-review-gpt@v0.8.0
-        with:
-          GITHUB_TOKEN: ${{ github.token }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          MODEL: "gpt-4o"
-          REVIEW_LANGUAGE: "English"
+      - name: Send Code to Hugging Face for Review
+        run: |
+          curl -X POST https://api-inference.huggingface.co/models/<hugging-face-model-name> \
+            -H "Authorization: Bearer ${{ secrets.HUGGINGFACE_API_KEY }}" \
+            -d '{"inputs": "Please review the following code: <your_code_here>"}' \
+            -o result.json
+
+      - name: Display Hugging Face Review Result
+        run: cat result.json
+
+      - name: Comment on PR with Review
+        run: |
+          REVIEW=$(cat result.json | jq -r '.choices[0].text')
+          curl -X POST \
+            -H "Authorization: token ${{ github.token }}" \
+            -d '{"body": "Code Review: \n\n'"$REVIEW"'"}' \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments
+
+      
