@@ -41,10 +41,11 @@ A professional-grade desktop application for educational content management and 
    git clone https://github.com/med-aziz-guennichi/studiffy-cours.git
    cd studiffy-cours
   ```
+  
 2. Install dependencies:
-   ```bash
+  ```bash
    bun install
-   ```
+  ```
 ## 🚀 Development
 1. Start the development server:
    ```bash
