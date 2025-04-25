@@ -9,15 +9,22 @@ import { Outlet } from 'react-router-dom';
 export default function AppLayout() {
   const user = useUserStore().decodedUser;
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (['student', 'instructor', 'responsable'].includes(user!.role!)) {
-        getCurrentWindow().setContentProtected(true).catch(console.error);
+    const currentWindow = getCurrentWindow();
+    const timer = setTimeout(async () => {
+      if (user?.role && ['student', 'instructor', 'responsable'].includes(user.role)) {
+        try {
+          await currentWindow.setContentProtected(true);
+          await currentWindow.setFocus(); // Prevent click-jacking
+          await currentWindow.setShadow(true); // Enable window shadow to prevent overlay attacks
+        } catch (error) {
+          console.error('Security hardening failed:', error);
+        }
       }
     }, 1000);
 
     return () => {
       clearTimeout(timer);
-      getCurrentWindow().setContentProtected(false).catch(console.error);
+      currentWindow.setContentProtected(false).catch(console.error);
     };
   }, [user]);
 
