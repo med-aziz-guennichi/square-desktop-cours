@@ -37,15 +37,14 @@ A professional-grade desktop application for educational content management and 
   ```
 ## 🛠️ Installation
 1. Clone the repository:
-   ```bash
+  ```bash
    git clone https://github.com/med-aziz-guennichi/studiffy-cours.git
-   cd studiffy-cours
-  ```
-  
+   ```
+
 2. Install dependencies:
   ```bash
    bun install
-  ```
+   ```
 ## 🚀 Development
 1. Start the development server:
    ```bash
