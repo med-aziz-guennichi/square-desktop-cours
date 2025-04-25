@@ -1,19 +1,20 @@
-import { lazy, Suspense } from 'react';
-const ChaptersForm = lazy(() => import('@/components/form/cours/add-chapters-form'));
-const ClickedShapterForm = lazy(() => import('@/components/form/cours/clicked-shapter-form'));
 import { CourseCard } from '@/components/cards/subject-card';
 import { AddCoursForm } from '@/components/form/cours/add-cours-form';
 import { AddCoursSchemaType } from '@/components/form/cours/schemas/add-cours-schema';
 import { Button } from '@/components/ui/button';
 import { useBreadcrumb } from '@/context/BreadcrumbContext';
+import { isRequestInProgress } from '@/lib/axios';
 import { Book, BookText, Eye, FilePlus2, Loader2, Users2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { FormProvider, SubmitHandler } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAddCoursForm } from './hooks/use-add-cours-form';
 import { useCreateLessonMutation } from './hooks/use-create-lesson-mutation';
-import { isRequestInProgress } from '@/lib/axios';
+const ChaptersForm = lazy(() => import('@/components/form/cours/add-chapters-form'));
+const ClickedShapterForm = lazy(
+  () => import('@/components/form/cours/clicked-shapter-form'),
+);
 
 export interface ClickedChapter {
   id: string | null;
@@ -114,8 +115,7 @@ export default function AjouterCoursPage() {
               />
             </div>
           </div>
-          <Suspense fallback={
-            <Loader2 className="animate-spin" />}>
+          <Suspense fallback={<Loader2 className="animate-spin" />}>
             {clickedShapter.id ? (
               <ClickedShapterForm
                 clickedChapter={clickedShapter}

@@ -56,24 +56,24 @@ export function CourseCard({
   isPreview = false,
   chapters,
   badgeIcon = <GraduationCap className="h-3 w-3" />,
-  onShareClick = () => { },
-  onFavoriteClick = () => { },
-  onClick = () => { },
+  onShareClick = () => {},
+  onFavoriteClick = () => {},
+  onClick = () => {},
   isInstructor = true, // todo: to be change to false
-  subjectId
+  subjectId,
 }: CourseCardProps) {
   const [open, setOpen] = useState(false);
 
   const { mutate: deleteLesson, isPending } = useDeleteLesson(id, subjectId!);
 
   const handleDeleteConfirm = () => {
-    deleteLesson()
-    setOpen(false)
-  }
+    deleteLesson();
+    setOpen(false);
+  };
 
   const handleDeleteCancel = () => {
-    setOpen(false)
-  }
+    setOpen(false);
+  };
   return (
     <>
       <Card
@@ -102,59 +102,61 @@ export function CourseCard({
 
         <CardHeader className="pb-2 pt-8">
           <div className="flex items-start justify-between">
-            <CardTitle className="text-lg font-medium line-clamp-1">{title}</CardTitle>
+            <CardTitle className="text-lg font-medium line-clamp-1">
+              {title}
+            </CardTitle>
             <div className="flex space-x-1">
-              {
-                isInstructor ? (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          disabled={isPreview}
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 rounded-full"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setOpen(true);
-                          }}
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Supprimez</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                ) : (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          disabled={isPreview}
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 rounded-full"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onFavoriteClick(id);
-                          }}
-                        >
-                          {isFavorite ? (
-                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          ) : (
-                            <Star className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )
-              }
+              {isInstructor ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        disabled={isPreview}
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpen(true);
+                        }}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Supprimez</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        disabled={isPreview}
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onFavoriteClick(id);
+                        }}
+                      >
+                        {isFavorite ? (
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        ) : (
+                          <Star className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>
+                        {isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
 
               <TooltipProvider>
                 <Tooltip>

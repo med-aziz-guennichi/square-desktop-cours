@@ -1,6 +1,6 @@
+import { flushRetryQueue } from '@/lib/retry-queue';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { flushRetryQueue } from '@/lib/retry-queue';
 
 type NetworkStatusContextType = {
   isOnline: boolean;
@@ -41,7 +41,9 @@ export function NetworkStatusProvider({ children }: { children: ReactNode }) {
           toast.success('Vous êtes à nouveau en ligne.');
           flushRetryQueue();
         } else {
-          toast.warning('Vous êtes hors ligne. Certaines fonctionnalités peuvent être limitées.');
+          toast.warning(
+            'Vous êtes hors ligne. Certaines fonctionnalités peuvent être limitées.',
+          );
         }
       }
     };

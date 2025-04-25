@@ -16,7 +16,9 @@ const CoursLayout = lazy(() => import('./pages/cours/cours-layout'));
 const CoursDetailsPage = lazy(() => import('./pages/cours/cours-details'));
 const CoursDetailsLayout = lazy(() => import('./layout/cours-details-layout'));
 // ----------------------------------------------- VIDEO CONFERANCE
-const VideoConferancePage = lazy(() => import('./pages/video-conferance/video-conferance-page'));
+const VideoConferancePage = lazy(
+  () => import('./pages/video-conferance/video-conferance-page'),
+);
 
 const withSuspense = (Component: React.ReactNode) => (
   <Suspense fallback={<FullPageLoader />}>{Component}</Suspense>
@@ -44,7 +46,7 @@ export const router = createBrowserRouter([
         ),
         children: [
           {
-            path:'conferance',
+            path: 'conferance',
             element: withSuspense(<VideoConferancePage />),
           },
           {

@@ -16,12 +16,8 @@ import { ActionConfirmationDialog } from './save-navigation-dialog';
 export const Breadcrumb = () => {
   const navigate = useNavigate();
   const { sousPages } = useBreadcrumb();
-  const {
-    showConfirm,
-    attemptAction,
-    executePendingAction,
-    cancelAction,
-  } = useSafeNavigation();
+  const { showConfirm, attemptAction, executePendingAction, cancelAction } =
+    useSafeNavigation();
   return (
     <div>
       <BreadcrumbComponent className="flex">
@@ -56,7 +52,7 @@ export const Breadcrumb = () => {
                         } else {
                           page.link();
                         }
-                      }
+                      };
                       attemptAction(action);
                     }}
                     className="inline-flex items-center gap-1.5 capitalize cursor-pointer"

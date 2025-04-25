@@ -9,7 +9,6 @@ import { ConfettiProvider } from './providers/confetti-provider';
 import { NetworkStatusProvider } from './providers/network-provider';
 import { ThemeProvider } from './providers/theme-provider';
 
-
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">

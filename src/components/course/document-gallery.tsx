@@ -134,10 +134,9 @@ export function DocumentGallery({
       {/* Main Image Container */}
       <div
         ref={imageContainerRef}
-        className={`relative rounded-lg border bg-card overflow-hidden ${isFullScreen
-          ? 'fixed inset-0 z-50 bg-background'
-          : 'w-full'
-          }`}
+        className={`relative rounded-lg border bg-card overflow-hidden ${
+          isFullScreen ? 'fixed inset-0 z-50 bg-background' : 'w-full'
+        }`}
       >
         <div
           className={`${isFullScreen ? 'h-full w-full overflow-auto' : 'max-h-[70vh] overflow-hidden'}`}
@@ -148,7 +147,6 @@ export function DocumentGallery({
             height: isFullScreen ? '100%' : 'auto',
           }}
         >
-
           <div
             style={{
               transform: `scale(${zoom})`,
@@ -169,7 +167,6 @@ export function DocumentGallery({
               }}
             />
           </div>
-
         </div>
 
         {/* Navigation Buttons */}
@@ -260,10 +257,11 @@ export function DocumentGallery({
           {docPreview.images.map((image, index) => (
             <button
               key={index}
-              className={`flex-shrink-0 w-20 h-28 rounded-md overflow-hidden border-2 transition-all ${currentImageIndex === index
-                ? 'border-primary ring-2 ring-primary/20'
-                : 'border-border hover:border-primary/50'
-                }`}
+              className={`flex-shrink-0 w-20 h-28 rounded-md overflow-hidden border-2 transition-all ${
+                currentImageIndex === index
+                  ? 'border-primary ring-2 ring-primary/20'
+                  : 'border-border hover:border-primary/50'
+              }`}
               onClick={() => {
                 setCurrentImageIndex(index);
                 setZoom(1);

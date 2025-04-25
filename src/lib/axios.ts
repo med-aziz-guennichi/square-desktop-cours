@@ -21,7 +21,9 @@ let requestCounter = 0;
 
 const generateRequestId = () => `req_${Date.now()}_${++requestCounter}`;
 
-export const addActiveRequest = (config: InternalAxiosRequestConfig): CustomAxiosRequestConfig => {
+export const addActiveRequest = (
+  config: InternalAxiosRequestConfig,
+): CustomAxiosRequestConfig => {
   const enhancedConfig = config as CustomAxiosRequestConfig;
 
   if (enhancedConfig._isGolang) {
@@ -69,7 +71,7 @@ golangInstance.interceptors.request.use(
     const enhancedConfig = { ...config, _isGolang: true };
     return addActiveRequest(enhancedConfig);
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 golangInstance.interceptors.response.use(
@@ -99,7 +101,7 @@ golangInstance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 // === Interceptors for instance (with auth refresh + retry) ===
@@ -111,7 +113,7 @@ instance.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 instance.interceptors.response.use(
@@ -165,7 +167,7 @@ instance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 // === Utility ===
@@ -176,5 +178,8 @@ export const getRequestStatus = () => ({
 });
 
 export const isCancelledError = (error: unknown) => {
-  return axios.isCancel(error) || (error instanceof Error && error.message === 'Request cancelled');
+  return (
+    axios.isCancel(error) ||
+    (error instanceof Error && error.message === 'Request cancelled')
+  );
 };

@@ -287,34 +287,37 @@ function SortableChapterItem({
             }
           }}
         >
-          <div className='flex items-center justify-between'>
-          <div className="flex items-center gap-2">
-            <div
-              className="px-2 py-4 cursor-grab touch-none flex items-center justify-center text-muted-foreground hover:text-foreground"
-              {...attributes}
-              {...listeners}
-            >
-              <GripVertical className="h-5 w-5" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div
+                className="px-2 py-4 cursor-grab touch-none flex items-center justify-center text-muted-foreground hover:text-foreground"
+                {...attributes}
+                {...listeners}
+              >
+                <GripVertical className="h-5 w-5" />
+              </div>
+              <div className="flex-1 hover:no-underline">
+                <span className="font-medium">
+                  {title || `Chapitre ${index + 1}`}
+                </span>
+              </div>
             </div>
-            <div className="flex-1 hover:no-underline">
-              <span className="font-medium">{title || `Chapitre ${index + 1}`}</span>
-            </div>
-          </div>
-          <div>
-          {Array.isArray(formErrors?.chapters) && (
-            <>
-              {(formErrors.chapters[index]?.title || formErrors.chapters[index]?.description) && (
-                <Alert variant="destructive" className='border-0 '>
-                  <AlertDescription>
-                    {`Veuillez cliquer sur le chapitre ${index + 1} pour compléter les détails.`}
-                  </AlertDescription>
-                </Alert>
+            <div>
+              {Array.isArray(formErrors?.chapters) && (
+                <>
+                  {(formErrors.chapters[index]?.title ||
+                    formErrors.chapters[index]?.description) && (
+                    <Alert variant="destructive" className="border-0 ">
+                      <AlertDescription>
+                        {`Veuillez cliquer sur le chapitre ${index + 1} pour compléter les détails.`}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </>
               )}
-            </>
-          )}
+            </div>
           </div>
-          </div>
-         
+
           <div className="flex items-center gap-1 mr-4">
             <Button
               type="button"

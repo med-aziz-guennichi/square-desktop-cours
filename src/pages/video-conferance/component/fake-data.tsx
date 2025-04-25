@@ -1,29 +1,17 @@
-"use client"
+'use client';
 
-import { useState } from "react"
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
-  Calendar,
-  Clock,
-  Plus,
-  Search,
-  Video,
-  Users,
-  User,
-  School,
-  Building,
-  Filter,
-  Play,
-  CalendarPlus,
-  History,
-  Loader2,
-  VideoIcon,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -31,7 +19,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -40,271 +30,293 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { cn } from "@/lib/utils"
-import { useNavigate } from "react-router-dom"
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
+import {
+  Building,
+  Calendar,
+  CalendarPlus,
+  Clock,
+  Filter,
+  History,
+  Loader2,
+  Play,
+  Plus,
+  School,
+  Search,
+  User,
+  Users,
+  Video,
+  VideoIcon,
+} from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Types
-type UserRole = "student" | "teacher" | "parent" | "admin"
-type ConferenceStatus = "scheduled" | "live" | "ended"
-type ConferenceType = "class" | "individual" | "admin" | "mixed"
+type UserRole = 'student' | 'teacher' | 'parent' | 'admin';
+type ConferenceStatus = 'scheduled' | 'live' | 'ended';
+type ConferenceType = 'class' | 'individual' | 'admin' | 'mixed';
 
 interface UserType {
-  id: number
-  name: string
-  avatar: string
-  role: UserRole
+  id: number;
+  name: string;
+  avatar: string;
+  role: UserRole;
 }
 
 interface Conference {
-  id: number
-  title: string
-  description?: string
-  startTime: string
-  endTime?: string
-  status: ConferenceStatus
-  type: ConferenceType
-  host: UserType
-  participants: UserType[]
-  isRecorded: boolean
-  roomCode: string
+  id: number;
+  title: string;
+  description?: string;
+  startTime: string;
+  endTime?: string;
+  status: ConferenceStatus;
+  type: ConferenceType;
+  host: UserType;
+  participants: UserType[];
+  isRecorded: boolean;
+  roomCode: string;
 }
 
 // Données fictives
 const currentUser: UserType = {
   id: 1,
-  name: "Jean Dupont",
-  avatar: "/placeholder.svg?height=40&width=40",
-  role: "teacher",
-}
+  name: 'Jean Dupont',
+  avatar: '/placeholder.svg?height=40&width=40',
+  role: 'teacher',
+};
 
 const users: UserType[] = [
   currentUser,
   {
     id: 2,
-    name: "Marie Laurent",
-    avatar: "/placeholder.svg?height=40&width=40",
-    role: "teacher",
+    name: 'Marie Laurent',
+    avatar: '/placeholder.svg?height=40&width=40',
+    role: 'teacher',
   },
   {
     id: 3,
-    name: "Thomas Bernard",
-    avatar: "/placeholder.svg?height=40&width=40",
-    role: "student",
+    name: 'Thomas Bernard',
+    avatar: '/placeholder.svg?height=40&width=40',
+    role: 'student',
   },
   {
     id: 4,
-    name: "Sophie Martin",
-    avatar: "/placeholder.svg?height=40&width=40",
-    role: "parent",
+    name: 'Sophie Martin',
+    avatar: '/placeholder.svg?height=40&width=40',
+    role: 'parent',
   },
   {
     id: 5,
-    name: "Pierre Lefebvre",
-    avatar: "/placeholder.svg?height=40&width=40",
-    role: "admin",
+    name: 'Pierre Lefebvre',
+    avatar: '/placeholder.svg?height=40&width=40',
+    role: 'admin',
   },
-]
+];
 
 const conferences: Conference[] = [
   {
     id: 1,
-    title: "Cours de mathématiques avancées",
+    title: 'Cours de mathématiques avancées',
     description: "Séance de révision pour l'examen final",
-    startTime: "2025-04-10T14:00:00",
-    endTime: "2025-04-10T15:30:00",
-    status: "scheduled",
-    type: "class",
+    startTime: '2025-04-10T14:00:00',
+    endTime: '2025-04-10T15:30:00',
+    status: 'scheduled',
+    type: 'class',
     host: users[0],
     participants: [users[2], users[3]],
     isRecorded: true,
-    roomCode: "MATH-ADV-123",
+    roomCode: 'MATH-ADV-123',
   },
   {
     id: 2,
-    title: "Réunion pédagogique",
-    description: "Discussion sur les nouveaux programmes",
-    startTime: "2025-04-09T10:00:00",
-    endTime: "2025-04-09T11:30:00",
-    status: "live",
-    type: "admin",
+    title: 'Réunion pédagogique',
+    description: 'Discussion sur les nouveaux programmes',
+    startTime: '2025-04-09T10:00:00',
+    endTime: '2025-04-09T11:30:00',
+    status: 'live',
+    type: 'admin',
     host: users[4],
     participants: [users[0], users[1]],
     isRecorded: true,
-    roomCode: "ADMIN-PED-456",
+    roomCode: 'ADMIN-PED-456',
   },
   {
     id: 3,
-    title: "Tutorat individuel - Physique",
-    description: "Aide personnalisée sur les concepts de mécanique quantique",
-    startTime: "2025-04-09T16:00:00",
-    status: "scheduled",
-    type: "individual",
+    title: 'Tutorat individuel - Physique',
+    description: 'Aide personnalisée sur les concepts de mécanique quantique',
+    startTime: '2025-04-09T16:00:00',
+    status: 'scheduled',
+    type: 'individual',
     host: users[0],
     participants: [users[2]],
     isRecorded: false,
-    roomCode: "PHYS-TUT-789",
+    roomCode: 'PHYS-TUT-789',
   },
   {
     id: 4,
-    title: "Réunion parents-professeurs",
-    description: "Bilan trimestriel",
-    startTime: "2025-04-08T18:00:00",
-    endTime: "2025-04-08T20:00:00",
-    status: "ended",
-    type: "mixed",
+    title: 'Réunion parents-professeurs',
+    description: 'Bilan trimestriel',
+    startTime: '2025-04-08T18:00:00',
+    endTime: '2025-04-08T20:00:00',
+    status: 'ended',
+    type: 'mixed',
     host: users[0],
     participants: [users[3], users[4]],
     isRecorded: true,
-    roomCode: "PARENT-MEET-101",
+    roomCode: 'PARENT-MEET-101',
   },
-]
+];
 
 // Fonctions utilitaires
 const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  })
-}
+  const date = new Date(dateString);
+  return date.toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+};
 
 const formatTime = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleTimeString("fr-FR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-}
+  const date = new Date(dateString);
+  return date.toLocaleTimeString('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
 
 const getConferenceTypeIcon = (type: ConferenceType) => {
   switch (type) {
-    case "class":
-      return <School className="h-4 w-4" />
-    case "individual":
-      return <User className="h-4 w-4" />
-    case "admin":
-      return <Building className="h-4 w-4" />
-    case "mixed":
-      return <Users className="h-4 w-4" />
+    case 'class':
+      return <School className="h-4 w-4" />;
+    case 'individual':
+      return <User className="h-4 w-4" />;
+    case 'admin':
+      return <Building className="h-4 w-4" />;
+    case 'mixed':
+      return <Users className="h-4 w-4" />;
     default:
-      return <Video className="h-4 w-4" />
+      return <Video className="h-4 w-4" />;
   }
-}
+};
 
 const getConferenceTypeText = (type: ConferenceType) => {
   switch (type) {
-    case "class":
-      return "Classe"
-    case "individual":
-      return "Individuel"
-    case "admin":
-      return "Administration"
-    case "mixed":
-      return "Mixte"
+    case 'class':
+      return 'Classe';
+    case 'individual':
+      return 'Individuel';
+    case 'admin':
+      return 'Administration';
+    case 'mixed':
+      return 'Mixte';
     default:
-      return "Conférence"
+      return 'Conférence';
   }
-}
+};
 
 const getStatusBadge = (status: ConferenceStatus) => {
   switch (status) {
-    case "live":
+    case 'live':
       return (
         <Badge variant="destructive" className="ml-2">
           <Play className="h-3 w-3 mr-1 fill-current" />
           En direct
         </Badge>
-      )
-    case "scheduled":
+      );
+    case 'scheduled':
       return (
         <Badge variant="outline" className="ml-2">
           <Calendar className="h-3 w-3 mr-1" />
           Planifiée
         </Badge>
-      )
-    case "ended":
+      );
+    case 'ended':
       return (
         <Badge variant="secondary" className="ml-2">
           <History className="h-3 w-3 mr-1" />
           Terminée
         </Badge>
-      )
+      );
     default:
-      return null
+      return null;
   }
-}
+};
 
 // Composant principal
 export default function ConferencePage() {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedTab, setSelectedTab] = useState("upcoming")
-  const [showNewConferenceDialog, setShowNewConferenceDialog] = useState(false)
-  const [showScheduleDialog, setShowScheduleDialog] = useState(false)
-  const [isCreatingConference, setIsCreatingConference] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTab, setSelectedTab] = useState('upcoming');
+  const [showNewConferenceDialog, setShowNewConferenceDialog] = useState(false);
+  const [showScheduleDialog, setShowScheduleDialog] = useState(false);
+  const [isCreatingConference, setIsCreatingConference] = useState(false);
   const [filters, setFilters] = useState({
-    type: "all",
+    type: 'all',
     onlyMine: false,
     onlyRecorded: false,
-  })
+  });
 
   // Filtrer les conférences
   const filteredConferences = conferences.filter((conference) => {
     // Filtre de recherche
     const matchesSearch =
-      searchQuery === "" ||
+      searchQuery === '' ||
       conference.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (conference.description && conference.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      (conference.description &&
+        conference.description.toLowerCase().includes(searchQuery.toLowerCase()));
 
     // Filtre par type
-    const matchesType = filters.type === "all" || conference.type === filters.type
+    const matchesType = filters.type === 'all' || conference.type === filters.type;
 
     // Filtre par propriétaire
-    const matchesMine = !filters.onlyMine || conference.host.id === currentUser.id
+    const matchesMine = !filters.onlyMine || conference.host.id === currentUser.id;
 
     // Filtre par enregistrement
-    const matchesRecorded = !filters.onlyRecorded || conference.isRecorded
+    const matchesRecorded = !filters.onlyRecorded || conference.isRecorded;
 
-    return matchesSearch && matchesType && matchesMine && matchesRecorded
-  })
+    return matchesSearch && matchesType && matchesMine && matchesRecorded;
+  });
 
   // Trier les conférences par date
-  const upcomingConferences = filteredConferences.filter((c) => c.status === "scheduled")
-  const liveConferences = filteredConferences.filter((c) => c.status === "live")
-  const pastConferences = filteredConferences.filter((c) => c.status === "ended")
-  const myConferences = filteredConferences.filter((c) => c.host.id === currentUser.id)
+  const upcomingConferences = filteredConferences.filter(
+    (c) => c.status === 'scheduled',
+  );
+  const liveConferences = filteredConferences.filter((c) => c.status === 'live');
+  const pastConferences = filteredConferences.filter((c) => c.status === 'ended');
+  const myConferences = filteredConferences.filter(
+    (c) => c.host.id === currentUser.id,
+  );
 
   // Créer une nouvelle conférence
   const createNewConference = () => {
-    setIsCreatingConference(true)
+    setIsCreatingConference(true);
 
     // Simuler la création d'une conférence
     setTimeout(() => {
-      setIsCreatingConference(false)
-      setShowNewConferenceDialog(false)
+      setIsCreatingConference(false);
+      setShowNewConferenceDialog(false);
 
       // Rediriger vers la page de la conférence
-      navigate("/conference/1")
-    }, 2000)
-  }
+      navigate('/conference/1');
+    }, 2000);
+  };
 
   // Planifier une conférence
   const scheduleConference = () => {
-    setIsCreatingConference(true)
+    setIsCreatingConference(true);
 
     // Simuler la planification d'une conférence
     setTimeout(() => {
-      setIsCreatingConference(false)
-      setShowScheduleDialog(false)
+      setIsCreatingConference(false);
+      setShowScheduleDialog(false);
 
       // Afficher un message de succès ou rediriger
       // Pour l'instant, on reste sur la page
-    }, 2000)
-  }
+    }, 2000);
+  };
 
   return (
     <div className="p-8">
@@ -312,7 +324,9 @@ export default function ConferencePage() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Conférences</h1>
-            <p className="text-muted-foreground">Gérez vos réunions et cours en ligne</p>
+            <p className="text-muted-foreground">
+              Gérez vos réunions et cours en ligne
+            </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
             <Button onClick={() => setShowNewConferenceDialog(true)}>
@@ -346,7 +360,10 @@ export default function ConferencePage() {
 
               <div className="space-y-2">
                 <Label>Type de conférence</Label>
-                <Select value={filters.type} onValueChange={(value) => setFilters({ ...filters, type: value })}>
+                <Select
+                  value={filters.type}
+                  onValueChange={(value) => setFilters({ ...filters, type: value })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Tous les types" />
                   </SelectTrigger>
@@ -365,7 +382,9 @@ export default function ConferencePage() {
                   <Checkbox
                     id="onlyMine"
                     checked={filters.onlyMine}
-                    onCheckedChange={(checked) => setFilters({ ...filters, onlyMine: !!checked })}
+                    onCheckedChange={(checked) =>
+                      setFilters({ ...filters, onlyMine: !!checked })
+                    }
                   />
                   <Label htmlFor="onlyMine">Mes conférences uniquement</Label>
                 </div>
@@ -373,7 +392,9 @@ export default function ConferencePage() {
                   <Checkbox
                     id="onlyRecorded"
                     checked={filters.onlyRecorded}
-                    onCheckedChange={(checked) => setFilters({ ...filters, onlyRecorded: !!checked })}
+                    onCheckedChange={(checked) =>
+                      setFilters({ ...filters, onlyRecorded: !!checked })
+                    }
                   />
                   <Label htmlFor="onlyRecorded">Avec enregistrement</Label>
                 </div>
@@ -382,7 +403,12 @@ export default function ConferencePage() {
           </div>
 
           <div className="flex-1">
-            <Tabs defaultValue="upcoming" value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+            <Tabs
+              defaultValue="upcoming"
+              value={selectedTab}
+              onValueChange={setSelectedTab}
+              className="w-full"
+            >
               <TabsList className="grid grid-cols-4 mb-4">
                 <TabsTrigger value="upcoming">À venir</TabsTrigger>
                 <TabsTrigger value="live">En direct</TabsTrigger>
@@ -414,7 +440,9 @@ export default function ConferencePage() {
                     actionText="Démarrer une conférence"
                   />
                 ) : (
-                  liveConferences.map((conference) => <ConferenceCard key={conference.id} conference={conference} />)
+                  liveConferences.map((conference) => (
+                    <ConferenceCard key={conference.id} conference={conference} />
+                  ))
                 )}
               </TabsContent>
 
@@ -425,7 +453,9 @@ export default function ConferencePage() {
                     description="L'historique de vos conférences apparaîtra ici"
                   />
                 ) : (
-                  pastConferences.map((conference) => <ConferenceCard key={conference.id} conference={conference} />)
+                  pastConferences.map((conference) => (
+                    <ConferenceCard key={conference.id} conference={conference} />
+                  ))
                 )}
               </TabsContent>
 
@@ -438,19 +468,25 @@ export default function ConferencePage() {
                     actionText="Créer une conférence"
                   />
                 ) : (
-                  myConferences.map((conference) => <ConferenceCard key={conference.id} conference={conference} />)
+                  myConferences.map((conference) => (
+                    <ConferenceCard key={conference.id} conference={conference} />
+                  ))
                 )}
               </TabsContent>
             </Tabs>
           </div>
         </div>
         {/* Dialogue pour démarrer une nouvelle conférence */}
-        <Dialog open={showNewConferenceDialog} onOpenChange={setShowNewConferenceDialog}>
+        <Dialog
+          open={showNewConferenceDialog}
+          onOpenChange={setShowNewConferenceDialog}
+        >
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Démarrer une nouvelle conférence</DialogTitle>
               <DialogDescription>
-                Créez une conférence instantanée et invitez des participants à la rejoindre.
+                Créez une conférence instantanée et invitez des participants à la
+                rejoindre.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -478,7 +514,10 @@ export default function ConferencePage() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowNewConferenceDialog(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowNewConferenceDialog(false)}
+              >
                 Annuler
               </Button>
               <Button onClick={createNewConference} disabled={isCreatingConference}>
@@ -497,12 +536,14 @@ export default function ConferencePage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        
+
         <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Planifier une conférence</DialogTitle>
-              <DialogDescription>Programmez une conférence pour une date et une heure spécifiques.</DialogDescription>
+              <DialogDescription>
+                Programmez une conférence pour une date et une heure spécifiques.
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
@@ -511,7 +552,10 @@ export default function ConferencePage() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="description">Description (optionnelle)</Label>
-                <Input id="description" placeholder="Ordre du jour et objectifs de la réunion" />
+                <Input
+                  id="description"
+                  placeholder="Ordre du jour et objectifs de la réunion"
+                />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="grid gap-2">
@@ -585,7 +629,9 @@ export default function ConferencePage() {
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox id="notify" defaultChecked />
-                <Label htmlFor="notify">Envoyer des notifications aux participants</Label>
+                <Label htmlFor="notify">
+                  Envoyer des notifications aux participants
+                </Label>
               </div>
             </div>
             <DialogFooter>
@@ -610,17 +656,22 @@ export default function ConferencePage() {
         </Dialog>
       </div>
     </div>
-  )
+  );
 }
 
 // Composant pour afficher une carte de conférence
 function ConferenceCard({ conference }: { conference: Conference }) {
-  const navigate = useNavigate()
-  const isLive = conference.status === "live"
-  const isPast = conference.status === "ended"
+  const navigate = useNavigate();
+  const isLive = conference.status === 'live';
+  const isPast = conference.status === 'ended';
 
   return (
-    <Card className={cn("overflow-hidden transition-all", isLive && "border-destructive")}>
+    <Card
+      className={cn(
+        'overflow-hidden transition-all',
+        isLive && 'border-destructive',
+      )}
+    >
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <div className="space-y-1">
@@ -658,10 +709,15 @@ function ConferenceCard({ conference }: { conference: Conference }) {
             </div>
             <div className="flex items-center">
               <Users className="h-4 w-4 mr-2 text-muted-foreground" />
-              <span className="text-sm">{conference.participants.length} participants</span>
+              <span className="text-sm">
+                {conference.participants.length} participants
+              </span>
               <div className="flex -space-x-2 ml-2">
                 {conference.participants.slice(0, 3).map((participant) => (
-                  <Avatar key={participant.id} className="h-6 w-6 border-2 border-background">
+                  <Avatar
+                    key={participant.id}
+                    className="h-6 w-6 border-2 border-background"
+                  >
                     <AvatarImage src={participant.avatar} alt={participant.name} />
                     <AvatarFallback>{participant.name.charAt(0)}</AvatarFallback>
                   </Avatar>
@@ -696,18 +752,18 @@ function ConferenceCard({ conference }: { conference: Conference }) {
             </Button>
           ) : (
             <Button
-              variant={isLive ? "default" : "outline"}
+              variant={isLive ? 'default' : 'outline'}
               size="sm"
               onClick={() => navigate(`/conference/${conference.id}`)}
             >
               <Play className="mr-2 h-4 w-4" />
-              {isLive ? "Rejoindre" : "Détails"}
+              {isLive ? 'Rejoindre' : 'Détails'}
             </Button>
           )}
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 // Composant pour afficher un état vide
@@ -717,10 +773,10 @@ function EmptyState({
   action,
   actionText,
 }: {
-  title: string
-  description: string
-  action?: () => void
-  actionText?: string
+  title: string;
+  description: string;
+  action?: () => void;
+  actionText?: string;
 }) {
   return (
     <div className="flex flex-col items-center justify-center p-8 text-center border rounded-lg">
@@ -734,5 +790,5 @@ function EmptyState({
         </Button>
       )}
     </div>
-  )
+  );
 }

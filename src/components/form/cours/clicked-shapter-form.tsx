@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react';
+import { ActionConfirmationDialog } from '@/components/save-navigation-dialog';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -23,18 +23,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useSafeNavigation } from '@/hooks/use-save-navigation';
 import { ClickedChapter } from '@/pages/cours/ajouter-cours';
 import { useUserStore } from '@/store/user-store';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { useSafeNavigation } from '@/hooks/use-save-navigation';
-import { ActionConfirmationDialog } from '@/components/save-navigation-dialog';
 
 const TextEditorOne = lazy(() => import('./text-editor-one'));
 const UploadDocuments = lazy(() => import('./upload-documents'));
 const FileUploadCircularProgressDemo = lazy(() => import('./upload-files'));
-
 
 const ClickedShapterForm = ({
   clickedChapter,
@@ -45,12 +43,8 @@ const ClickedShapterForm = ({
 }) => {
   const form = useFormContext();
   const user = useUserStore().decodedUser;
-  const {
-    showConfirm,
-    attemptAction,
-    executePendingAction,
-    cancelAction,
-  } = useSafeNavigation();
+  const { showConfirm, attemptAction, executePendingAction, cancelAction } =
+    useSafeNavigation();
   const [selectedValue, setSelectedValue] = useState<string>(
     clickedChapter.type || 'Video',
   );
@@ -105,7 +99,7 @@ const ClickedShapterForm = ({
   const chapterTitle =
     form.watch(`chapters.${clickedChapter.index}.title`) || 'Untitled';
 
-  const handleBackClick = (e: { preventDefault: () => void; }) => {
+  const handleBackClick = (e: { preventDefault: () => void }) => {
     e.preventDefault();
     const action = () => {
       setClickedChapter({
@@ -122,11 +116,7 @@ const ClickedShapterForm = ({
         <CardHeader>
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleBackClick}
-              >
+              <Button variant="ghost" size="icon" onClick={handleBackClick}>
                 <ArrowLeft size={20} />
               </Button>
               <CardTitle className="font-semibold truncate overflow-hidden whitespace-nowrap max-w-[400px]">
@@ -145,7 +135,10 @@ const ClickedShapterForm = ({
                 </SelectContent>
               </Select>
               {selectedValue === 'Document' && (
-                <Select value={documentType} onValueChange={handleDocumentTypeChange}>
+                <Select
+                  value={documentType}
+                  onValueChange={handleDocumentTypeChange}
+                >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Document Type" />
                   </SelectTrigger>
@@ -158,7 +151,9 @@ const ClickedShapterForm = ({
               )}
             </div>
           </div>
-          <CardDescription>Organisez votre cours en modules et leçons</CardDescription>
+          <CardDescription>
+            Organisez votre cours en modules et leçons
+          </CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-5">
@@ -219,7 +214,6 @@ const ClickedShapterForm = ({
           ) : (
             <>Quizz</>
           )}
-
         </CardContent>
       </Card>
       <ActionConfirmationDialog

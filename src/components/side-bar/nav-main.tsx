@@ -1,8 +1,6 @@
-import {type LucideIcon } from 'lucide-react';
+import { type LucideIcon } from 'lucide-react';
 
-import {
-  Collapsible,
-} from '@/components/ui/collapsible';
+import { Collapsible } from '@/components/ui/collapsible';
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -40,11 +38,12 @@ export function NavMain({
           return (
             <Collapsible key={item.title} asChild>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  tooltip={item.title}
-                >
-                  <InterceptedNavLink dataActive={item.url === location.pathname} to={item.url} disabled={item.disabled}>
+                <SidebarMenuButton asChild tooltip={item.title}>
+                  <InterceptedNavLink
+                    dataActive={item.url === location.pathname}
+                    to={item.url}
+                    disabled={item.disabled}
+                  >
                     <item.icon />
                     <span>{item.title}</span>
                     {item.disabled && <SoonBadge />}
@@ -52,7 +51,7 @@ export function NavMain({
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </Collapsible>
-          )
+          );
         })}
       </SidebarMenu>
     </SidebarGroup>

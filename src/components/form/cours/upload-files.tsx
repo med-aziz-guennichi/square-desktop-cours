@@ -107,7 +107,9 @@ export function FileUploadCircularProgressDemo({
     (fileToRemove: File) => {
       setFiles((prevFiles) => {
         const newFiles = prevFiles.filter(
-          (file) => `${file.name}-${file.size}` !== `${fileToRemove.name}-${fileToRemove.size}`,
+          (file) =>
+            `${file.name}-${file.size}` !==
+            `${fileToRemove.name}-${fileToRemove.size}`,
         );
         form.setValue(`chapters.${index}.files`, newFiles);
         return newFiles;

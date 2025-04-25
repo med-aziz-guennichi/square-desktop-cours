@@ -28,7 +28,8 @@ export const ActionConfirmationDialog = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Requêtes en cours détectées</AlertDialogTitle>
           <AlertDialogDescription>
-            Il y a actuellement {activeRequests.size} requêtes en cours. Fermer ce formulaire pourrait interrompre les téléversements.
+            Il y a actuellement {activeRequests.size} requêtes en cours. Fermer ce
+            formulaire pourrait interrompre les téléversements.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

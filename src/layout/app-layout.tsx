@@ -10,7 +10,7 @@ export default function AppLayout() {
   const user = useUserStore().decodedUser;
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (["student", "instructor", "responsable"].includes(user!.role!)) {
+      if (['student', 'instructor', 'responsable'].includes(user!.role!)) {
         getCurrentWindow().setContentProtected(true).catch(console.error);
       }
     }, 1000); // Delay by 1 second

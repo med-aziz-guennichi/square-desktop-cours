@@ -12,7 +12,7 @@ export function usePreventCapture() {
         (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4'))
       ) {
         e.preventDefault();
-        toast.warning('Les captures d\'écran sont désactivées sur cette page');
+        toast.warning("Les captures d'écran sont désactivées sur cette page");
       }
 
       // Prévention du copiage (Ctrl+C, Ctrl+Insert, Cmd+C)

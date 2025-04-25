@@ -101,7 +101,7 @@ export const useDeleteLesson = (lessonId: string, matiereId: string) => {
       toast.success('Cours supprimé avec succès.');
     },
   });
-}
+};
 
 export const useMarkChapterAsCompleted = (chapterId: string, coursId: string) => {
   const queryClient = useQueryClient();
