@@ -1,37 +1,26 @@
 import { AppSidebar } from '@/components/side-bar/app-sidebar';
 import { SiteHeader } from '@/components/side-bar/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-// import { useUserStore } from '@/store/user-store';
-// import { getCurrentWindow } from '@tauri-apps/api/window';
-// import { useEffect } from 'react';
+import { useUserStore } from '@/store/user-store';
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 
 export default function AppLayout() {
-  // const user = useUserStore().decodedUser;
-  // useEffect(() => {
-  //   const applyProtection = async () => {
-  //     try {
-  //       if (["student", "instructor", "responsable"].includes(user!.role!)) {
-  //         await getCurrentWindow().setContentProtected(true);
-  //       }
-  //     } catch (error) {
-  //       console.error('Failed to enable protection:', error);
-  //     }
-  //   };
+  const user = useUserStore().decodedUser;
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (["student", "instructor", "responsable"].includes(user!.role!)) {
+        getCurrentWindow().setContentProtected(true).catch(console.error);
+      }
+    }, 1000); // Delay by 1 second
 
-  //   applyProtection();
+    return () => {
+      clearTimeout(timer);
+      getCurrentWindow().setContentProtected(false).catch(console.error);
+    };
+  }, [user]);
 
-  //   return () => {
-  //     const cleanup = async () => {
-  //       try {
-  //         await getCurrentWindow().setContentProtected(false);
-  //       } catch (error) {
-  //         console.error('Failed to disable protection:', error);
-  //       }
-  //     };
-  //     cleanup();
-  //   };
-  // }, [user]);
   return (
     <SidebarProvider>
       <AppSidebar variant="inset" />
