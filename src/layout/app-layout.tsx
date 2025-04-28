@@ -8,6 +8,11 @@ import { Outlet } from 'react-router-dom';
 
 export default function AppLayout() {
   const user = useUserStore().decodedUser;
+  // const userId = user?._id;
+  // const wsUrl = useMemo(() => 
+  //   userId ? `ws://localhost:8080/ws?user_id=${userId}` : '',
+  //   [userId]
+  // );
   useEffect(() => {
     const currentWindow = getCurrentWindow();
     const timer = setTimeout(async () => {
@@ -29,6 +34,7 @@ export default function AppLayout() {
   }, [user]);
 
   return (
+    // <WebSocketProvider url={wsUrl}>
     <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
@@ -42,5 +48,6 @@ export default function AppLayout() {
         </div>
       </SidebarInset>
     </SidebarProvider>
+    // </WebSocketProvider>
   );
 }

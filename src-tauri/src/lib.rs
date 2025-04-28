@@ -1,8 +1,7 @@
-use tauri_plugin_updater;
+use mac_address::get_mac_address;
 use tauri_plugin_dialog;
 use tauri_plugin_process;
-use mac_address::get_mac_address;
-
+use tauri_plugin_updater;
 
 #[tauri::command]
 fn get_mac() -> Result<String, String> {
@@ -59,7 +58,8 @@ pub fn run() {
             #[cfg(desktop)]
             {
                 // Initialize the updater plugin in your app.
-                app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
+                app.handle()
+                    .plugin(tauri_plugin_updater::Builder::new().build())?;
             }
             Ok(())
         })
@@ -68,7 +68,12 @@ pub fn run() {
         // Initialize process plugin to run external processes if needed
         .plugin(tauri_plugin_process::init())
         // Add commands like greet and get_mac
-        .invoke_handler(tauri::generate_handler![greet, get_mac, enable_protection,disable_protection])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            get_mac,
+            enable_protection,
+            disable_protection
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
