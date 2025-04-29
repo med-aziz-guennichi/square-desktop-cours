@@ -17,7 +17,7 @@ module.exports = {
                 'refactor',
                 'revert',
                 'style',
-                'test'
+                'test' // If you need to add another rule just ask med aziz guennichi for it.
             ]
         ],
     },
