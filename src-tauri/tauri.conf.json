@@ -18,7 +18,8 @@
         "height": 900,
         "minWidth": 1500,
         "minHeight": 900,
-        "theme": "Dark"
+        "theme": "Dark",
+        "dragDropEnabled": false
       }
     ],
     "security": {

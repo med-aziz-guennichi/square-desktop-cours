@@ -5,6 +5,8 @@ import AppLayout from './layout/app-layout';
 import GlobalLayout from './layout/global-layout';
 import { PrivateRoute, PublicRoute } from './lib/route-guard';
 
+import { QueryClient } from '@tanstack/react-query';
+import { getOneLesson } from './apis/lesson/query-slice';
 import Login from './pages/auth/login';
 import ErrorPage from './pages/error';
 
@@ -68,6 +70,21 @@ export const router = createBrowserRouter([
               {
                 path: 'ajouter-cours',
                 element: withSuspense(<AjouterCoursPage />),
+              },
+              {
+                path: 'modifier-cours/:coursId',
+                element: withSuspense(<AjouterCoursPage />),
+                loader: async ({ params }) => {
+                  const queryClient = new QueryClient();
+                  try {
+                    await queryClient.prefetchQuery({
+                      queryKey: ['cours', params.coursId],
+                      queryFn: () => getOneLesson(params.coursId!),
+                    });
+                  } catch (error) {
+                    console.error(error);
+                  }
+                },
               },
               {
                 path: 'cours/:coursId',

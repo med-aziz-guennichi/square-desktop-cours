@@ -3,9 +3,11 @@ import { instance } from '@/lib/axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-export async function getLessons(subjectId: string) {
+export async function getLessons(subjectId: string, queryParams = '') {
   try {
-    const response = await instance.get(`${API_ENDPOINT.LESSONS}/${subjectId}`);
+    const response = await instance.get(
+      `${API_ENDPOINT.LESSONS}/${subjectId}?${queryParams}`,
+    );
     return response.data;
   } catch (error) {
     toast.error("Une erreur s'est produite lors de la récupération des cours.");

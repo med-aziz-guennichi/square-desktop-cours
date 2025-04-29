@@ -9,14 +9,17 @@ import { Outlet } from 'react-router-dom';
 export default function AppLayout() {
   const user = useUserStore().decodedUser;
   // const userId = user?._id;
-  // const wsUrl = useMemo(() => 
+  // const wsUrl = useMemo(() =>
   //   userId ? `ws://localhost:8080/ws?user_id=${userId}` : '',
   //   [userId]
   // );
   useEffect(() => {
     const currentWindow = getCurrentWindow();
     const timer = setTimeout(async () => {
-      if (user?.role && ['student', 'instructor', 'responsable'].includes(user.role)) {
+      if (
+        user?.role &&
+        ['student', 'instructor', 'responsable'].includes(user.role)
+      ) {
         try {
           await currentWindow.setContentProtected(true);
           await currentWindow.setFocus(); // Prevent click-jacking

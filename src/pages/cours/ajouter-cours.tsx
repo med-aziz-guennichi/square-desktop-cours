@@ -1,16 +1,21 @@
+import { getOneLesson } from '@/apis/lesson/query-slice';
 import { CourseCard } from '@/components/cards/subject-card';
 import { AddCoursForm } from '@/components/form/cours/add-cours-form';
 import { AddCoursSchemaType } from '@/components/form/cours/schemas/add-cours-schema';
 import { Button } from '@/components/ui/button';
 import { useBreadcrumb } from '@/context/BreadcrumbContext';
 import { isRequestInProgress } from '@/lib/axios';
+import { useUserStore } from '@/store/user-store';
+import { useQuery } from '@tanstack/react-query';
 import { Book, BookText, Eye, FilePlus2, Loader2, Users2 } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { FormProvider, SubmitHandler } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAddCoursForm } from './hooks/use-add-cours-form';
 import { useCreateLessonMutation } from './hooks/use-create-lesson-mutation';
+import { useLessonTitleValidation } from './hooks/use-lesson-title-validation';
+import { useUpdateLessonMutation } from './hooks/use-update-lesson-mutation';
 const ChaptersForm = lazy(() => import('@/components/form/cours/add-chapters-form'));
 const ClickedShapterForm = lazy(
   () => import('@/components/form/cours/clicked-shapter-form'),
@@ -29,13 +34,27 @@ export interface ClickedChapter {
   }[];
   position: number;
   typeDocument?: string;
+  isCreatedBefore?: boolean;
 }
 
 export default function AjouterCoursPage() {
+  const user = useUserStore().decodedUser;
   const { setSousPages } = useBreadcrumb();
-  const { matiereId } = useParams();
+  const { matiereId, coursId } = useParams();
+  const pathname = useLocation().pathname;
+  const isUpdatePage = pathname.includes('modifier-cours');
+
+  const coursQuery = useQuery({
+    queryKey: ['cours', coursId],
+    queryFn: () => getOneLesson(coursId!),
+    enabled: !!coursId,
+  });
 
   const { mutate: createLesson, isPending } = useCreateLessonMutation(matiereId!);
+  const { mutate: updateLesson, isPending: isLoading } = useUpdateLessonMutation(
+    coursId!,
+    matiereId!,
+  );
   const [clickedShapter, setClickedShapter] = useState<ClickedChapter>({
     id: null,
     index: null,
@@ -47,7 +66,9 @@ export default function AjouterCoursPage() {
     position: 0,
   });
   const navigate = useNavigate();
-  const form = useAddCoursForm();
+  const form = useAddCoursForm(coursQuery?.data);
+  const title = form.watch('title');
+  const { isChecking, error } = useLessonTitleValidation(matiereId || '', title);
   const onSubmit: SubmitHandler<AddCoursSchemaType> = async (data) => {
     try {
       if (isRequestInProgress()) {
@@ -56,7 +77,13 @@ export default function AjouterCoursPage() {
         );
         return;
       }
-      createLesson(data);
+      if (error) return;
+
+      if (isUpdatePage) {
+        updateLesson(data);
+      } else {
+        createLesson(data);
+      }
     } catch (error) {
       console.error(error);
       toast.error(
@@ -84,18 +111,29 @@ export default function AjouterCoursPage() {
             <div className="flex items-center gap-4">
               <h1 className="text-3xl font-bold">Ajouter un contenu à la classe</h1>
             </div>
-            <Button
-              disabled={form.formState.isSubmitting}
-              onClick={form.handleSubmit(onSubmit)}
-            >
-              {isPending && <Loader2 className="animate-spin" />}
-              Ajouter!
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                onClick={() =>
+                  navigate(`/dashboard/classes/${matiereId}/cours/cours/${coursId}`)
+                }
+              >
+                View Preview
+                <Eye />
+              </Button>
+              <Button
+                disabled={form.formState.isSubmitting}
+                onClick={form.handleSubmit(onSubmit)}
+              >
+                {(isPending || isLoading) && <Loader2 className="animate-spin" />}
+                {isUpdatePage ? 'Modifier' : 'Ajouter'}
+              </Button>
+            </div>
           </div>
         </div>
         <form className="container mx-auto px-8 py-6 flex flex-col gap-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <AddCoursForm />
+            <AddCoursForm isChecking={isChecking} error={error} title={title} />
             <div className="hidden md:block">
               <CourseCard
                 onClick={() => onSubmit}
@@ -105,9 +143,9 @@ export default function AjouterCoursPage() {
                   form.watch('description') || 'Make your first description'
                 }
                 instructor={{
-                  name: 'John Doe',
-                  surname: 'Doe',
-                  avatar: 'https://via.placeholder.com/150',
+                  name: user?.firstName || 'John',
+                  surname: user?.lastName || 'Doe',
+                  avatar: `${import.meta.env.VITE_API_BASE_URL}/${user?.imageUrl}`,
                 }}
                 badge="Preview"
                 isPreview

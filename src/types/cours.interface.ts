@@ -5,6 +5,7 @@ export interface Cours extends BaseModel {
   title: string;
   description: string;
   creator: IUser;
+  isLocked: boolean;
   chapters: Chapters[];
 }
 

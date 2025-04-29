@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const ChapterSchema = z.object({
+  isCreatedBefore: z.boolean().optional(),
   title: z.string().min(5, 'Le titre est requis'),
   description: z.string().min(20, 'La description est requise'),
   type: z.enum(['Video', 'Document', 'Quiz']),

@@ -1,7 +1,7 @@
 'use client';
 
 import { useDeleteLesson } from '@/apis/lesson/query-slice';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -42,6 +42,7 @@ interface CourseCardProps {
   chapters?: number;
   isInstructor?: boolean;
   subjectId?: string;
+  isLocked?: boolean;
 }
 
 export function CourseCard({
@@ -186,14 +187,7 @@ export function CourseCard({
         <CardContent className="pb-3">
           <div className="flex items-center gap-3 mb-4">
             <Avatar className="h-9 w-9">
-              {/* <Image
-              src={instructor.avatar || "/placeholder.svg"}
-              alt={`${instructor.name} ${instructor.surname}`}
-              width={40} // Adjust as necessary
-              height={40} // Adjust as necessary
-              loading="lazy"
-              className="rounded-full object-cover"
-            /> */}
+              <AvatarImage src={instructor.avatar} loading="lazy" />
               <AvatarFallback>{`${instructor.name.charAt(0)}${instructor.surname.charAt(0)}`}</AvatarFallback>
             </Avatar>
             <div>

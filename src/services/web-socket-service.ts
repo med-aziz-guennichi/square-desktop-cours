@@ -19,7 +19,7 @@ class WebSocketService {
 
   async connect(url: string): Promise<void> {
     this.url = url;
-    
+
     if (this.connectionPromise) {
       return this.connectionPromise;
     }
@@ -57,10 +57,12 @@ class WebSocketService {
 
   private handleDisconnection() {
     this.connectionPromise = null;
-    
+
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      this.logger.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
+      this.logger.log(
+        `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`,
+      );
       setTimeout(() => this.connect(this.url), this.reconnectDelay);
     } else {
       this.logger.error('Max reconnection attempts reached');
@@ -71,8 +73,8 @@ class WebSocketService {
     try {
       const message: WebSocketMessage = JSON.parse(event.data);
       const handlers = this.eventHandlers.get(message.type) || [];
-      
-      handlers.forEach(handler => {
+
+      handlers.forEach((handler) => {
         try {
           handler(message.payload);
         } catch (error) {
@@ -111,7 +113,7 @@ class WebSocketService {
   createMeeting(title: string, participants: string[]): void {
     this.send({
       type: 'create_meeting',
-      payload: { title, participants }
+      payload: { title, participants },
     });
   }
 

@@ -268,6 +268,7 @@ function SortableChapterItem({
               quizzes: form.watch(`chapters.${index}.quizzes`),
               studyMaterials: form.watch(`chapters.${index}.studyMaterials`),
               position: form.watch(`chapters.${index}.position`),
+              isCreatedBefore: form.watch(`chapters.${index}.isCreatedBefore`),
             })
           }
           onKeyDown={(e) => {
@@ -283,6 +284,7 @@ function SortableChapterItem({
                 quizzes: form.watch(`chapters.${index}.quizzes`),
                 studyMaterials: form.watch(`chapters.${index}.studyMaterials`),
                 position: form.watch(`chapters.${index}.position`),
+                isCreatedBefore: form.watch(`chapters.${index}.isCreatedBefore`),
               });
             }
           }}

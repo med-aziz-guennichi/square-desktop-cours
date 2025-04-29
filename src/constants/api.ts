@@ -7,7 +7,7 @@ export const API_ENDPOINT = {
   REFRESH_TOKEN: `${BASE_URL}/refresh-token`,
   CLASSES: `${BASE_URL}/training-company/classes/byRole`,
   MATIERES: `${BASE_URL}/training-company/subjects-by-class-and-role`,
-  LESSONS: `${BASE_URL}/training-company/get-all-new-lessons`,
+  LESSONS: `${BASE_URL}/training-company/get-all-new-lessons-pagination`,
   ONELESSON: `${BASE_URL}/training-company/get-new-lesson`,
   PROGRESS: `${BASE_URL}/training-company/get-progress`,
   CHAPTER: `${BASE_URL}/training-company/get-chapter`,

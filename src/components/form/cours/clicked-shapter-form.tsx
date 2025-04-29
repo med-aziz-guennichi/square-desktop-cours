@@ -51,7 +51,6 @@ const ClickedShapterForm = ({
   const [documentType, setDocumentType] = useState<string>(
     clickedChapter.typeDocument || 'word',
   );
-
   // Initialize form values based on clickedChapter
   useEffect(() => {
     if (clickedChapter.index !== null) {
@@ -124,7 +123,11 @@ const ClickedShapterForm = ({
               </CardTitle>
             </div>
             <div className="flex gap-2">
-              <Select value={selectedValue} onValueChange={handleTypeChange}>
+              <Select
+                value={selectedValue}
+                disabled={clickedChapter.isCreatedBefore}
+                onValueChange={handleTypeChange}
+              >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder={selectedValue} />
                 </SelectTrigger>
@@ -138,6 +141,7 @@ const ClickedShapterForm = ({
                 <Select
                   value={documentType}
                   onValueChange={handleDocumentTypeChange}
+                  disabled={clickedChapter.isCreatedBefore}
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Document Type" />
@@ -184,36 +188,51 @@ const ClickedShapterForm = ({
               )}
             />
           </div>
-          {selectedValue === 'Video' ? (
-            <Suspense fallback={<Loader2 className="animate-spin" />}>
-              <FileUploadCircularProgressDemo
-                accept="video/*,.mp4,.mkv,.avi,.webm,.mov"
-                maxFiles={5}
-                index={clickedChapter.index}
-                form={form}
-                enterpriseId={user?.enterprise}
-              />
-            </Suspense>
-          ) : selectedValue === 'Document' ? (
-            documentType === 'upload' ? (
-              <Suspense fallback={<Loader2 className="animate-spin" />}>
-                <UploadDocuments
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg"
-                  maxFiles={5}
-                  index={clickedChapter.index}
-                  form={form}
-                />
-              </Suspense>
-            ) : documentType === 'word' ? (
-              <Suspense fallback={<Loader2 className="animate-spin" />}>
-                <TextEditorOne form={form} index={clickedChapter.index} />
-              </Suspense>
-            ) : (
-              <p>Spreadsheet editor coming soon</p>
-            )
-          ) : (
-            <>Quizz</>
-          )}
+          <div className="relative">
+            <div
+              className={`${clickedChapter.isCreatedBefore ? 'opacity-100 pointer-events-none blur-xs' : ''}`}
+            >
+              {selectedValue === 'Video' ? (
+                <Suspense fallback={<Loader2 className="animate-spin" />}>
+                  <FileUploadCircularProgressDemo
+                    accept="video/*,.mp4,.mkv,.avi,.webm,.mov"
+                    maxFiles={5}
+                    index={clickedChapter.index}
+                    form={form}
+                    enterpriseId={user?.enterprise}
+                  />
+                </Suspense>
+              ) : selectedValue === 'Document' ? (
+                documentType === 'upload' ? (
+                  <Suspense fallback={<Loader2 className="animate-spin" />}>
+                    <UploadDocuments
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg"
+                      maxFiles={5}
+                      index={clickedChapter.index}
+                      form={form}
+                    />
+                  </Suspense>
+                ) : documentType === 'word' ? (
+                  <Suspense fallback={<Loader2 className="animate-spin" />}>
+                    <TextEditorOne form={form} index={clickedChapter.index} />
+                  </Suspense>
+                ) : (
+                  <p>Éditeur de tableur bientôt disponible</p>
+                )
+              ) : (
+                <>Quiz</>
+              )}
+            </div>
+
+            {clickedChapter.isCreatedBefore && (
+              <div className="absolute inset-0 backdrop-blur-xs flex items-center justify-center rounded-md">
+                <p className="text-center font-semibold px-4">
+                  Vous ne pouvez pas modifier les contenu du chapitre,
+                  <br /> vous devez le supprimer et le recréer.
+                </p>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
       <ActionConfirmationDialog

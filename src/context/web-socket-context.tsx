@@ -1,15 +1,15 @@
 // context/WebSocketContext.tsx
 import WebSocketService from '@/services/web-socket-service';
-import { createContext, useContext, useEffect, useRef, ReactNode } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useRef } from 'react';
 
 const WebSocketContext = createContext<WebSocketService | null>(null);
 
-export function WebSocketProvider({ 
+export function WebSocketProvider({
   url,
-  children 
-}: { 
+  children,
+}: {
   url: string;
-  children: ReactNode 
+  children: ReactNode;
 }) {
   const wsServiceRef = useRef<WebSocketService | null>(null);
 
