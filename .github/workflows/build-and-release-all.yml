@@ -1,9 +1,8 @@
 name: Build and Release Tauri App
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    type: [published]
 
 env:
   PROJECT_NAME: studiffy-cours
@@ -126,7 +125,6 @@ jobs:
             ;;
           esac
 
-    # Upload the platform-specific artifacts
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -152,16 +150,26 @@ jobs:
           name: bundle-windows
           path: ./artifacts/windows
 
-      - run: |
+      - name: Fetch GitHub release description
+        id: fetch_release
+        run: |
+          RELEASE_DESCRIPTION=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }} \
+            | jq -r '.body')
+          echo "RELEASE_DESCRIPTION<<EOF" >> $GITHUB_ENV
+          echo "$RELEASE_DESCRIPTION" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Generate latest.json
+        run: |
           version="${{ github.ref_name }}"
           version="${version#v}"
           pub_date="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
-          # Generate the combined latest.json
           cat <<EOF > latest.json
           {
             "version": "$version",
-            "notes": "Release $version",
+            "notes": "${{ env.RELEASE_DESCRIPTION }}",
             "pub_date": "$pub_date",
             "platforms": {
               "linux-x86_64": {
@@ -169,7 +177,7 @@ jobs:
                 "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/deb/${{ env.PROJECT_NAME }}_${version}_amd64.deb"
               },
               "darwin-x86_64": {
-                "signature": "$(cat artifacts/macos/${{ env.PROJECT_NAME }}_${version}_aarch64.app.tar.gz.sig | base64 -w 0 | sed 's/"/\\"/g')",
+                "signature": "$(cat artifacts/macos/${{ env.PROJECT_NAME }}_${version}.app.tar.gz.sig | base64 -w 0 | sed 's/"/\\"/g')",
                 "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}.app.tar.gz"
               },
               "windows-x86_64": {
@@ -186,25 +194,20 @@ jobs:
           cd release-repo
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          
-          # Reset any changes and pull latest
           git reset --hard
           git clean -fd
           git pull origin main
 
       - name: Copy release files
         run: |
-          # Create directories and copy files
           mkdir -p release-repo/releases/${{ github.ref_name }}/deb
           mkdir -p release-repo/releases/${{ github.ref_name }}/macos
           mkdir -p release-repo/releases/${{ github.ref_name }}/msi
-          
-          # Copy platform-specific files
+
           cp artifacts/linux/* release-repo/releases/${{ github.ref_name }}/deb/ || echo "No Linux files to copy"
           cp artifacts/macos/* release-repo/releases/${{ github.ref_name }}/macos/ || echo "No macOS files to copy"
           cp artifacts/windows/* release-repo/releases/${{ github.ref_name }}/msi/ || echo "No Windows files to copy"
-          
-          # Copy the combined latest.json
+
           cp latest.json release-repo/latest.json
 
       - name: Commit and push changes
