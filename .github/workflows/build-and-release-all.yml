@@ -2,7 +2,7 @@ name: Build and Release Tauri App
 
 on:
   release:
-    type: [published]
+    types: [published]
 
 env:
   PROJECT_NAME: studiffy-cours
