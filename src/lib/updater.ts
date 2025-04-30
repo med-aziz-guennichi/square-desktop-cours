@@ -40,6 +40,8 @@ export async function checkForUpdates(
       });
 
       setUpdateStatus('Update installed. Relaunching app...');
+      localStorage.setItem('updateJustInstalled', 'true');
+      localStorage.setItem('updateNotes', update.body!);
       await relaunch();
     } else {
       setUpdateStatus('No updates found.');
