@@ -70,7 +70,7 @@ const data = {
   sharedSubject: [
     {
       title: 'Cours partager',
-      url: '/dashboard/classes/cours-partager/cours',
+      url: '/dashboard/classes/cours-partager/cours', // this will be use the same of the cours page
       icon: Share2,
     },
   ],
