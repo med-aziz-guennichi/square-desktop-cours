@@ -1,0 +1,15 @@
+<type>(<scope>): <summary>
+
+# What was changed?
+# - 
+
+# Why was it changed?
+# - 
+
+# Notes
+# - 
+
+# ------------------------------
+# <type> options: feat, fix, chore, docs, refactor, style, test, perf
+# <scope> is optional: e.g. (auth), (sidebar)
+# Summary: 50 chars max, lower-case
