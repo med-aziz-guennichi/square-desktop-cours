@@ -8,10 +8,11 @@ import {
 } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { checkForAvailableUpdate, performUpdate } from '@/lib/updater';
-import { parseUpdateBody } from '@/lib/utils';
 import { CustomContextMenu } from '@/providers/context-menu';
 import { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Outlet, useNavigation } from 'react-router-dom';
+
 
 declare global {
   interface Window {
@@ -22,7 +23,7 @@ declare global {
 export default function GlobalLayout() {
   const navigation = useNavigation();
   const [updateStatus, setUpdateStatus] = useState<string>(''); // Track update status
-  const [updateFeatures, setUpdateFeatures] = useState<string[]>([]);
+  const [updateFeatures, setUpdateFeatures] = useState<string>("");
   const [downloadProgress, setDownloadProgress] = useState<number>(0); // Track download progress
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // Update modal
   const [isDownloading, setIsDownloading] = useState<boolean>(false); // Downloading state
@@ -34,7 +35,7 @@ export default function GlobalLayout() {
     checkForAvailableUpdate().then((update) => {
       if (update) {
         setUpdateStatus(`New version ${update.version} available!`);
-        setUpdateFeatures(parseUpdateBody(update.body));
+        setUpdateFeatures(update.body);
         setIsModalOpen(true);
       }
     });
@@ -53,11 +54,9 @@ export default function GlobalLayout() {
           </DialogTitle>
           <DialogDescription>
             <p className="mb-4">{updateStatus}</p>
-            <ul className="list-disc list-inside space-y-1 text-sm mb-4">
-              {updateFeatures.map((feature, idx) => (
-                <li key={idx}>{feature}</li>
-              ))}
-            </ul>
+            <ReactMarkdown>
+              {updateFeatures}
+            </ReactMarkdown>
 
             {isDownloading ? (
               <>

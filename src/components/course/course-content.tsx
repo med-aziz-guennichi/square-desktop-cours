@@ -83,11 +83,10 @@ export function CourseContent({ data }: { data: Chapters }) {
                   <button
                     key={index}
                     onClick={() => setActiveIndex(index)}
-                    className={`block w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      index === activeIndex
-                        ? 'bg-primary text-primary-foreground'
-                        : 'hover:bg-muted'
-                    }`}
+                    className={`block w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${index === activeIndex
+                      ? 'bg-primary text-primary-foreground'
+                      : 'hover:bg-muted'
+                      }`}
                   >
                     {material.displayName || `${data?.type} ${index + 1}`}
                   </button>
