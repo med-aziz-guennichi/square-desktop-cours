@@ -1,13 +1,10 @@
 #!/bin/bash
-
+# chmod +x ./scripts/setup-commits.sh
 echo "🔧 Installing Commitizen, Commitlint, and Husky..."
 npm install --save-dev commitizen cz-conventional-changelog @commitlint/cli @commitlint/config-conventional husky --force
 
 echo "🧩 Configuring Commitizen..."
 npx commitizen init cz-conventional-changelog --force --save-dev --save-exact
-
-echo "🛠 Setting up commitlint config..."
-echo "module.exports = { extends: ['@commitlint/config-conventional'] };" > commitlint.config.js
 
 echo "📝 Setting commit message template..."
 git config commit.template .gitmessage.txt

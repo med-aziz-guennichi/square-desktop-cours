@@ -68,7 +68,7 @@ export default function AjouterCoursPage() {
   const navigate = useNavigate();
   const form = useAddCoursForm(coursQuery?.data);
   const title = form.watch('title');
-  const { isChecking, error } = useLessonTitleValidation(matiereId || '', title);
+  const { isChecking, error } = useLessonTitleValidation(matiereId || '', title, coursId);
   const onSubmit: SubmitHandler<AddCoursSchemaType> = async (data) => {
     try {
       if (isRequestInProgress()) {
@@ -92,17 +92,31 @@ export default function AjouterCoursPage() {
     }
   };
   useEffect(() => {
-    setSousPages([
-      { name: 'classes', link: '/dashboard/classes', icon: <Users2 size={16} /> },
-      { name: 'matieres', link: () => navigate(-2), icon: <Book size={16} /> },
-      { name: 'cours', link: () => navigate(-1), icon: <BookText size={16} /> },
-      {
-        name: 'ajouter-cours',
-        link: 'ajouter-cours',
-        icon: <FilePlus2 size={16} />,
-      },
-    ]);
-  }, [setSousPages, navigate]);
+    function updateBreadcrumbs() {
+      if (matiereId === 'cours-partager') {
+        setSousPages([
+          { name: 'cours-partager', link: '/dashboard/classes/cours-partager/cours', icon: <Users2 size={16} /> },
+          {
+            name: 'ajouter-cours',
+            link: 'ajouter-cours',
+            icon: <FilePlus2 size={16} />,
+          },
+        ]);
+      } else {
+        setSousPages([
+          { name: 'classes', link: '/dashboard/classes', icon: <Users2 size={16} /> },
+          { name: 'matieres', link: () => navigate(-2), icon: <Book size={16} /> },
+          { name: 'cours', link: () => navigate(-1), icon: <BookText size={16} /> },
+          {
+            name: 'ajouter-cours',
+            link: 'ajouter-cours',
+            icon: <FilePlus2 size={16} />,
+          },
+        ]);
+      }
+    }
+    updateBreadcrumbs();
+  }, [setSousPages, navigate, matiereId]);
   return (
     <FormProvider {...form}>
       <div className="flex flex-col min-h-screen">
@@ -112,15 +126,19 @@ export default function AjouterCoursPage() {
               <h1 className="text-3xl font-bold">Ajouter un contenu à la classe</h1>
             </div>
             <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                onClick={() =>
-                  navigate(`/dashboard/classes/${matiereId}/cours/cours/${coursId}`)
-                }
-              >
-                View Preview
-                <Eye />
-              </Button>
+              {
+                isUpdatePage && (
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      navigate(`/dashboard/classes/${matiereId}/cours/cours/${coursId}`)
+                    }
+                  >
+                    View Preview
+                    <Eye />
+                  </Button>
+                )
+              }
               <Button
                 disabled={form.formState.isSubmitting}
                 onClick={form.handleSubmit(onSubmit)}

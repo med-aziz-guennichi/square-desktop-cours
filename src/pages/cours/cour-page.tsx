@@ -1,5 +1,6 @@
 // src/pages/CourPage.tsx
 import { CourseCard } from '@/components/cards/subject-card';
+import { NoDataFound } from '@/components/no-data-found';
 import SubjectCardSketlon from '@/components/sketlon/subject-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,19 +50,23 @@ export default function CourPage() {
 
   useEffect(() => {
     function updateBreadcrumbs() {
-      if(matiereId === "cours-partager") {
+      if (matiereId === 'cours-partager') {
         setSousPages([
-          { name: 'cours-partager', link: '/cours', icon: <Users2 size={16} /> },
-          ])
+          { name: 'cours-partager', link: () => navigate(-1), icon: <Users2 size={16} /> },
+        ]);
       } else {
         setSousPages([
-          { name: 'classes', link: '/dashboard/classes', icon: <Users2 size={16} /> },
+          {
+            name: 'classes',
+            link: '/dashboard/classes',
+            icon: <Users2 size={16} />,
+          },
           { name: 'matieres', link: () => navigate(-1), icon: <Book size={16} /> },
           { name: 'cours', link: '/cours', icon: <BookText size={16} /> },
         ]);
       }
     }
-    updateBreadcrumbs(); 
+    updateBreadcrumbs();
   }, [setSousPages, navigate, matiereId]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,7 +86,6 @@ export default function CourPage() {
   const handleLockedToggle = (pressed: boolean) => {
     setFilters((prev) => ({ ...prev, isLocked: pressed ? true : undefined }));
   };
-
   return (
     <div className="container mx-auto py-10 px-4 md:px-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -144,51 +148,57 @@ export default function CourPage() {
         <AnimatePresence mode="popLayout">
           {isLoading
             ? Array.from({ length: 6 }).map((_, i) => (
-                <motion.div
-                  key={i}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  variants={cardVariants}
-                  transition={{ duration: 0.3 }}
-                >
-                  <SubjectCardSketlon />
-                </motion.div>
-              ))
+              <motion.div
+                key={i}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                variants={cardVariants}
+                transition={{ duration: 0.3 }}
+              >
+                <SubjectCardSketlon />
+              </motion.div>
+            ))
             : data?.data?.map((cours: Cours) => (
-                <motion.div
-                  key={cours._id}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  variants={cardVariants}
-                  transition={{ duration: 0.3 }}
-                >
-                  <CourseCard
-                    id={cours?._id}
-                    title={cours?.title}
-                    instructor={{
-                      name: cours?.creator?.firstName || 'Unknown',
-                      surname: cours?.creator?.lastName || 'Unknown',
-                      avatar: `${import.meta.env.VITE_API_BASE_URL}/${cours?.creator?.imageUrl}`,
-                    }}
-                    badge={cours.isLocked ? 'Verrouillé' : 'Cours'}
-                    description={cours?.description}
-                    onClick={(id) => {
-                      if (cours.creator._id === user?._id) {
-                        navigate(`modifier-cours/${id}`);
-                      } else {
-                        navigate(`cours/${id}`);
-                      }
-                    }}
-                    chapters={cours?.chapters.length || 0}
-                    subjectId={matiereId}
-                    isLocked={cours.isLocked}
-                  />
-                </motion.div>
-              ))}
+              <motion.div
+                key={cours._id}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                variants={cardVariants}
+                transition={{ duration: 0.3 }}
+              >
+                <CourseCard
+                  id={cours?._id}
+                  title={cours?.title}
+                  instructor={{
+                    name: cours?.creator?.firstName || 'Unknown',
+                    surname: cours?.creator?.lastName || 'Unknown',
+                    avatar: `${import.meta.env.VITE_API_BASE_URL}/${cours?.creator?.imageUrl}`,
+                  }}
+                  badge={cours.isLocked ? 'Verrouillé' : 'Cours'}
+                  description={cours?.description}
+                  onClick={(id) => {
+                    if (cours.creator._id === user?._id) {
+                      navigate(`modifier-cours/${id}`);
+                    } else {
+                      navigate(`cours/${id}`);
+                    }
+                  }}
+                  chapters={cours?.chapters.length || 0}
+                  subjectId={matiereId}
+                  isLocked={cours.isLocked}
+                />
+              </motion.div>
+            ))}
         </AnimatePresence>
       </div>
+      {data?.data?.length === 0 && (
+        <NoDataFound
+          title="No results found"
+          description="Try adjusting your search or filter criteria to find what you're looking for."
+        />
+      )}
 
       {data?.pagination && data.pagination.totalPages > 1 && (
         <div className="mt-8 flex justify-center">

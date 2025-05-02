@@ -30,16 +30,15 @@ export default function GlobalLayout() {
   const isLoading =
     navigation.state === 'loading' || navigation.state === 'submitting';
 
-    useEffect(() => {
-      checkForAvailableUpdate().then((update) => {
-        if (update) {
-          setUpdateStatus(`New version ${update.version} available!`);
-          setUpdateFeatures(parseUpdateBody(update.body));
-          setIsModalOpen(true);
-        }
-      });
-    }, []);
-    
+  useEffect(() => {
+    checkForAvailableUpdate().then((update) => {
+      if (update) {
+        setUpdateStatus(`New version ${update.version} available!`);
+        setUpdateFeatures(parseUpdateBody(update.body));
+        setIsModalOpen(true);
+      }
+    });
+  }, []);
 
   return (
     <CustomContextMenu>
@@ -48,49 +47,52 @@ export default function GlobalLayout() {
 
       {/* Update Progress Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-  <DialogContent className="p-6 rounded-lg shadow-lg max-w-sm mx-auto">
-    <DialogTitle className="text-xl font-semibold mb-2">
-      {isDownloading ? 'Updating...' : 'Update Available'}
-    </DialogTitle>
-    <DialogDescription>
-      <p className="mb-4">{updateStatus}</p>
-      <ul className="list-disc list-inside space-y-1 text-sm mb-4">
-        {updateFeatures.map((feature, idx) => (
-          <li key={idx}>{feature}</li>
-        ))}
-      </ul>
+        <DialogContent className="p-6 rounded-lg shadow-lg max-w-sm mx-auto">
+          <DialogTitle className="text-xl font-semibold mb-2">
+            {isDownloading ? 'Updating...' : 'Update Available'}
+          </DialogTitle>
+          <DialogDescription>
+            <p className="mb-4">{updateStatus}</p>
+            <ul className="list-disc list-inside space-y-1 text-sm mb-4">
+              {updateFeatures.map((feature, idx) => (
+                <li key={idx}>{feature}</li>
+              ))}
+            </ul>
 
-      {isDownloading ? (
-        <>
-          <Progress value={downloadProgress} max={100} className="mb-4" />
-          <p className="text-center">{downloadProgress.toFixed(0)}%</p>
-          <p className="mt-4 text-center">Downloading update...</p>
-        </>
-      ) : (
-        <Button
-          onClick={() => {
-            setIsDownloading(true);
-            performUpdate(
-              setUpdateStatus,
-              setDownloadProgress,
-              setIsDownloading,
-            );
-          }}
-          className="mt-4 w-full"
-        >
-          Update Now
-        </Button>
-      )}
+            {isDownloading ? (
+              <>
+                <Progress value={downloadProgress} max={100} className="mb-4" />
+                <p className="text-center">{downloadProgress.toFixed(0)}%</p>
+                <p className="mt-4 text-center">Downloading update...</p>
+              </>
+            ) : (
+              <Button
+                onClick={() => {
+                  setIsDownloading(true);
+                  performUpdate(
+                    setUpdateStatus,
+                    setDownloadProgress,
+                    setIsDownloading,
+                  );
+                }}
+                className="mt-4 w-full"
+              >
+                Update Now
+              </Button>
+            )}
 
-      {!isDownloading && (
-        <Button onClick={() => setIsModalOpen(false)} className="mt-4 w-full" variant="ghost">
-          Not Now
-        </Button>
-      )}
-    </DialogDescription>
-  </DialogContent>
-</Dialog>
-
+            {!isDownloading && (
+              <Button
+                onClick={() => setIsModalOpen(false)}
+                className="mt-4 w-full"
+                variant="ghost"
+              >
+                Not Now
+              </Button>
+            )}
+          </DialogDescription>
+        </DialogContent>
+      </Dialog>
     </CustomContextMenu>
   );
 }
