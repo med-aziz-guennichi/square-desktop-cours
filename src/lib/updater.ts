@@ -37,28 +37,33 @@ export async function performUpdate(
   let contentLength = 0;
 
   setDownloading(true);
-  await pendingUpdate.downloadAndInstall((event) => {
-    switch (event.event) {
-      case 'Started': {
-        setStatus('Starting download...');
-        contentLength = event.data.contentLength ?? 0;
-        break;
+  try {
+    await pendingUpdate.downloadAndInstall((event) => {
+      switch (event.event) {
+        case 'Started': {
+          setStatus('Starting download...');
+          contentLength = event.data.contentLength ?? 0;
+          break;
+        }
+        case 'Progress': {
+          downloaded += event.data.chunkLength;
+          if (contentLength > 0) {
+            const pct = ((downloaded / contentLength) * 100).toFixed(2);
+            setProgress(parseFloat(pct));
+          }
+          break;
+        }
+        case 'Finished': {
+          setProgress(100);
+          setStatus('Download complete. Relaunching...');
+          break;
+        }
       }
-      case 'Progress': {
-        downloaded += event.data.chunkLength;
-        const progress = ((downloaded / contentLength) * 100).toFixed(2);
-        setProgress(parseFloat(progress));
-        break;
-      }
-      case 'Finished': {
-        setProgress(100);
-        setStatus('Download complete. Relaunching...');
-        break;
-      }
-    }
-  });
-
-  localStorage.setItem('updateJustInstalled', 'true');
-  localStorage.setItem('updateNotes', pendingUpdate.body ?? 'No details.');
-  await relaunch();
+    });
+    await relaunch();
+  } catch (err) {
+    console.error('Update failed:', err);
+    setStatus("Update failed please try again.");
+    setDownloading(false);
+  }
 }
