@@ -48,12 +48,21 @@ export default function CourPage() {
   );
 
   useEffect(() => {
-    setSousPages([
-      { name: 'classes', link: '/dashboard/classes', icon: <Users2 size={16} /> },
-      { name: 'matieres', link: () => navigate(-1), icon: <Book size={16} /> },
-      { name: 'cours', link: '/cours', icon: <BookText size={16} /> },
-    ]);
-  }, [setSousPages, navigate]);
+    function updateBreadcrumbs() {
+      if(matiereId === "cours-partager") {
+        setSousPages([
+          { name: 'cours-partager', link: '/cours', icon: <Users2 size={16} /> },
+          ])
+      } else {
+        setSousPages([
+          { name: 'classes', link: '/dashboard/classes', icon: <Users2 size={16} /> },
+          { name: 'matieres', link: () => navigate(-1), icon: <Book size={16} /> },
+          { name: 'cours', link: '/cours', icon: <BookText size={16} /> },
+        ]);
+      }
+    }
+    updateBreadcrumbs(); 
+  }, [setSousPages, navigate, matiereId]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters((prev) => ({ ...prev, search: e.target.value }));
