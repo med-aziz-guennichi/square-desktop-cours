@@ -1,53 +1,69 @@
 import { relaunch } from '@tauri-apps/plugin-process';
 import { check } from '@tauri-apps/plugin-updater';
 
-export async function checkForUpdates(
-  setUpdateStatus: (status: string) => void,
-  setDownloadProgress: (progress: number) => void,
-  setIsModalOpen: (open: boolean) => void,
-  setIsDownloading: (downloading: boolean) => void,
-) {
-  setUpdateStatus('Checking for updates...');
-  setIsDownloading(false);
+let pendingUpdate: Awaited<ReturnType<typeof check>> | null = null;
+
+export async function checkForAvailableUpdate(): Promise<{
+  version: string;
+  body: string;
+} | null> {
   try {
     const update = await check();
     if (update) {
-      setUpdateStatus(`Found update ${update.version} - ${update.body}`);
-      setIsModalOpen(true);
-      let downloaded = 0;
-      let contentLength = 0;
-      setIsDownloading(true);
-
-      await update.downloadAndInstall((event) => {
-        switch (event.event) {
-          case 'Started': {
-            contentLength = event.data.contentLength!;
-            setDownloadProgress(0); // Reset progress
-            break;
-          }
-          case 'Progress': {
-            downloaded += event.data.chunkLength;
-            const progress = ((downloaded / contentLength) * 100).toFixed(2);
-            setDownloadProgress(parseFloat(progress)); // Update progress
-            break;
-          }
-          case 'Finished': {
-            setDownloadProgress(100); // Set progress to 100%
-            setUpdateStatus('Download finished!');
-            break;
-          }
-        }
-      });
-
-      setUpdateStatus('Update installed. Relaunching app...');
-      localStorage.setItem('updateJustInstalled', 'true');
-      localStorage.setItem('updateNotes', update.body || 'Nothing in body.');
-      await relaunch();
-    } else {
-      setUpdateStatus('No updates found.');
+      pendingUpdate = update;
+      return {
+        version: update.version,
+        body: update.body ?? '',
+      };
     }
+    return null;
   } catch (error) {
-    console.error('Error while checking for updates:', error);
-    setUpdateStatus('Error while checking for updates.');
+    console.error('Error checking for update:', error);
+    return null;
+  }
+}
+
+export async function performUpdate(
+  setStatus: (msg: string) => void,
+  setProgress: (value: number) => void,
+  setDownloading: (val: boolean) => void,
+) {
+  if (!pendingUpdate) {
+    setStatus('No update to install.');
+    return;
+  }
+
+  let downloaded = 0;
+  let contentLength = 0;
+
+  setDownloading(true);
+  try {
+    await pendingUpdate.downloadAndInstall((event) => {
+      switch (event.event) {
+        case 'Started': {
+          setStatus('Starting download...');
+          contentLength = event.data.contentLength ?? 0;
+          break;
+        }
+        case 'Progress': {
+          downloaded += event.data.chunkLength;
+          if (contentLength > 0) {
+            const pct = ((downloaded / contentLength) * 100).toFixed(2);
+            setProgress(parseFloat(pct));
+          }
+          break;
+        }
+        case 'Finished': {
+          setProgress(100);
+          setStatus('Download complete. Relaunching...');
+          break;
+        }
+      }
+    });
+    await relaunch();
+  } catch (err) {
+    console.error('Update failed:', err);
+    setStatus("Update failed please try again.");
+    setDownloading(false);
   }
 }

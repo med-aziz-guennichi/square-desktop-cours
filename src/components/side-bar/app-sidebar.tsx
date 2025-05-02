@@ -3,7 +3,6 @@
 import {
   ArrowUpCircleIcon,
   BarChart3,
-  Calendar,
   CheckCircle,
   Clock,
   FileQuestion,
@@ -12,6 +11,7 @@ import {
   Library,
   SearchIcon,
   SettingsIcon,
+  Share2,
   Star,
   Users,
   Video,
@@ -67,12 +67,11 @@ const data = {
       icon: Users,
     },
   ],
-  emploi: [
+  sharedSubject: [
     {
-      title: 'Planification',
-      url: '#',
-      icon: Calendar,
-      disabled: true,
+      title: 'Cours partager',
+      url: '/dashboard/classes/cours-partager/cours', // this will be use the same of the cours page
+      icon: Share2,
     },
   ],
   conference: [
@@ -143,7 +142,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.Ceo} title="CEO" />
         <NavMain items={data.classes} title="CLASSES" />
-        <NavMain items={data.emploi} title="EMPLOI DU TEMPS" />
+        <NavMain items={data.sharedSubject} title="COURS PARTAGER" />
         <NavMain items={data.conference} title="CONFÉRENCE" />
         <NavMain items={data.bibliotheque} title="BIBLIOTHÈQUE" />
         <NavSecondary items={data.navSecondary} className="mt-auto" />

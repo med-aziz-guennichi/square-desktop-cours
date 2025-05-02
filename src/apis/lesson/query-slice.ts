@@ -6,7 +6,9 @@ import { toast } from 'sonner';
 export async function getLessons(subjectId: string, queryParams = '') {
   try {
     const response = await instance.get(
-      `${API_ENDPOINT.LESSONS}/${subjectId}?${queryParams}`,
+      subjectId !== 'cours-partager'
+        ? `${API_ENDPOINT.LESSONS}/${subjectId}?${queryParams}`
+        : `${API_ENDPOINT.SHARED_LESSONS}?${queryParams}`,
     );
     return response.data;
   } catch (error) {
