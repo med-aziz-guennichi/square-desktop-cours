@@ -3,7 +3,11 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { instance } from '@/lib/axios';
 import { useEffect, useState } from 'react';
 
-export const useLessonTitleValidation = (subjectId: string, title: string, coursId: string | undefined) => {
+export const useLessonTitleValidation = (
+  subjectId: string,
+  title: string,
+  coursId: string | undefined,
+) => {
   const [isChecking, setIsChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const debouncedTitle = useDebounce(title, 500); // 500ms debounce

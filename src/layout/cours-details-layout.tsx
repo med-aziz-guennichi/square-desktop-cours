@@ -68,16 +68,23 @@ export default function CoursDetailsLayout() {
   }, [isLoading, isLoadingProgress, data, chapitreId, navigate]);
 
   useEffect(() => {
-
     function updateBreadcrumbs() {
-      if (matiereId === "cours-partager") {
+      if (matiereId === 'cours-partager') {
         setSousPages([
-          { name: 'cours-partager', link: '/dashboard/classes/cours-partager/cours', icon: <Users2 size={16} /> },
+          {
+            name: 'cours-partager',
+            link: '/dashboard/classes/cours-partager/cours',
+            icon: <Users2 size={16} />,
+          },
           { name: data?.title, link: 'cours-details', icon: <BookText size={16} /> },
         ]);
       } else {
         setSousPages([
-          { name: 'classes', link: '/dashboard/classes', icon: <Users2 size={16} /> },
+          {
+            name: 'classes',
+            link: '/dashboard/classes',
+            icon: <Users2 size={16} />,
+          },
           {
             name: 'cours',
             link: `classes/${matiereId}/cours`,
