@@ -10,7 +10,10 @@
     "tauri": "tauri",
     "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "prepare": "husky"
+    "prepare": "husky",
+    "install:commit-help": "npm install -g commitizen",
+    "commit": "git cz",
+    "setup-commit-template": "git config commit.template .gitmessage.txt"
   },
   "dependencies": {
     "@blocknote/core": "^0.29.1",
@@ -67,6 +70,7 @@
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.55.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.5.2",
     "react-top-loading-bar": "^3.0.2",
     "sonner": "^2.0.3",
@@ -88,6 +92,8 @@
     "@typescript-eslint/eslint-plugin": "^8.29.1",
     "@typescript-eslint/parser": "^8.29.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^9.24.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-jsx-a11y": "^6.10.2",
@@ -96,5 +102,10 @@
     "husky": "^9.1.7",
     "typescript": "~5.6.2",
     "vite": "^6.3.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
