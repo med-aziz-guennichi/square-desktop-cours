@@ -20,6 +20,15 @@
         "minHeight": 900,
         "theme": "Dark",
         "dragDropEnabled": false
+      },
+      {
+        "label": "receiver",
+        "title": "Receiver Window",
+        "width": 600,
+        "height": 800,
+        "resizable": true,
+        "visible": true,
+        "incognito": true
       }
     ],
     "security": {
