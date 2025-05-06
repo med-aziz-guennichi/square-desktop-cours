@@ -11,13 +11,14 @@ interface CreateLessonResponse {
   // any other response fields you expect
 }
 
-export const useCreateLessonMutation = (matiereId: string) => {
+export const useCreateLessonMutation = (matiereId: string, classes: string) => {
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   return useMutation<CreateLessonResponse, Error, AddCoursSchemaType>({
     mutationFn: async (data: AddCoursSchemaType) => {
       const response = await instance.post<CreateLessonResponse>(
-        `/training-company/create-new-lesson?subjectId=${matiereId}`,
+        `/training-company/create-new-lesson?subjectId=${matiereId}&classesSharedWith=${classes}`,
         data as AddCoursSchemaType,
       );
       return response.data;

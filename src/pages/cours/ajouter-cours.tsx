@@ -41,7 +41,9 @@ export default function AjouterCoursPage() {
   const user = useUserStore().decodedUser;
   const { setSousPages } = useBreadcrumb();
   const { matiereId, coursId } = useParams();
+
   const pathname = useLocation().pathname;
+  const search = useLocation().search;
   const isUpdatePage = pathname.includes('modifier-cours');
 
   const coursQuery = useQuery({
@@ -50,7 +52,7 @@ export default function AjouterCoursPage() {
     enabled: !!coursId,
   });
 
-  const { mutate: createLesson, isPending } = useCreateLessonMutation(matiereId!);
+  const { mutate: createLesson, isPending } = useCreateLessonMutation(matiereId!, search.split('=')[1]);
   const { mutate: updateLesson, isPending: isLoading } = useUpdateLessonMutation(
     coursId!,
     matiereId!,

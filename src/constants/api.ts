@@ -6,6 +6,7 @@ export const API_ENDPOINT = {
   LOGOUT: `${BASE_URL}/logout`,
   REFRESH_TOKEN: `${BASE_URL}/refresh-token`,
   CLASSES: `${BASE_URL}/training-company/classes/byRole`,
+  ALL_CLASSES: `${BASE_URL}/training-company/get-all-classes`,
   MATIERES: `${BASE_URL}/training-company/subjects-by-class-and-role`,
   LESSONS: `${BASE_URL}/training-company/get-all-new-lessons-pagination`,
   SHARED_LESSONS: `${BASE_URL}/training-company/get-all-new-lessons-public`,
