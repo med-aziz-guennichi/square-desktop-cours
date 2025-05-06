@@ -28,3 +28,13 @@ export async function getClasses(
     throw error;
   }
 }
+
+export const getAllClasses = async (scholarityConfigId: string) => {
+  try {
+    const response = await instance.get(`${API_ENDPOINT.ALL_CLASSES}/${scholarityConfigId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch classes', error);
+    throw error;
+  }
+}

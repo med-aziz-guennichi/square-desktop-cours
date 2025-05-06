@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { checkForAvailableUpdate, performUpdate } from '@/lib/updater';
-import { CustomContextMenu } from '@/providers/context-menu';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Outlet, useNavigation } from 'react-router-dom';
@@ -42,7 +41,7 @@ export default function GlobalLayout() {
   }, []);
 
   return (
-    <CustomContextMenu>
+    <>
       {isLoading && <FullPageLoader isLoading={isLoading} />}
       <Outlet />
 
@@ -92,6 +91,6 @@ export default function GlobalLayout() {
           </DialogDescription>
         </DialogContent>
       </Dialog>
-    </CustomContextMenu>
+    </>
   );
 }
