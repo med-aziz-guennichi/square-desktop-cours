@@ -63,7 +63,7 @@ export async function performUpdate(
     await relaunch();
   } catch (err) {
     console.error('Update failed:', err);
-    setStatus("Update failed please try again.");
+    setStatus('Update failed please try again.');
     setDownloading(false);
   }
 }

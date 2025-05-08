@@ -12,7 +12,6 @@ import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Outlet, useNavigation } from 'react-router-dom';
 
-
 declare global {
   interface Window {
     __TAURI__?: unknown;
@@ -22,7 +21,7 @@ declare global {
 export default function GlobalLayout() {
   const navigation = useNavigation();
   const [updateStatus, setUpdateStatus] = useState<string>(''); // Track update status
-  const [updateFeatures, setUpdateFeatures] = useState<string>("");
+  const [updateFeatures, setUpdateFeatures] = useState<string>('');
   const [downloadProgress, setDownloadProgress] = useState<number>(0); // Track download progress
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // Update modal
   const [isDownloading, setIsDownloading] = useState<boolean>(false); // Downloading state
@@ -53,9 +52,7 @@ export default function GlobalLayout() {
           </DialogTitle>
           <DialogDescription>
             <p className="mb-4">{updateStatus}</p>
-            <ReactMarkdown>
-              {updateFeatures}
-            </ReactMarkdown>
+            <ReactMarkdown>{updateFeatures}</ReactMarkdown>
 
             {isDownloading ? (
               <>

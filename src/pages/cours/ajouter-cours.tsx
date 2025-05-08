@@ -52,7 +52,10 @@ export default function AjouterCoursPage() {
     enabled: !!coursId,
   });
 
-  const { mutate: createLesson, isPending } = useCreateLessonMutation(matiereId!, search.split('=')[1]);
+  const { mutate: createLesson, isPending } = useCreateLessonMutation(
+    matiereId!,
+    search.split('=')[1],
+  );
   const { mutate: updateLesson, isPending: isLoading } = useUpdateLessonMutation(
     coursId!,
     matiereId!,
