@@ -1,6 +1,5 @@
 import { ActionConfirmationDialog } from '@/components/save-navigation-dialog';
 import { Button } from '@/components/ui/button';
-import { Label } from "@/components/ui/label"
 
 import {
   Card,
@@ -28,11 +27,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { useSafeNavigation } from '@/hooks/use-save-navigation';
 import { ClickedChapter } from '@/pages/cours/ajouter-cours';
 import { useUserStore } from '@/store/user-store';
-import { ArrowLeft, Loader2, Clock, Award } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { QuizBuilder } from '../Quiz/quizBuilder';
 
-import QuizBuilder from '../QuizBuilder';
 
 const TextEditorOne = lazy(() => import('./text-editor-one'));
 const UploadDocuments = lazy(() => import('./upload-documents'));
@@ -76,26 +75,8 @@ const ClickedShapterForm = ({
       }
     }
   }, [clickedChapter.index, clickedChapter.type, clickedChapter.typeDocument, form]);
-  const [formState, setFormState] = useState({
-    title: "",
-    attempts: 4,
-    description: "",
-    category: "",
-    level: "Débutant",
-    timeLimit: 30,
-    passingScore: 70,
-    isPublic: true,
-    isFree: true,
-    price: 0,
-    priceInCoins: 0,
-  })
-  const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormState({
-      ...formState,
-      [name]: Number(value),
-    })
-  }
+
+
  
  
   
@@ -126,19 +107,7 @@ const ClickedShapterForm = ({
       typeDocument: type,
     });
   };
-  const handleSelectChange = (name: string, value: string) => {
-    setFormState({
-      ...formState,
-      [name]: value,
-    })
-  }
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormState({
-      ...formState,
-      [name]: value,
-    })
-  }
+
 
   if (clickedChapter.index === null) return null;
 
@@ -284,115 +253,27 @@ const ClickedShapterForm = ({
             )}
           </div>
         </CardContent>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {selectedValue === 'Quiz' && (
-            <CardContent className="relative">
-              {/* Left side: Parameters */}
-              <div className="space-y-5">
-                <div>
-                  <FormLabel>Titre</FormLabel>
-                  <Input
-                    id="title"
-                    name="title"
-                    value={formState.title}
-                    onChange={handleInputChange}
-                    placeholder="Titre du quiz"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    value={formState.description}
-                    onChange={handleInputChange}
-                    placeholder="Description du quiz"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="level">Niveau</Label>
-                  <Select
-                    value={formState.level}
-                    onValueChange={(value) => handleSelectChange("level", value)}
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Sélectionner" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Débutant">Débutant</SelectItem>
-                      <SelectItem value="Intermédiaire">Intermédiaire</SelectItem>
-                      <SelectItem value="Avancé">Avancé</SelectItem>
-                      <SelectItem value="Tous niveaux">Tous niveaux</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="passingScore">Score de passage (%)</Label>
-                  <div className="flex items-center mt-1">
-                    <Award className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="passingScore"
-                      name="passingScore"
-                      type="number"
-                      min={1}
-                      max={100}
-                      value={formState.passingScore}
-                      onChange={handleNumberInputChange}
-                    />
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Pourcentage minimum pour réussir le quiz
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="attempts">Tentatives autorisées</Label>
-                  <Input
-                    id="attempts"
-                    name="attempts"
-                    type="number"
-                    min={1}
-                    value={formState.attempts}
-                    onChange={handleNumberInputChange}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="timeLimit">Temps limite (minutes)</Label>
-                  <div className="flex items-center mt-1">
-                    <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="timeLimit"
-                      name="timeLimit"
-                      type="number"
-                      min={1}
-                      value={formState.timeLimit}
-                      onChange={handleNumberInputChange}
-                    />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          )} 
-           {selectedValue === 'Quiz' && (
-         <div className="mt-6">
-         <h2 className="text-xl font-semibold mb-2">Ajouter des Questions</h2>
-         <QuizBuilder />
-       </div>
-           )}
-           
-     {clickedChapter.isCreatedBefore && (
-       <div className="absolute inset-0 backdrop-blur-xs flex items-center justify-center rounded-md">
-         <p className="text-center font-semibold px-4">
-           Vous ne pouvez pas modifier les contenu du chapitre,
-           <br /> vous devez le supprimer et le recréer.
-         </p>
-       </div>
-     )}
-        </CardContent>
+    <CardContent className="relative">
+      <QuizBuilder
+      />
+    </CardContent>
+  )}
+            {/* {selectedValue === 'Quiz' && (
+          <div className="mt-6">
+          <h2 className="text-xl font-semibold mb-2">Ajouter des Questions</h2>
+          <QcmCreationForm />
+        </div>
+            )} */}
+            
+      {clickedChapter.isCreatedBefore && (
+        <div className="absolute inset-0 backdrop-blur-xs flex items-center justify-center rounded-md">
+          <p className="text-center font-semibold px-4">
+            Vous ne pouvez pas modifier les contenu du chapitre,
+            <br /> vous devez le supprimer et le recréer.
+          </p>
+        </div>
+      )}
       </Card>
       <ActionConfirmationDialog
         open={showConfirm}

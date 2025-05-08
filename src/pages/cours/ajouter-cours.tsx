@@ -16,6 +16,7 @@ import { useAddCoursForm } from './hooks/use-add-cours-form';
 import { useCreateLessonMutation } from './hooks/use-create-lesson-mutation';
 import { useLessonTitleValidation } from './hooks/use-lesson-title-validation';
 import { useUpdateLessonMutation } from './hooks/use-update-lesson-mutation';
+import { Quiz } from '@/components/form/Quiz/quizParametre';
 const ChaptersForm = lazy(() => import('@/components/form/cours/add-chapters-form'));
 const ClickedShapterForm = lazy(
   () => import('@/components/form/cours/clicked-shapter-form'),
@@ -27,7 +28,7 @@ export interface ClickedChapter {
   title: string;
   description: string;
   type: 'Video' | 'Document' | 'Quiz' | ''; // or just `string` if dynamic
-  quizzes: string[];
+  quizzes: Quiz[];
   studyMaterials: {
     fileName: string;
     displayName: string;

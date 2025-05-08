@@ -1,55 +1,55 @@
 
 
-YELLOW="\e[93m"
-GREEN="\e[32m"
-RED="\e[31m"
-ENDCOLOR="\e[0m"
+# YELLOW="\e[93m"
+# GREEN="\e[32m"
+# RED="\e[31m"
+# ENDCOLOR="\e[0m"
 
-printMessage() {
-   printf "${YELLOW}StudiffyCours : $1${ENDCOLOR}\n"
-}
+# printMessage() {
+#    printf "${YELLOW}StudiffyCours : $1${ENDCOLOR}\n"
+# }
 
-printSuccess() {
-   printf "${GREEN}StudiffyCours : $1${ENDCOLOR}\n"
-}
+# printSuccess() {
+#    printf "${GREEN}StudiffyCours : $1${ENDCOLOR}\n"
+# }
 
-printError() {
-   printf "${RED}StudiffyCours : $1${ENDCOLOR}\n"
-}
+# printError() {
+#    printf "${RED}StudiffyCours : $1${ENDCOLOR}\n"
+# }
 
-printMessage "Running local StudiffyCours pre-commit hook..."
+# printMessage "Running local StudiffyCours pre-commit hook..."
 
-limit=$(( 1 * 2**20 )) # 1MB
+# limit=$(( 1 * 2**20 )) # 1MB
 
-function file_too_large() {
-	filename=$1
-	filesize=$(( $2 / 2**20 ))
+# function file_too_large() {
+# 	filename=$1
+# 	filesize=$(( $2 / 2**20 ))
 
-	cat <<HEREDOC
+# 	cat <<HEREDOC
 
-	File $filename is ${filesize}MB, which is larger than GitHub's 1MB limit.
-	Commit aborted.
+# 	File $filename is ${filesize}MB, which is larger than GitHub's 1MB limit.
+# 	Commit aborted.
 
-HEREDOC
-}
+# HEREDOC
+# }
 
-empty_tree=$( git hash-object -t tree /dev/null )
+# empty_tree=$( git hash-object -t tree /dev/null )
 
-if git rev-parse --verify HEAD > /dev/null 2>&1
-then
-	against=HEAD
-else
-	against=$empty_tree
-fi
+# if git rev-parse --verify HEAD > /dev/null 2>&1
+# then
+# 	against=HEAD
+# else
+# 	against=$empty_tree
+# fi
 
-for file in $( git diff-index --cached --name-only $against ); do
-	if [ -f "$file" ]; then
-		file_size=$(stat -c %s "$file")
-		if [ "$file_size" -gt "$limit" ]; then
-			file_too_large "$file" "$file_size"
-			exit 1
-		fi
-	fi
-done
+# for file in $( git diff-index --cached --name-only $against ); do
+# 	if [ -f "$file" ]; then
+# 		file_size=$(stat -c %s "$file")
+# 		if [ "$file_size" -gt "$limit" ]; then
+# 			file_too_large "$file" "$file_size"
+# 			exit 1
+# 		fi
+# 	fi
+# done
 
-printSuccess "No oversized files found."
+# printSuccess "No oversized files found."

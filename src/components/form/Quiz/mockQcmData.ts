@@ -1,0 +1,81 @@
+export const mockQcmData = [
+    {
+      id: "qcm-1",
+      title: "Introduction à JavaScript",
+      description: "Un QCM pour tester vos connaissances de base en JavaScript",
+      category: "informatique",
+      questionCount: 10,
+      createdAt: "2023-05-15T10:30:00Z",
+      questions: [
+        {
+          id: "q-1",
+          text: "Quelle est la syntaxe correcte pour déclarer une variable en JavaScript moderne ?",
+          options: [
+            { id: "opt-1-1", text: "var x = 5;", isCorrect: false },
+            { id: "opt-1-2", text: "let x = 5;", isCorrect: true },
+            { id: "opt-1-3", text: "variable x = 5;", isCorrect: false },
+            { id: "opt-1-4", text: "int x = 5;", isCorrect: false },
+          ],
+          explanation:
+            "En JavaScript moderne, 'let' est la façon recommandée de déclarer une variable dont la valeur peut changer.",
+        },
+        {
+          id: "q-2",
+          text: "Comment déclarer une constante en JavaScript ?",
+          options: [
+            { id: "opt-2-1", text: "var x = 5;", isCorrect: false },
+            { id: "opt-2-2", text: "let x = 5;", isCorrect: false },
+            { id: "opt-2-3", text: "const x = 5;", isCorrect: true },
+            { id: "opt-2-4", text: "constant x = 5;", isCorrect: false },
+          ],
+          explanation: "La déclaration 'const' crée une référence en lecture seule à une valeur.",
+        },
+      ],
+    },
+    {
+      id: "qcm-2",
+      title: "Algèbre linéaire",
+      description: "Testez vos connaissances en algèbre linéaire avec ce QCM complet",
+      category: "mathématiques",
+      questionCount: 15,
+      createdAt: "2023-06-20T14:45:00Z",
+      questions: [],
+    },
+    {
+      id: "qcm-3",
+      title: "HTML et CSS pour débutants",
+      description: "Les bases du développement web front-end",
+      category: "informatique",
+      questionCount: 12,
+      createdAt: "2023-07-05T09:15:00Z",
+      questions: [],
+    },
+    {
+      id: "qcm-4",
+      title: "Vocabulaire anglais - Niveau intermédiaire",
+      description: "Testez votre vocabulaire anglais avec ce QCM de niveau intermédiaire",
+      category: "langues",
+      questionCount: 20,
+      createdAt: "2023-08-12T16:30:00Z",
+      questions: [],
+    },
+    {
+      id: "qcm-5",
+      title: "La Révolution française",
+      description: "Les événements clés de la Révolution française",
+      category: "histoire",
+      questionCount: 8,
+      createdAt: "2023-09-01T11:20:00Z",
+      questions: [],
+    },
+    {
+      id: "qcm-6",
+      title: "Physique quantique",
+      description: "Concepts fondamentaux de la physique quantique",
+      category: "sciences",
+      questionCount: 15,
+      createdAt: "2023-09-18T13:45:00Z",
+      questions: [],
+    },
+  ]
+  
