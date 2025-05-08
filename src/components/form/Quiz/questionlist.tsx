@@ -65,6 +65,7 @@ export function QuestionList({
     <div className="space-y-4">
  {questions.map((question: Questions, index: number) => (
         <Collapsible
+        
           key={question.id}
           open={!!openItems[question.id]}
           onOpenChange={() => toggleItem(question.id)}
@@ -132,18 +133,16 @@ export function QuestionList({
                     </Button>
                   </div>
                   <div className="flex gap-1">
-                    {!onEdit && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(question)}
-                        className="h-8"
-                      >
-                        <Edit className="h-4 w-4 mr-1" />
-                        Modifier
-                      </Button>
-                    )}
+                  <Button
+  type="button"
+  variant="ghost"
+  size="sm"
+  onClick={() => handleEdit(question)}
+  className="h-8"
+>
+  <Edit className="h-4 w-4 mr-1" />
+  Modifier
+</Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button

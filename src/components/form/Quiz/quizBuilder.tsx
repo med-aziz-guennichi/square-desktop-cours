@@ -13,6 +13,9 @@ import { QuestionEditor } from "./quizEditor"
 import { QuestionPreview } from "./quizprevious"
 import { toast } from "sonner"
 import { Questions } from "./quizParametre"
+import { useCreateQuizMutation } from "./hook/create-quiz"
+import { useUserStore } from "@/store/user-store"
+import { QuizSchemaType } from "./schemas/quiz-schema"
 export function QuizBuilder() {
   const [activeTab, setActiveTab] = useState("edit")
   const [activeSidePanel, setActiveSidePanel] = useState("settings")
@@ -21,7 +24,6 @@ export function QuizBuilder() {
   const [quiz, setQuiz] = useState({
     title: "1",
     description: "",
-    settings: {
       level: "débutant",
       passingScore: 70,
       maxAttempts: 3,
@@ -29,7 +31,6 @@ export function QuizBuilder() {
       randomizeQuestions: false,
       showFeedback: true,
       showResults: true,
-    },
     questions: [
       {
         id: "1",
@@ -41,6 +42,11 @@ export function QuizBuilder() {
       },
     ],
   })
+
+  const user = useUserStore.getState().decodedUser;
+  const scholarityConfigId = user?.facility?.scholarityConfigId ?? "";
+  const { mutate: createQuiz } = useCreateQuizMutation(scholarityConfigId)
+
 
   // Fonctions de gestion des questions
   const addQuestion = () => {
@@ -130,33 +136,59 @@ export function QuizBuilder() {
   const handleSettingChange = (name: string, value: string | number | boolean) => {
     setQuiz((prev) => ({
       ...prev,
-      settings: {
-        ...prev.settings,
-        [name]: value,
-      },
-    }))
-  }
+      [name]: value, // 👈 On modifie directement la propriété au niveau racine de quiz
+    }));
+  };
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-
+  
     if (!quiz.title.trim()) {
       toast.error("Le titre du quiz est obligatoire")
       return
     }
-
-    // Vérifier que toutes les questions ont un texte
+  
     const incompleteQuestions = quiz.questions.some((q) => !q.text.trim())
     if (incompleteQuestions) {
       toast.error("Toutes les questions doivent avoir un texte")
       return
     }
-
-
-    toast.success("Le quiz a été créé avec succès")
-
-    // Redirection vers la page d'accueil
+  
+    const incompleteOptions = quiz.questions.some((q) =>
+      q.options.some((opt) => !opt.text.trim())
+    )
+    if (incompleteOptions) {
+      toast.error("Toutes les options de réponse doivent avoir un texte")
+      return
+    }
+  
+    const totalScore = quiz.questions.reduce((sum, q) => sum + (q.points || 1), 0)
+    const passingThreshold = Math.round((quiz.passingScore / 100) * totalScore)
+  
+    const payload: QuizSchemaType = {
+      title: quiz.title,
+      description: quiz.description,
+      instructor: user?._id || "UNKNOWN_INSTRUCTOR", // make sure user exists
+      scholarityConfigId: scholarityConfigId,
+      totalAttempts: quiz.maxAttempts,
+      totalTimeTaken: quiz.timeLimit,
+      successRate: passingThreshold,
+      score: totalScore,
+      questions: quiz.questions.map((q) => ({
+        question: q.text,
+        explanation: q.explanation,
+        point: q.points,
+        isboolean: q.type === "boolean",
+        options: q.options.map((opt) => ({
+          text: opt.text,
+          correct: opt.isCorrect,
+        })),
+      })),
+    }
+  
+    createQuiz(payload)
   }
+
 
   const currentQuestion = quiz.questions[currentQuestionIndex]
 
@@ -266,7 +298,7 @@ export function QuizBuilder() {
                     <Label htmlFor="level" className="text-sm text-gray-400">
                       Niveau
                     </Label>
-                    <Select value={quiz.settings.level} onValueChange={(value) => handleSettingChange("level", value)}>
+                    <Select value={quiz.level} onValueChange={(value) => handleSettingChange("level", value)}>
                       <SelectTrigger id="level" className="bg-[#252525] border-[#333] text-white">
                         <SelectValue placeholder="Sélectionnez un niveau" />
                       </SelectTrigger>
@@ -289,7 +321,7 @@ export function QuizBuilder() {
                         type="number"
                         min="1"
                         max="100"
-                        value={quiz.settings.passingScore}
+                        value={quiz.passingScore}
                         onChange={(e) => handleSettingChange("passingScore", Number.parseInt(e.target.value))}
                         className="bg-[#252525] border-[#333] text-white pr-8"
                       />
@@ -306,7 +338,7 @@ export function QuizBuilder() {
                       id="maxAttempts"
                       type="number"
                       min="1"
-                      value={quiz.settings.maxAttempts}
+                      value={quiz.maxAttempts}
                       onChange={(e) => handleSettingChange("maxAttempts", Number.parseInt(e.target.value))}
                       className="bg-[#252525] border-[#333] text-white"
                     />
@@ -321,7 +353,7 @@ export function QuizBuilder() {
                       id="timeLimit"
                       type="number"
                       min="0"
-                      value={quiz.settings.timeLimit}
+                      value={quiz.timeLimit}
                       onChange={(e) => handleSettingChange("timeLimit", Number.parseInt(e.target.value))}
                       className="bg-[#252525] border-[#333] text-white"
                     />
@@ -337,7 +369,7 @@ export function QuizBuilder() {
                       </Label>
                       <Switch
                         id="randomizeQuestions"
-                        checked={quiz.settings.randomizeQuestions}
+                        checked={quiz.randomizeQuestions}
                         onCheckedChange={(checked) => handleSettingChange("randomizeQuestions", checked)}
                       />
                     </div>
@@ -348,7 +380,7 @@ export function QuizBuilder() {
                       </Label>
                       <Switch
                         id="showFeedback"
-                        checked={quiz.settings.showFeedback}
+                        checked={quiz.showFeedback}
                         onCheckedChange={(checked) => handleSettingChange("showFeedback", checked)}
                       />
                     </div>
@@ -359,7 +391,7 @@ export function QuizBuilder() {
                       </Label>
                       <Switch
                         id="showResults"
-                        checked={quiz.settings.showResults}
+                        checked={quiz.showResults}
                         onCheckedChange={(checked) => handleSettingChange("showResults", checked)}
                       />
                     </div>
@@ -515,6 +547,7 @@ export function QuizBuilder() {
 
                   <div className="flex items-center gap-1">
                     <Button
+                    type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => navigateToQuestion(currentQuestionIndex - 1)}
@@ -530,6 +563,7 @@ export function QuizBuilder() {
                     </span>
 
                     <Button
+                    type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => navigateToQuestion(currentQuestionIndex + 1)}

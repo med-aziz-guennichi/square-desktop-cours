@@ -142,7 +142,11 @@ export function QcmList() {
                   </Link>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="ghost" onClick={() => handleDuplicateQcm(qcm.id)}>
+                  <Button 
+                   type="button"
+                   size="sm" 
+                   variant="ghost" 
+                   onClick={() => handleDuplicateQcm(qcm.id)}>
                     <Copy className="h-4 w-4" />
                     <span className="sr-only">Dupliquer</span>
                   </Button>

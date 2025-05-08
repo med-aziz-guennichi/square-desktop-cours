@@ -20,6 +20,8 @@ export function QuestionForm({
     onSave: (q: Questions) => void;
     onCancel: () => void;
   }) {
+    console.log("QuestionForm mounted")
+
   const [question, setQuestion] = useState({
     id:existingQuestion?.id ||"",
     text: existingQuestion?.text || "",

@@ -16,4 +16,11 @@ export const API_ENDPOINT = {
   CHAPTER_PROGRESS: `${BASE_URL}/training-company/get-chapter-progress`,
   MARK_CHAPTER_COMPLETED: `${BASE_URL}/training-company/mark-chapter-completed`,
   DELETE_LESSON: `${BASE_URL}/training-company/delete-new-lesson`,
+  //QUIZ ROUTES 
+  CREATE_QUIZ: `${BASE_URL}/training-company/create-quiz`,
+  allQuizzes: `${BASE_URL}/training-company/all-quizzes/`,
+  GET_QUIZ: `${BASE_URL}/training-company/get-quiz`,
+  UPDATE_QUIZ: `${BASE_URL}/training-company/update-quiz`,
+  DELETE_QUIZ: `${BASE_URL}/training-company/delete-quiz`,
+
 };
