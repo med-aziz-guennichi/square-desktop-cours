@@ -30,7 +30,6 @@ import { useUserStore } from '@/store/user-store';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { QuizBuilder } from '../Quiz/quizBuilder';
 import { QcmList } from '../Quiz/quizlist';
 
 
