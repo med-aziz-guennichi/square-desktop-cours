@@ -1,3 +1,4 @@
+import { Quiz } from '@/components/form/Quiz/quizParametre';
 import { BaseModel } from './base.model.interface';
 import { IUser } from './user.interface';
 
@@ -17,6 +18,7 @@ export interface Chapters extends BaseModel {
     progress: number;
   }[];
   typeDocument: string;
+  quizzes: Quiz[];
   type: string;
   studyMaterials: StudyMaterials[];
 }

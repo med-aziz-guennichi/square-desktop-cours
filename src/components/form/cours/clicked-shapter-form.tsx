@@ -30,7 +30,8 @@ import { useUserStore } from '@/store/user-store';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { QcmList } from '../Quiz/quizlist';
+import { QuizBuilder } from '../Quiz/quizBuilder';
+
 
 
 const TextEditorOne = lazy(() => import('./text-editor-one'));
@@ -75,19 +76,6 @@ const ClickedShapterForm = ({
       }
     }
   }, [clickedChapter.index, clickedChapter.type, clickedChapter.typeDocument, form]);
-
-
- 
- 
-  
-
-
-  // Handle changes to options
-
-
-  // Handle selecting/deselecting correct answers for multiple choice
-  
-
   const handleTypeChange = (val: string) => {
     setSelectedValue(val);
     form.setValue(`chapters.${clickedChapter.index}.type`, val);
@@ -255,7 +243,10 @@ const ClickedShapterForm = ({
         </CardContent>
           {selectedValue === 'Quiz' && (
     <CardContent className="relative">
-      <QcmList
+
+      
+      <QuizBuilder 
+     
       />
     </CardContent>
   )}
