@@ -23,8 +23,10 @@ import { Class } from '@/types/classe.interface';
 import { IUser } from '@/types/user.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
+import { Loader2, Play } from 'lucide-react';
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useCreateMeetMutation } from '../hooks/use-create-meet-mutation';
 import { meetSchema, MeetType } from './schema';
 
 export default function AjouterConferance({
@@ -42,6 +44,7 @@ export default function AjouterConferance({
     queryFn: () => getClasses(scholarityConfigId!, 1, 10000),
     enabled: !!scholarityConfigId,
   });
+  const { mutate: createMeet, isPending } = useCreateMeetMutation();
 
   const methods = useForm<MeetType>({
     resolver: zodResolver(meetSchema),
@@ -52,7 +55,7 @@ export default function AjouterConferance({
   });
   const { handleSubmit } = methods;
   const onSubmit: SubmitHandler<MeetType> = (data) => {
-    console.warn(data);
+    createMeet(data);
   };
   return (
     <Dialog open={showNewConferenceDialog} onOpenChange={setShowNewConferenceDialog}>
@@ -152,20 +155,19 @@ export default function AjouterConferance({
                 >
                   Annuler
                 </Button>
-                <Button type="submit">Démarrer</Button>
-                {/* <Button onClick={createNewConference} disabled={isCreatingConference}>
-                {isCreatingConference ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Création...
-                  </>
-                ) : (
-                  <>
-                    <Play className="mr-2 h-4 w-4" />
-                    Démarrer
-                  </>
-                )}
-              </Button> */}
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Création...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="mr-2 h-4 w-4" />
+                      Démarrer
+                    </>
+                  )}
+                </Button>
               </DialogFooter>
             </div>
           </form>

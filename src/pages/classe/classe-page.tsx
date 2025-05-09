@@ -1,4 +1,4 @@
-import { getClasses } from '@/apis/classes/query-slice';
+import { getAllClasses } from '@/apis/classes/query-slice';
 import ClassCardSkeleton from '@/components/sketlon/classe-card';
 import { useBreadcrumb } from '@/context/BreadcrumbContext';
 import { useScreenWidth } from '@/hooks/screen-size';
@@ -6,7 +6,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/store/user-store';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { Users2 } from 'lucide-react';
+import { Loader, Users2 } from 'lucide-react';
 import { useEffect } from 'react';
 
 import { ClassCard } from '@/components/cards/classe-card';
@@ -41,7 +41,7 @@ export default function ClassePage() {
     // isFetching, // this for the pagination fetching
   } = useQuery({
     queryKey: ['classes', id],
-    queryFn: () => getClasses(id!),
+    queryFn: () => getAllClasses(id!),
     enabled: !!id,
     placeholderData: keepPreviousData,
   });
@@ -104,13 +104,17 @@ export default function ClassePage() {
       </div>
 
       {/* Filters */}
-      <ClassFilterPanel
-        filters={filters}
-        activeFilters={activeFilters}
-        updateFilter={updateFilter}
-        removeFilter={removeFilter}
-        clearAllFilters={clearAllFilters}
-      />
+      {isLoading ? (
+        <Loader className="w-4 h-4" />
+      ) : (
+        <ClassFilterPanel
+          filters={filters}
+          activeFilters={activeFilters}
+          updateFilter={updateFilter}
+          removeFilter={removeFilter}
+          clearAllFilters={clearAllFilters}
+        />
+      )}
 
       {/* Results count */}
       <div className="flex justify-between items-center mb-4">

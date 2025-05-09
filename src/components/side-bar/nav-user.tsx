@@ -31,10 +31,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useNotificationsStore } from '@/store/notification-store';
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { removeCredentials, user, decodedUser } = useUserStore();
+  const { clearNotifications } = useNotificationsStore();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const handleLogout = async () => {
@@ -48,12 +50,14 @@ export function NavUser() {
         toast.success('logged out sucessfully');
         queryClient.clear();
         removeCredentials();
+        clearNotifications();
         navigate('/', { replace: true });
       }
     } catch (error) {
       console.error('Logout error:', error);
       queryClient.clear();
       removeCredentials();
+      clearNotifications();
       navigate('/', { replace: true });
     }
   };
