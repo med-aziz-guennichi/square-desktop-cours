@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 interface CreateLessonResponse {
   success: boolean;
   message: string;
-  // any other response fields you expect
+
 }
 
 export const useCreateLessonMutation = (matiereId: string, classes: string) => {
