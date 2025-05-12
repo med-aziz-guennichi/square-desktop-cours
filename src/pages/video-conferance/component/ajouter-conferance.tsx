@@ -134,6 +134,23 @@ export default function AjouterConferance({
                               value={selectedClasses}
                               placeholder="Select classes"
                               hidePlaceholderWhenSelected
+                              defaultOptions={data.data.map((item: Class) => ({
+                                label: item.name,
+                                value: item._id,
+                                students: item.students,
+                              }))}
+                              triggerSearchOnFocus
+                              onSearch={(query) => {
+                                const filteredOptions = data.data.filter((item: Class) =>
+                                  item.name!.toLowerCase().includes(query.toLowerCase()),
+                                );
+                                return filteredOptions.map((item: Class) => ({
+                                  label: item.name,
+                                  value: item._id,
+                                  students: item.students,
+                                }));
+                              }}
+                              delay={500}
                               emptyIndicator={
                                 <p className="text-center text-sm">
                                   No results found

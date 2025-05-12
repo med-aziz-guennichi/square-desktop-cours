@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
-import { CourseAccessPopup } from './shared-course-access-popup';
+import { Loader2 } from 'lucide-react';
+import { lazy, Suspense, useState } from 'react';
+const CourseAccessPopup = lazy(() => import('./shared-course-access-popup'));
 
 export function AddCourseButton() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -8,7 +9,14 @@ export function AddCourseButton() {
   return (
     <>
       <Button onClick={() => setIsPopupOpen(true)}>Ajouter cours</Button>
-      <CourseAccessPopup open={isPopupOpen} onOpenChange={setIsPopupOpen} />
+      <Suspense fallback={<Loader2 className='animate-spin' />}>
+        {isPopupOpen && (
+          <CourseAccessPopup
+            open={isPopupOpen}
+            onOpenChange={setIsPopupOpen}
+          />
+        )}
+      </Suspense>
     </>
   );
 }

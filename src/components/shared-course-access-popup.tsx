@@ -20,7 +20,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-export function CourseAccessPopup({
+export default function CourseAccessPopup({
   open,
   onOpenChange,
 }: {
@@ -30,8 +30,8 @@ export function CourseAccessPopup({
   const user = useUserStore.getState().decodedUser;
   const id = user?.facility?.scholarityConfigId;
   const navigate = useNavigate();
-  const { data: classesDisponibles, isError } = useQuery({
-    queryKey: ['classes', id],
+  const { data: classesDisponibles, isError,isLoading } = useQuery({
+    queryKey: ['classes-shared-cours', id],
     queryFn: () => getAllClasses(id!),
     enabled: !!id,
     placeholderData: keepPreviousData,
@@ -42,6 +42,9 @@ export function CourseAccessPopup({
   const [searchSelected, setSearchSelected] = useState('');
   if (isError) {
     toast.error('Something went wrong');
+  }
+  if(isLoading) {
+    return <div>Loading...</div>;
   }
   // Filtrer les classes disponibles en fonction de la recherche
   const filteredAvailableClasses = classesDisponibles?.filter(
