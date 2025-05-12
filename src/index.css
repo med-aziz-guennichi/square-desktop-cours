@@ -119,3 +119,20 @@
     @apply scroll-smooth
   }
 }
+
+.dark .meeting-notification-card {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+}
+
+.dark [data-theme="dark"] .meeting-notification-card {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure text is readable in dark mode */
+.dark .meeting-title {
+  color: white;
+}
+
+.dark .meeting-info {
+  color: rgba(255, 255, 255, 0.8);
+}

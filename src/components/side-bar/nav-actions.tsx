@@ -1,6 +1,7 @@
-import { Bell, Coins, MessageCircle } from 'lucide-react';
+import { Coins, MessageCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import NotificationHeader from '../notification-header';
 import { ModeToggle } from '../ui/mode-toggle';
 
 export function NavActions() {
@@ -13,9 +14,8 @@ export function NavActions() {
       <Button variant="ghost" size="icon" className="relative">
         <MessageCircle className="h-5 w-5" />
       </Button>
-      <Button variant="ghost" size="icon" className="relative">
-        <Bell className="h-5 w-5" />
-      </Button>
+
+      <NotificationHeader />
       <ModeToggle />
     </div>
   );

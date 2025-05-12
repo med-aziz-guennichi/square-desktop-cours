@@ -12,7 +12,6 @@ interface CreateLessonResponse {
 }
 
 export const useCreateLessonMutation = (matiereId: string, classes: string) => {
-
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   return useMutation<CreateLessonResponse, Error, AddCoursSchemaType>({

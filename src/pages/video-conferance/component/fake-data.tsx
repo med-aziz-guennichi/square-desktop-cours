@@ -12,8 +12,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { CommandDialog } from '@/components/ui/command';
 import {
-  Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -50,9 +50,9 @@ import {
   Video,
   VideoIcon,
 } from 'lucide-react';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+const AjouterConferance = lazy(() => import('./ajouter-conferance'));
 // Types
 type UserRole = 'student' | 'teacher' | 'parent' | 'admin';
 type ConferenceStatus = 'scheduled' | 'live' | 'ended';
@@ -259,6 +259,13 @@ export default function ConferencePage() {
     onlyRecorded: false,
   });
 
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
+  const handlefilter = () => {
+    setFilters(filters);
+  };
+  console.warn(handleSearchChange, handlefilter);
   // Filtrer les conférences
   const filteredConferences = conferences.filter((conference) => {
     // Filtre de recherche
@@ -317,9 +324,9 @@ export default function ConferencePage() {
       // Pour l'instant, on reste sur la page
     }, 2000);
   };
-
+  console.warn(createNewConference);
   return (
-    <div className="p-8">
+    <div className="p-8 relative">
       <div className="container space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -329,215 +336,182 @@ export default function ConferencePage() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
-            <Button onClick={() => setShowNewConferenceDialog(true)}>
+            <Button
+              className="relative z-20"
+              onClick={() => setShowNewConferenceDialog(true)}
+            >
               <Play className="mr-2 h-4 w-4" />
               Démarrer maintenant
             </Button>
-            <Button variant="outline" onClick={() => setShowScheduleDialog(true)}>
+            <Button variant="outline" disabled>
               <CalendarPlus className="mr-2 h-4 w-4" />
               Planifier
             </Button>
           </div>
         </div>
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="w-full md:w-64 space-y-4">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Rechercher..."
-                className="pl-8"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
 
-            <div className="border rounded-lg p-4 space-y-4">
-              <h3 className="font-medium flex items-center">
-                <Filter className="h-4 w-4 mr-2" />
-                Filtres
-              </h3>
+        {/* Disabled content with overlay */}
+        <div className="relative">
+          <div className="blur-sm opacity-50 pointer-events-none">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="w-full md:w-64 space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Rechercher..."
+                    className="pl-8"
+                    value={searchQuery}
+                    disabled
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label>Type de conférence</Label>
-                <Select
-                  value={filters.type}
-                  onValueChange={(value) => setFilters({ ...filters, type: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Tous les types" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tous les types</SelectItem>
-                    <SelectItem value="class">Classe</SelectItem>
-                    <SelectItem value="individual">Individuel</SelectItem>
-                    <SelectItem value="admin">Administration</SelectItem>
-                    <SelectItem value="mixed">Mixte</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="border rounded-lg p-4 space-y-4">
+                  <h3 className="font-medium flex items-center">
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filtres
+                  </h3>
+                  <div className="space-y-2">
+                    <Label>Type de conférence</Label>
+                    <Select disabled>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Tous les types" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tous les types</SelectItem>
+                        <SelectItem value="class">Classe</SelectItem>
+                        <SelectItem value="individual">Individuel</SelectItem>
+                        <SelectItem value="admin">Administration</SelectItem>
+                        <SelectItem value="mixed">Mixte</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="onlyMine" disabled />
+                      <Label htmlFor="onlyMine">Mes conférences uniquement</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="onlyRecorded" disabled />
+                      <Label htmlFor="onlyRecorded">Avec enregistrement</Label>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="onlyMine"
-                    checked={filters.onlyMine}
-                    onCheckedChange={(checked) =>
-                      setFilters({ ...filters, onlyMine: !!checked })
-                    }
-                  />
-                  <Label htmlFor="onlyMine">Mes conférences uniquement</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="onlyRecorded"
-                    checked={filters.onlyRecorded}
-                    onCheckedChange={(checked) =>
-                      setFilters({ ...filters, onlyRecorded: !!checked })
-                    }
-                  />
-                  <Label htmlFor="onlyRecorded">Avec enregistrement</Label>
-                </div>
+              <div className="flex-1">
+                <Tabs
+                  className="w-full"
+                  defaultValue="upcoming"
+                  value={selectedTab}
+                  onValueChange={setSelectedTab}
+                >
+                  <TabsList className="grid grid-cols-4 mb-4">
+                    <TabsTrigger value="upcoming" disabled>
+                      À venir
+                    </TabsTrigger>
+                    <TabsTrigger value="live" disabled>
+                      En direct
+                    </TabsTrigger>
+                    <TabsTrigger value="past" disabled>
+                      Passées
+                    </TabsTrigger>
+                    <TabsTrigger value="mine" disabled>
+                      Mes conférences
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="upcoming" className="space-y-4">
+                    {upcomingConferences.length === 0 ? (
+                      <EmptyState
+                        title="Aucune conférence à venir"
+                        description="Planifiez une nouvelle conférence pour commencer"
+                        action={() => setShowScheduleDialog(true)}
+                        actionText="Planifier une conférence"
+                      />
+                    ) : (
+                      upcomingConferences.map((conference) => (
+                        <ConferenceCard
+                          key={conference.id}
+                          conference={conference}
+                        />
+                      ))
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="live" className="space-y-4">
+                    {liveConferences.length === 0 ? (
+                      <EmptyState
+                        title="Aucune conférence en direct"
+                        description="Démarrez une nouvelle conférence maintenant"
+                        action={() => setShowNewConferenceDialog(true)}
+                        actionText="Démarrer une conférence"
+                      />
+                    ) : (
+                      liveConferences.map((conference) => (
+                        <ConferenceCard
+                          key={conference.id}
+                          conference={conference}
+                        />
+                      ))
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="past" className="space-y-4">
+                    {pastConferences.length === 0 ? (
+                      <EmptyState
+                        title="Aucune conférence passée"
+                        description="L'historique de vos conférences apparaîtra ici"
+                      />
+                    ) : (
+                      pastConferences.map((conference) => (
+                        <ConferenceCard
+                          key={conference.id}
+                          conference={conference}
+                        />
+                      ))
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="mine" className="space-y-4">
+                    {myConferences.length === 0 ? (
+                      <EmptyState
+                        title="Vous n'avez pas encore de conférences"
+                        description="Créez votre première conférence"
+                        action={() => setShowScheduleDialog(true)}
+                        actionText="Créer une conférence"
+                      />
+                    ) : (
+                      myConferences.map((conference) => (
+                        <ConferenceCard
+                          key={conference.id}
+                          conference={conference}
+                        />
+                      ))
+                    )}
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
           </div>
 
-          <div className="flex-1">
-            <Tabs
-              defaultValue="upcoming"
-              value={selectedTab}
-              onValueChange={setSelectedTab}
-              className="w-full"
-            >
-              <TabsList className="grid grid-cols-4 mb-4">
-                <TabsTrigger value="upcoming">À venir</TabsTrigger>
-                <TabsTrigger value="live">En direct</TabsTrigger>
-                <TabsTrigger value="past">Passées</TabsTrigger>
-                <TabsTrigger value="mine">Mes conférences</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="upcoming" className="space-y-4">
-                {upcomingConferences.length === 0 ? (
-                  <EmptyState
-                    title="Aucune conférence à venir"
-                    description="Planifiez une nouvelle conférence pour commencer"
-                    action={() => setShowScheduleDialog(true)}
-                    actionText="Planifier une conférence"
-                  />
-                ) : (
-                  upcomingConferences.map((conference) => (
-                    <ConferenceCard key={conference.id} conference={conference} />
-                  ))
-                )}
-              </TabsContent>
-
-              <TabsContent value="live" className="space-y-4">
-                {liveConferences.length === 0 ? (
-                  <EmptyState
-                    title="Aucune conférence en direct"
-                    description="Démarrez une nouvelle conférence maintenant"
-                    action={() => setShowNewConferenceDialog(true)}
-                    actionText="Démarrer une conférence"
-                  />
-                ) : (
-                  liveConferences.map((conference) => (
-                    <ConferenceCard key={conference.id} conference={conference} />
-                  ))
-                )}
-              </TabsContent>
-
-              <TabsContent value="past" className="space-y-4">
-                {pastConferences.length === 0 ? (
-                  <EmptyState
-                    title="Aucune conférence passée"
-                    description="L'historique de vos conférences apparaîtra ici"
-                  />
-                ) : (
-                  pastConferences.map((conference) => (
-                    <ConferenceCard key={conference.id} conference={conference} />
-                  ))
-                )}
-              </TabsContent>
-
-              <TabsContent value="mine" className="space-y-4">
-                {myConferences.length === 0 ? (
-                  <EmptyState
-                    title="Vous n'avez pas encore de conférences"
-                    description="Créez votre première conférence"
-                    action={() => setShowScheduleDialog(true)}
-                    actionText="Créer une conférence"
-                  />
-                ) : (
-                  myConferences.map((conference) => (
-                    <ConferenceCard key={conference.id} conference={conference} />
-                  ))
-                )}
-              </TabsContent>
-            </Tabs>
+          {/* Coming Soon Overlay */}
+          <div className="absolute inset-0 backdrop-blur-sm flex items-center justify-center">
+            <p className="text-2xl font-bold italic">Coming Soon...</p>
           </div>
         </div>
-        {/* Dialogue pour démarrer une nouvelle conférence */}
-        <Dialog
-          open={showNewConferenceDialog}
-          onOpenChange={setShowNewConferenceDialog}
-        >
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Démarrer une nouvelle conférence</DialogTitle>
-              <DialogDescription>
-                Créez une conférence instantanée et invitez des participants à la
-                rejoindre.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Nom de la conférence</Label>
-                <Input id="name" placeholder="Réunion de classe" />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="type">Type de conférence</Label>
-                <Select defaultValue="class">
-                  <SelectTrigger id="type">
-                    <SelectValue placeholder="Sélectionnez un type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="class">Classe entière</SelectItem>
-                    <SelectItem value="individual">Individuel (1:1)</SelectItem>
-                    <SelectItem value="admin">Administration</SelectItem>
-                    <SelectItem value="mixed">Mixte</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="record" />
-                <Label htmlFor="record">Enregistrer cette conférence</Label>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setShowNewConferenceDialog(false)}
-              >
-                Annuler
-              </Button>
-              <Button onClick={createNewConference} disabled={isCreatingConference}>
-                {isCreatingConference ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Création...
-                  </>
-                ) : (
-                  <>
-                    <Play className="mr-2 h-4 w-4" />
-                    Démarrer
-                  </>
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
 
-        <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
+        {/* Dialogue pour démarrer une nouvelle conférence */}
+        <Suspense fallback={<Loader2 className="animate-spin" />}>
+          <AjouterConferance
+            showNewConferenceDialog={showNewConferenceDialog}
+            setShowNewConferenceDialog={setShowNewConferenceDialog}
+          />
+        </Suspense>
+
+        <CommandDialog
+          open={showScheduleDialog}
+          onOpenChange={setShowScheduleDialog}
+        >
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Planifier une conférence</DialogTitle>
@@ -653,7 +627,7 @@ export default function ConferencePage() {
               </Button>
             </DialogFooter>
           </DialogContent>
-        </Dialog>
+        </CommandDialog>
       </div>
     </div>
   );

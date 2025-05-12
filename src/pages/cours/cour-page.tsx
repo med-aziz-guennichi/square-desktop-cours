@@ -138,17 +138,14 @@ export default function CourPage() {
 
           {user?.role !== 'student' && (
             <>
-              {
-                matiereId === 'cours-partager' ? (
-                  <AddCourseButton />
-                ) : (
-                  <Button asChild className="w-full md:w-auto">
-                    <NavLink to={`ajouter-cours`}>Ajouter cours</NavLink>
-                  </Button>
-                )
-              }
+              {matiereId === 'cours-partager' ? (
+                <AddCourseButton />
+              ) : (
+                <Button asChild className="w-full md:w-auto">
+                  <NavLink to={`ajouter-cours`}>Ajouter cours</NavLink>
+                </Button>
+              )}
             </>
-
           )}
         </div>
       </div>
@@ -162,49 +159,49 @@ export default function CourPage() {
         <AnimatePresence mode="popLayout">
           {isLoading
             ? Array.from({ length: 6 }).map((_, i) => (
-              <motion.div
-                key={i}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={cardVariants}
-                transition={{ duration: 0.3 }}
-              >
-                <SubjectCardSketlon />
-              </motion.div>
-            ))
+                <motion.div
+                  key={i}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  variants={cardVariants}
+                  transition={{ duration: 0.3 }}
+                >
+                  <SubjectCardSketlon />
+                </motion.div>
+              ))
             : data?.data?.map((cours: Cours) => (
-              <motion.div
-                key={cours._id}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={cardVariants}
-                transition={{ duration: 0.3 }}
-              >
-                <CourseCard
-                  id={cours?._id}
-                  title={cours?.title}
-                  instructor={{
-                    name: cours?.creator?.firstName || 'Unknown',
-                    surname: cours?.creator?.lastName || 'Unknown',
-                    avatar: `${import.meta.env.VITE_API_BASE_URL}/${cours?.creator?.imageUrl}`,
-                  }}
-                  badge={cours.isLocked ? 'Verrouillé' : 'Cours'}
-                  description={cours?.description}
-                  onClick={(id) => {
-                    if (cours.creator._id === user?._id) {
-                      navigate(`modifier-cours/${id}`);
-                    } else {
-                      navigate(`cours/${id}`);
-                    }
-                  }}
-                  chapters={cours?.chapters.length || 0}
-                  subjectId={matiereId}
-                  isLocked={cours.isLocked}
-                />
-              </motion.div>
-            ))}
+                <motion.div
+                  key={cours._id}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  variants={cardVariants}
+                  transition={{ duration: 0.3 }}
+                >
+                  <CourseCard
+                    id={cours?._id}
+                    title={cours?.title}
+                    instructor={{
+                      name: cours?.creator?.firstName || 'Unknown',
+                      surname: cours?.creator?.lastName || 'Unknown',
+                      avatar: `${import.meta.env.VITE_API_BASE_URL}/${cours?.creator?.imageUrl}`,
+                    }}
+                    badge={cours.isLocked ? 'Verrouillé' : 'Cours'}
+                    description={cours?.description}
+                    onClick={(id) => {
+                      if (cours.creator._id === user?._id) {
+                        navigate(`modifier-cours/${id}`);
+                      } else {
+                        navigate(`cours/${id}`);
+                      }
+                    }}
+                    chapters={cours?.chapters.length || 0}
+                    subjectId={matiereId}
+                    isLocked={cours.isLocked}
+                  />
+                </motion.div>
+              ))}
         </AnimatePresence>
       </div>
       {data?.data?.length === 0 && (

@@ -26,6 +26,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { API_ENDPOINT } from '@/constants/api';
+import { useNotificationsStore } from '@/store/notification-store';
 import { useUserStore } from '@/store/user-store';
 import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
@@ -35,6 +36,7 @@ import { toast } from 'sonner';
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { removeCredentials, user, decodedUser } = useUserStore();
+  const { clearNotifications } = useNotificationsStore();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const handleLogout = async () => {
@@ -48,12 +50,14 @@ export function NavUser() {
         toast.success('logged out sucessfully');
         queryClient.clear();
         removeCredentials();
+        clearNotifications();
         navigate('/', { replace: true });
       }
     } catch (error) {
       console.error('Logout error:', error);
       queryClient.clear();
       removeCredentials();
+      clearNotifications();
       navigate('/', { replace: true });
     }
   };

@@ -8,7 +8,14 @@
   "permissions": [
     "core:default",
     "opener:default",
+    "core:app:allow-identifier",
+    "core:window:allow-set-content-protected",
     "updater:allow-check",
-    "updater:default"
+    "updater:default",
+    "core:window:allow-set-title",
+    "core:window:allow-show",
+    "core:window:allow-create",
+    "core:webview:allow-create-webview-window",
+    "core:window:allow-set-visible-on-all-workspaces"
   ]
 }
