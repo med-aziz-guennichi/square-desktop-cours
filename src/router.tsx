@@ -7,6 +7,7 @@ import { PrivateRoute, PublicRoute } from './lib/route-guard';
 
 import { QueryClient } from '@tanstack/react-query';
 import { getOneLesson } from './apis/lesson/query-slice';
+import { getMeetByName } from './apis/video-conferance/query-slice';
 import Login from './pages/auth/login';
 import ErrorPage from './pages/error';
 
@@ -21,6 +22,7 @@ const CoursDetailsLayout = lazy(() => import('./layout/cours-details-layout'));
 const VideoConferancePage = lazy(
   () => import('./pages/video-conferance/video-conferance-page'),
 );
+const MeetPage = lazy(() => import('./pages/video-conferance/meet-page'));
 
 const withSuspense = (Component: React.ReactNode) => (
   <Suspense fallback={<FullPageLoader />}>{Component}</Suspense>
@@ -50,6 +52,21 @@ export const router = createBrowserRouter([
           {
             path: 'conferance',
             element: withSuspense(<VideoConferancePage />),
+          },
+          {
+            path: 'meet/:roomName',
+            element: withSuspense(<MeetPage />),
+            loader: async ({ params }) => {
+              const queryClient = new QueryClient();
+              try {
+                await queryClient.prefetchQuery({
+                  queryKey: ['meet', params.roomName],
+                  queryFn: () => getMeetByName(params.roomName!),
+                });
+              } catch (error) {
+                console.error(error);
+              }
+            },
           },
           {
             path: 'classes',

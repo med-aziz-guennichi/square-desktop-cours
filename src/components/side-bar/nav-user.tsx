@@ -26,12 +26,12 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { API_ENDPOINT } from '@/constants/api';
+import { useNotificationsStore } from '@/store/notification-store';
 import { useUserStore } from '@/store/user-store';
 import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useNotificationsStore } from '@/store/notification-store';
 
 export function NavUser() {
   const { isMobile } = useSidebar();

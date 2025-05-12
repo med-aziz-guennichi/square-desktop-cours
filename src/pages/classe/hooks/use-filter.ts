@@ -38,7 +38,6 @@ export function useClassFilters(classes: ClassData[] = []) {
   });
 
   const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([]);
-
   // Apply filters to the data
   const filteredClasses = useMemo(() => {
     return (

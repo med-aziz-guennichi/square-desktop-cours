@@ -30,6 +30,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { IUser } from '@/types/user.interface';
 
 const data = {
   Ceo: [
@@ -121,7 +122,11 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user: IUser | null;
+}
+
+export function AppSidebar({ user, ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -143,7 +148,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.Ceo} title="CEO" />
         <NavMain items={data.classes} title="CLASSES" />
         <NavMain items={data.sharedSubject} title="COURS PARTAGER" />
-        <NavMain items={data.conference} title="CONFÉRENCE" />
+        {user?.role === 'student' ? null : <NavMain items={data.conference} title="CONFERENCES" />}
         <NavMain items={data.bibliotheque} title="BIBLIOTHÈQUE" />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>

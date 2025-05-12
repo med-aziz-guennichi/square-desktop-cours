@@ -1,8 +1,8 @@
 import { Coins, MessageCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { ModeToggle } from '../ui/mode-toggle';
 import NotificationHeader from '../notification-header';
+import { ModeToggle } from '../ui/mode-toggle';
 
 export function NavActions() {
   return (

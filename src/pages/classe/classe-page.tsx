@@ -1,4 +1,4 @@
-import { getAllClasses } from '@/apis/classes/query-slice';
+import { getClasses } from '@/apis/classes/query-slice';
 import ClassCardSkeleton from '@/components/sketlon/classe-card';
 import { useBreadcrumb } from '@/context/BreadcrumbContext';
 import { useScreenWidth } from '@/hooks/screen-size';
@@ -41,7 +41,7 @@ export default function ClassePage() {
     // isFetching, // this for the pagination fetching
   } = useQuery({
     queryKey: ['classes', id],
-    queryFn: () => getAllClasses(id!),
+    queryFn: () => getClasses(id!, 1, 100000),
     enabled: !!id,
     placeholderData: keepPreviousData,
   });
@@ -64,7 +64,7 @@ export default function ClassePage() {
     updateFilter,
     removeFilter,
     clearAllFilters,
-  } = useClassFilters(classes);
+  } = useClassFilters(classes?.data);
 
   const {
     currentPage,

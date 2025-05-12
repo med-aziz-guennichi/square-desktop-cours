@@ -18,8 +18,6 @@ export default function AppLayout() {
       ) {
         try {
           await currentWindow.setContentProtected(true);
-          await currentWindow.setFocus(); // Prevent click-jacking
-          await currentWindow.setShadow(true); // Enable window shadow to prevent overlay attacks
         } catch (error) {
           console.error('Security hardening failed:', error);
         }
@@ -35,7 +33,7 @@ export default function AppLayout() {
   return (
     <SocketProvider>
       <SidebarProvider>
-        <AppSidebar variant="inset" />
+        <AppSidebar user={user} variant="inset" />
         <SidebarInset>
           <SiteHeader />
           <div className="flex flex-1 flex-col">
