@@ -34,7 +34,7 @@ interface MeetNotification {
 }
 
 export const SocketProvider = ({ children }: SocketProviderProps) => {
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [socket, setSocket] = useState<typeof Socket | null>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const { addNotification, fetchInitialNotifications } = useNotificationsStore();
   const user = useUserStore().decodedUser;
