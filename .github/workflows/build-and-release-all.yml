@@ -133,14 +133,6 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: bundle-linux
-          path: ./artifacts/linux
-      - uses: actions/download-artifact@v4
-        with:
-          name: bundle-macos
-          path: ./artifacts/macos
-      - uses: actions/download-artifact@v4
-        with:
           name: bundle-windows
           path: ./artifacts/windows
 
@@ -166,14 +158,6 @@ jobs:
             "notes": "${{ env.RELEASE_DESCRIPTION }}",
             "pub_date": "$pub_date",
             "platforms": {
-              "linux-x86_64": {
-                "signature": "$(cat artifacts/linux/${{ env.PROJECT_NAME }}_${version}_amd64.deb.sig | sed 's/"/\\"/g' | tr -d '\n')",
-                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/deb/${{ env.PROJECT_NAME }}_${version}_amd64.deb"
-              },
-              "darwin-x86_64": {
-                "signature": "$(cat artifacts/macos/${{ env.PROJECT_NAME }}_${version}.app.tar.gz.sig | base64 -w 0 | sed 's/"/\\"/g')",
-                "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/macos/${{ env.PROJECT_NAME }}_${version}.app.tar.gz"
-              },
               "windows-x86_64": {
                 "signature": "$(cat artifacts/windows/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi.sig | sed 's/"/\\"/g' | tr -d '\n')",
                 "url": "https://raw.githubusercontent.com/med-aziz-guennichi/studiffy-release/main/releases/v${version}/msi/${{ env.PROJECT_NAME }}_${version}_x64_en-US.msi"
