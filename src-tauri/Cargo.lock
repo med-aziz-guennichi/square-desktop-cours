@@ -3748,6 +3748,7 @@ version = "0.1.0"
 dependencies = [
  "mac_address",
  "muda",
+ "raw-window-handle",
  "serde",
  "serde_json",
  "tauri",
@@ -3757,6 +3758,7 @@ dependencies = [
  "tauri-plugin-prevent-default",
  "tauri-plugin-process",
  "tauri-plugin-updater",
+ "windows 0.61.1",
 ]
 
 [[package]]

@@ -28,4 +28,10 @@ tauri-plugin-dialog = "2.2.1"
 tauri-plugin-process = "2.2.1"
 tauri-plugin-prevent-default = "2.0"
 muda = "0.16.1"
+raw-window-handle = "0.6.2"
+windows = { version = "0.61.1", features = [
+   "Win32_UI_WindowsAndMessaging",
+    "Win32_Foundation",
+    "Win32_UI_Controls"
+] }
 

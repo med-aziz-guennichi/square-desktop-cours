@@ -1,8 +1,7 @@
 use mac_address::get_mac_address;
+use tauri::Manager;
 use tauri_plugin_dialog;
 use tauri_plugin_process;
-use tauri_plugin_updater;
-use tauri_plugin_prevent_default::Flags;
 use muda::{MenuItem, PredefinedMenuItem, Submenu};
 use muda::accelerator::{Accelerator, Modifiers, Code};
 use muda::Menu;
@@ -88,16 +87,35 @@ pub fn run() {
     menu.append(&submenu).expect("Failed to append submenu");
 
     tauri::Builder::default()
-        .setup(|_| {
-            #[cfg(target_os = "windows")]
-            {
-                let window = tauri::Window::current("main").expect("Failed to get main window");
-                unsafe {
-                    menu.init_for_hwnd(window.hwnd() as isize);
+    .setup(|app| {
+        #[cfg(target_os = "windows")]
+        {
+            use windows::Win32::UI::WindowsAndMessaging::{
+                GetWindowLongPtrW, SetWindowLongPtrW, GWL_EXSTYLE, WS_EX_CONTEXTHELP
+            };
+            use windows::Win32::Foundation::HWND;
+
+            let window = app.get_webview_window("main").unwrap();
+            
+            unsafe {
+                if let Ok(hwnd) = window.hwnd() {
+                    // Convert Tauri's Hwnd to Windows-rs HWND correctly
+                    let hwnd = HWND(hwnd.0 as *mut std::ffi::c_void);
+                    
+                    // Get current extended window style
+                    let style = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+                    
+                    // Add the no-context-menu flag
+                    SetWindowLongPtrW(
+                        hwnd,
+                        GWL_EXSTYLE,
+                        style | WS_EX_CONTEXTHELP.0 as isize
+                    );
                 }
             }
-            Ok(())
-        })
+        }
+        Ok(())
+    })
         .plugin(tauri_plugin_prevent_default::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_process::init())
