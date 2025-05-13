@@ -34,7 +34,7 @@ export default function MeetPage() {
         type: 'checkbox',
         checked: true,
         click: () => {
-          console.log('Check menu item clicked');
+          console.warn('Check menu item clicked');
         },
       });
 
