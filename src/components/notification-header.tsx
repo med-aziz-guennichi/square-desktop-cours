@@ -1,21 +1,20 @@
-
 import { useNotificationsStore } from '@/store/notification-store';
 import { formatDistanceToNow } from 'date-fns';
 import {
+  AlertTriangle,
   Bell,
+  Calendar,
   Check,
   CheckCheck,
-  MessageSquare,
-  Calendar,
-  UserPlus,
-  ThumbsUp,
-  AlertTriangle,
-  X,
   Info,
-} from "lucide-react"
+  MessageSquare,
+  ThumbsUp,
+  UserPlus,
+  X,
+} from 'lucide-react';
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,9 +22,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils"
+} from '@/components/ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
@@ -35,46 +39,46 @@ export default function NotificationHeader() {
     unreadCount,
     markAsRead,
     markAllAsRead,
-    removeNotification
-  } = useNotificationsStore()
+    removeNotification,
+  } = useNotificationsStore();
 
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
   // const navigate = useNavigate();
   const handleMarkAllAsRead = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    markAllAsRead()
-  }
+    e.stopPropagation();
+    markAllAsRead();
+  };
 
   const handleDismiss = (e: React.MouseEvent, id: string) => {
-    e.stopPropagation()
-    removeNotification(id)
-  }
+    e.stopPropagation();
+    removeNotification(id);
+  };
 
   const handleNotificationClick = (id: string, name: string) => {
     markAsRead(id);
     setIsOpen(false);
-    window.location.href = `/dashboard/meet/${name}`
+    window.location.href = `/dashboard/meet/${name}`;
     // navigate(`/dashboard/meet/${name}`, {replace: true});
-  }
+  };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case "meet":
-        return <Calendar className="h-5 w-5 text-primary" />
-      case "invitation":
-        return <UserPlus className="h-5 w-5 text-blue-500" />
-      case "comment":
-        return <MessageSquare className="h-5 w-5 text-green-500" />
-      case "react":
-        return <ThumbsUp className="h-5 w-5 text-yellow-500" />
-      case "chat":
-        return <MessageSquare className="h-5 w-5 text-purple-500" />
-      case "alert":
-        return <AlertTriangle className="h-5 w-5 text-destructive" />
+      case 'meet':
+        return <Calendar className="h-5 w-5 text-primary" />;
+      case 'invitation':
+        return <UserPlus className="h-5 w-5 text-blue-500" />;
+      case 'comment':
+        return <MessageSquare className="h-5 w-5 text-green-500" />;
+      case 'react':
+        return <ThumbsUp className="h-5 w-5 text-yellow-500" />;
+      case 'chat':
+        return <MessageSquare className="h-5 w-5 text-purple-500" />;
+      case 'alert':
+        return <AlertTriangle className="h-5 w-5 text-destructive" />;
       default:
-        return <Info className="h-5 w-5 text-muted-foreground" />
+        return <Info className="h-5 w-5 text-muted-foreground" />;
     }
-  }
+  };
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -105,7 +109,11 @@ export default function NotificationHeader() {
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      <DropdownMenuContent align="end" className="w-[380px] p-0 rounded-xl shadow-lg" sideOffset={8}>
+      <DropdownMenuContent
+        align="end"
+        className="w-[380px] p-0 rounded-xl shadow-lg"
+        sideOffset={8}
+      >
         <div className="flex flex-col max-h-[calc(100vh-100px)] overflow-hidden">
           <DropdownMenuLabel className="flex items-center justify-between sticky top-0 bg-background z-10 py-4 px-4 border-b">
             <span className="font-semibold text-base">Notifications</span>
@@ -135,21 +143,36 @@ export default function NotificationHeader() {
                       'flex items-start p-4 cursor-pointer focus:bg-muted hover:bg-muted/50 transition-colors duration-200 gap-3 relative group',
                       !notification.read && 'bg-muted/30',
                     )}
-                    onClick={() => handleNotificationClick(notification.id, notification.name)}
+                    onClick={() =>
+                      handleNotificationClick(notification.id, notification.name)
+                    }
                   >
                     <div className="flex-shrink-0 mt-0.5">
                       {getNotificationIcon(notification.type)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between w-full gap-2">
-                        <div className={cn("font-medium text-sm", !notification.read && "text-foreground", notification.read && "text-muted-foreground")}>
+                        <div
+                          className={cn(
+                            'font-medium text-sm',
+                            !notification.read && 'text-foreground',
+                            notification.read && 'text-muted-foreground',
+                          )}
+                        >
                           {notification.title}
                         </div>
                         {!notification.read && (
                           <div className="h-2 w-2 rounded-full bg-primary mt-1.5 flex-shrink-0"></div>
                         )}
                       </div>
-                      <div className={cn("text-sm mt-1", !notification.read ? "text-muted-foreground" : "text-muted-foreground/70")}>
+                      <div
+                        className={cn(
+                          'text-sm mt-1',
+                          !notification.read
+                            ? 'text-muted-foreground'
+                            : 'text-muted-foreground/70',
+                        )}
+                      >
                         {notification.description}
                       </div>
                       <div className="flex items-center justify-between mt-2">
@@ -180,8 +203,8 @@ export default function NotificationHeader() {
                         size="icon"
                         className="h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity absolute right-10 top-3"
                         onClick={(e) => {
-                          e.stopPropagation()
-                          markAsRead(notification.id)
+                          e.stopPropagation();
+                          markAsRead(notification.id);
                         }}
                         aria-label="Mark as read"
                       >
@@ -197,7 +220,9 @@ export default function NotificationHeader() {
                   <Bell className="h-8 w-8 opacity-40" />
                 </div>
                 <p className="text-sm font-medium">No notifications</p>
-                <p className="text-xs text-muted-foreground mt-1">We&apos;ll notify you when something arrives</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  We&apos;ll notify you when something arrives
+                </p>
               </div>
             )}
           </div>

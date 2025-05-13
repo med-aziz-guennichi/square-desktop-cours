@@ -148,7 +148,9 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         <NavMain items={data.Ceo} title="CEO" />
         <NavMain items={data.classes} title="CLASSES" />
         <NavMain items={data.sharedSubject} title="COURS PARTAGER" />
-        {user?.role === 'student' ? null : <NavMain items={data.conference} title="CONFERENCES" />}
+        {user?.role === 'student' ? null : (
+          <NavMain items={data.conference} title="CONFERENCES" />
+        )}
         <NavMain items={data.bibliotheque} title="BIBLIOTHÈQUE" />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>

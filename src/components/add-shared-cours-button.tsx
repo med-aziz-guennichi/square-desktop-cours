@@ -9,12 +9,9 @@ export function AddCourseButton() {
   return (
     <>
       <Button onClick={() => setIsPopupOpen(true)}>Ajouter cours</Button>
-      <Suspense fallback={<Loader2 className='animate-spin' />}>
+      <Suspense fallback={<Loader2 className="animate-spin" />}>
         {isPopupOpen && (
-          <CourseAccessPopup
-            open={isPopupOpen}
-            onOpenChange={setIsPopupOpen}
-          />
+          <CourseAccessPopup open={isPopupOpen} onOpenChange={setIsPopupOpen} />
         )}
       </Suspense>
     </>

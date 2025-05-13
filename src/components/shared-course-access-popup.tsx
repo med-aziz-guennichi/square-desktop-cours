@@ -30,7 +30,11 @@ export default function CourseAccessPopup({
   const user = useUserStore.getState().decodedUser;
   const id = user?.facility?.scholarityConfigId;
   const navigate = useNavigate();
-  const { data: classesDisponibles, isError,isLoading } = useQuery({
+  const {
+    data: classesDisponibles,
+    isError,
+    isLoading,
+  } = useQuery({
     queryKey: ['classes-shared-cours', id],
     queryFn: () => getAllClasses(id!),
     enabled: !!id,
@@ -43,7 +47,7 @@ export default function CourseAccessPopup({
   if (isError) {
     toast.error('Something went wrong');
   }
-  if(isLoading) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
   // Filtrer les classes disponibles en fonction de la recherche

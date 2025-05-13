@@ -141,8 +141,11 @@ export default function AjouterConferance({
                               }))}
                               triggerSearchOnFocus
                               onSearch={(query) => {
-                                const filteredOptions = data.data.filter((item: Class) =>
-                                  item.name!.toLowerCase().includes(query.toLowerCase()),
+                                const filteredOptions = data.data.filter(
+                                  (item: Class) =>
+                                    item
+                                      .name!.toLowerCase()
+                                      .includes(query.toLowerCase()),
                                 );
                                 return filteredOptions.map((item: Class) => ({
                                   label: item.name,

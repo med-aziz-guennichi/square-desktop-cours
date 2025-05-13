@@ -1,15 +1,15 @@
-import { JitsiMeeting } from '@jitsi/react-sdk';
 import { getMeetByName } from '@/apis/video-conferance/query-slice';
+import FullPageLoader from '@/components/full-page-loader';
 import { JITSI_CONFIG } from '@/constants/jitsi';
+import { useBreadcrumb } from '@/context/BreadcrumbContext';
 import { useUserStore } from '@/store/user-store';
+import { JitsiMeeting } from '@jitsi/react-sdk';
 import { useQuery } from '@tanstack/react-query';
+import { Video } from 'lucide-react';
+import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useDeleteMeetMutation } from './hooks/use-delete-meet-mutation';
-import { useBreadcrumb } from '@/context/BreadcrumbContext';
-import { useEffect } from 'react';
-import { Video } from 'lucide-react';
-import FullPageLoader from '@/components/full-page-loader';
 
 export default function MeetPage() {
   const { roomName } = useParams();
@@ -18,7 +18,11 @@ export default function MeetPage() {
   const user = useUserStore().decodedUser;
   useEffect(() => {
     setSousPages([
-      { name: `Meet-${roomName}`, link: `/dashboard/meet/${roomName}`, icon: <Video size={16} /> },
+      {
+        name: `Meet-${roomName}`,
+        link: `/dashboard/meet/${roomName}`,
+        icon: <Video size={16} />,
+      },
     ]);
   }, [setSousPages, roomName]);
   const { data, error, isPending } = useQuery({
@@ -26,7 +30,7 @@ export default function MeetPage() {
     queryFn: () => getMeetByName(roomName!),
     enabled: !!roomName,
   });
-  const {mutate: deleteMeet} = useDeleteMeetMutation();
+  const { mutate: deleteMeet } = useDeleteMeetMutation();
 
   if (isPending) return <div>Loading...</div>;
   if (error) {
@@ -34,46 +38,53 @@ export default function MeetPage() {
     navigate('/dashboard/classes');
   }
   return (
-    <div style={{ position: 'relative', backgroundColor: "#000", overflow: "hidden" }}>
-        <JitsiMeeting
-          domain="meet.studiffy.com"
-          roomName={roomName!}
-          spinner={FullPageLoader}
-          configOverwrite={{
-            startWithAudioMuted: true,
-            disableModeratorIndicator: true,
-            startScreenSharing: true,
-            enableEmailInStats: false,
-            backgroundColor: '#000',
-            localRecording: {
-              disable: false,
-              notifyAllParticipants: false,
-              disableSelfRecording: false,
-            },
-            recordingService: {
-              enabled: false,
-              sharingEnabled: false,
-              hideStorageWarning: false,
-            },
-            toolbarButtons: user?.role === "student" ? JITSI_CONFIG.student : JITSI_CONFIG.instructor,
-          }}
-          interfaceConfigOverwrite={{
-            DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
-            APP_NAME: "Square",
-          }}
-          userInfo={{
-            displayName: user?.email || "example@example.com",
-            email: user?.email || "example@example.com",
-          }}
-          onApiReady={(externalApi) => {
-            externalApi.executeCommand('displayName', user?.email);
-            externalApi.on('readyToClose', () => {
-              deleteMeet(data?._id);
-              navigate("/");
-            });
-          }}
-          getIFrameRef={(iframeRef) => { iframeRef.style.height = '100vh' }}
-        />
+    <div
+      style={{ position: 'relative', backgroundColor: '#000', overflow: 'hidden' }}
+    >
+      <JitsiMeeting
+        domain="sadkbhwp62nt7x.studiffy.com"
+        roomName={roomName!}
+        spinner={FullPageLoader}
+        configOverwrite={{
+          startWithAudioMuted: true,
+          disableModeratorIndicator: true,
+          startScreenSharing: true,
+          enableEmailInStats: false,
+          backgroundColor: '#000',
+          localRecording: {
+            disable: false,
+            notifyAllParticipants: false,
+            disableSelfRecording: false,
+          },
+          recordingService: {
+            enabled: false,
+            sharingEnabled: false,
+            hideStorageWarning: false,
+          },
+          toolbarButtons:
+            user?.role === 'student'
+              ? JITSI_CONFIG.student
+              : JITSI_CONFIG.instructor,
+        }}
+        interfaceConfigOverwrite={{
+          DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+          APP_NAME: 'Square',
+        }}
+        userInfo={{
+          displayName: user?.email || 'example@example.com',
+          email: user?.email || 'example@example.com',
+        }}
+        onApiReady={(externalApi) => {
+          externalApi.executeCommand('displayName', user?.email);
+          externalApi.on('readyToClose', () => {
+            deleteMeet(data?._id);
+            navigate('/');
+          });
+        }}
+        getIFrameRef={(iframeRef) => {
+          iframeRef.style.height = '100vh';
+        }}
+      />
     </div>
   );
 }
