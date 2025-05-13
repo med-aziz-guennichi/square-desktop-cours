@@ -7,9 +7,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useDeleteMeetMutation } from './hooks/use-delete-meet-mutation';
-import { useEffect } from 'react';
-import { menu } from '@tauri-apps/api';
-
 export default function MeetPage() {
   const { roomName } = useParams();
   const navigate = useNavigate();
@@ -21,30 +18,6 @@ export default function MeetPage() {
   });
   const { mutate: deleteMeet } = useDeleteMeetMutation();
 
-  useEffect(() => {
-    // Prevent default context menu globally
-    document.oncontextmenu = (e: MouseEvent) => e.preventDefault();
-
-    // Setup Tauri menu with checkbox item
-    const setupMenu = async () => {
-      const myMenu = await menu.Menu.new({ id: '55', items: [] });
-
-      await myMenu.append({
-        text: 'Check',
-        type: 'checkbox',
-        checked: true,
-        click: () => {
-          console.warn('Check menu item clicked');
-        },
-      });
-
-      // Optional: You can set the menu if needed (e.g., menu.setApplicationMenu)
-      await myMenu.setAsAppMenu();
-    };
-
-    setupMenu();
-  }, []);
-
   if (isPending) return <div>Loading...</div>;
 
   if (error) {
@@ -53,7 +26,7 @@ export default function MeetPage() {
   }
 
   return (
-    <div onContextMenu={(e) => e.preventDefault()}>
+    <div>
       <JitsiMeeting
         domain="sadkbhwp62nt7x.studiffy.com"
         roomName={roomName!}
