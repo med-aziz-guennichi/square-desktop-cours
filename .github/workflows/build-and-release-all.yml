@@ -14,14 +14,11 @@ jobs:
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        os: [windows, macos]
+        os: [windows]
         include:
           - os: windows
             runner: windows-latest
             target: x86_64-pc-windows-msvc
-          - os: macos
-            runner: macos-latest
-            target: x86_64-apple-darwin
 
     steps:
       - name: Checkout source
