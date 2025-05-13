@@ -1,30 +1,18 @@
 import { getMeetByName } from '@/apis/video-conferance/query-slice';
 import FullPageLoader from '@/components/full-page-loader';
 import { JITSI_CONFIG } from '@/constants/jitsi';
-import { useBreadcrumb } from '@/context/BreadcrumbContext';
 import { useUserStore } from '@/store/user-store';
 import { JitsiMeeting } from '@jitsi/react-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { Video } from 'lucide-react';
-import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useDeleteMeetMutation } from './hooks/use-delete-meet-mutation';
+import { useEffect } from 'react';
 
 export default function MeetPage() {
   const { roomName } = useParams();
-  const { setSousPages } = useBreadcrumb();
   const navigate = useNavigate();
   const user = useUserStore().decodedUser;
-  useEffect(() => {
-    setSousPages([
-      {
-        name: `Meet-${roomName}`,
-        link: `/dashboard/meet/${roomName}`,
-        icon: <Video size={16} />,
-      },
-    ]);
-  }, [setSousPages, roomName]);
   const { data, error, isPending } = useQuery({
     queryKey: ['meet', roomName],
     queryFn: () => getMeetByName(roomName!),
@@ -32,15 +20,18 @@ export default function MeetPage() {
   });
   const { mutate: deleteMeet } = useDeleteMeetMutation();
 
+  useEffect(() => {
+    // Optional: Add any additional global context menu prevention
+    document.oncontextmenu = (e: MouseEvent) => e.preventDefault();
+  }, []);
+
   if (isPending) return <div>Loading...</div>;
   if (error) {
     toast.error("La video conférence n'existe pas");
     navigate('/dashboard/classes');
   }
   return (
-    <div
-      style={{ position: 'relative', backgroundColor: '#000', overflow: 'hidden' }}
-    >
+    <div onContextMenu={(e) => e.preventDefault()}>
       <JitsiMeeting
         domain="sadkbhwp62nt7x.studiffy.com"
         roomName={roomName!}
@@ -51,6 +42,7 @@ export default function MeetPage() {
           startScreenSharing: true,
           enableEmailInStats: false,
           backgroundColor: '#000',
+          disableContextMenu: true, // Key configuration to disable context menu
           localRecording: {
             disable: false,
             notifyAllParticipants: false,
@@ -83,6 +75,8 @@ export default function MeetPage() {
         }}
         getIFrameRef={(iframeRef) => {
           iframeRef.style.height = '100vh';
+          // Additional protection for iframe context menu
+          iframeRef.addEventListener('contextmenu', (e) => e.preventDefault());
         }}
       />
     </div>

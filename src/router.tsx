@@ -45,6 +45,21 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: '/meet/:roomName',
+        element: withSuspense(<MeetPage />),
+        loader: async ({ params }) => {
+          const queryClient = new QueryClient();
+          try {
+            await queryClient.prefetchQuery({
+              queryKey: ['meet', params.roomName],
+              queryFn: () => getMeetByName(params.roomName!),
+            });
+          } catch (error) {
+            console.error(error);
+          }
+        },
+      },
+      {
         path: '/dashboard',
         element: (
           <PrivateRoute>
@@ -59,21 +74,6 @@ export const router = createBrowserRouter([
           {
             path: 'notifications',
             element: withSuspense(<NotificationPage />),
-          },
-          {
-            path: 'meet/:roomName',
-            element: withSuspense(<MeetPage />),
-            loader: async ({ params }) => {
-              const queryClient = new QueryClient();
-              try {
-                await queryClient.prefetchQuery({
-                  queryKey: ['meet', params.roomName],
-                  queryFn: () => getMeetByName(params.roomName!),
-                });
-              } catch (error) {
-                console.error(error);
-              }
-            },
           },
           {
             path: 'classes',

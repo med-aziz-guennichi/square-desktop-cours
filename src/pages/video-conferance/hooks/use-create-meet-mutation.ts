@@ -21,7 +21,7 @@ export const useCreateMeetMutation = () => {
     onSuccess: (response) => {
       toast.success('Meet créé avec succès.');
       socket.emit('send-meet-notification', response.notifications);
-      navigate(`/dashboard/meet/${response.meet.name}`);
+      navigate(`/meet/${response.meet.name}`);
     },
   });
 };

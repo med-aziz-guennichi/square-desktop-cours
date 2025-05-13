@@ -47,7 +47,7 @@ export function MeetingNotification({
   const handleJoin = async () => {
     setIsJoining(true);
     console.warn(onJoin);
-    navigate(`/dashboard/meet/${name}`);
+    navigate(`/meet/${name}`);
     setNotifications([]);
   };
 

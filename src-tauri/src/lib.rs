@@ -2,6 +2,8 @@ use mac_address::get_mac_address;
 use tauri_plugin_dialog;
 use tauri_plugin_process;
 use tauri_plugin_updater;
+use tauri_plugin_prevent_default::Flags;
+
 
 #[tauri::command]
 fn get_mac() -> Result<String, String> {
@@ -52,6 +54,9 @@ fn disable_protection(window: tauri::Window) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let prevent = tauri_plugin_prevent_default::Builder::new()
+    .with_flags(Flags::all().difference(Flags::FIND | Flags::RELOAD))
+    .build();
     tauri::Builder::default()
         // Setup updater plugin
         .setup(|app| {
@@ -63,7 +68,7 @@ pub fn run() {
             }
             Ok(())
         })
-        // Initialize dialog plugin for any dialogs you need (like confirmations, alerts)
+        .plugin(prevent)        // Initialize dialog plugin for any dialogs you need (like confirmations, alerts)
         .plugin(tauri_plugin_dialog::init())
         // Initialize process plugin to run external processes if needed
         .plugin(tauri_plugin_process::init())

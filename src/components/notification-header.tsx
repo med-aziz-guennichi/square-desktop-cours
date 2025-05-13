@@ -57,7 +57,7 @@ export default function NotificationHeader() {
   const handleNotificationClick = (id: string, name: string) => {
     markAsRead(id);
     setIsOpen(false);
-    window.location.href = `/dashboard/meet/${name}`;
+    window.location.href = `/meet/${name}`;
     // navigate(`/dashboard/meet/${name}`, {replace: true});
   };
 
