@@ -3,7 +3,9 @@ use tauri_plugin_dialog;
 use tauri_plugin_process;
 use tauri_plugin_updater;
 use tauri_plugin_prevent_default::Flags;
-
+use muda::{MenuItem, PredefinedMenuItem, Submenu};
+use muda::accelerator::{Accelerator, Modifiers, Code};
+use muda::Menu;
 
 #[tauri::command]
 fn get_mac() -> Result<String, String> {
@@ -30,7 +32,6 @@ fn enable_protection(window: tauri::Window) {
         eprintln!("Failed to set always on top: {}", e);
     }
 
-    // Additional protection measures
     if let Err(e) = window.set_content_protected(true) {
         eprintln!("Failed to enable content protection: {}", e);
     }
@@ -54,25 +55,52 @@ fn disable_protection(window: tauri::Window) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let prevent = tauri_plugin_prevent_default::Builder::new()
-    .with_flags(Flags::all().difference(Flags::FIND | Flags::RELOAD))
-    .build();
+    let menu = Menu::new();
+
+    let menu_item2 = MenuItem::new("Menu item #2", false, None);
+    let submenu = Submenu::with_items(
+        "Submenu Outer".to_string(),
+        true,
+        &[
+            &MenuItem::new(
+                "Menu item #1",
+                true,
+                Some(Accelerator::new(Some(Modifiers::ALT), Code::KeyD)),
+            ),
+            &PredefinedMenuItem::separator(),
+            &menu_item2,
+            &MenuItem::new("Menu item #3", true, None),
+            &PredefinedMenuItem::separator(),
+            &Submenu::with_items(
+                "Submenu Inner".to_string(),
+                true,
+                &[
+                    &MenuItem::new("Submenu item #1", true, None),
+                    &PredefinedMenuItem::separator(),
+                    &menu_item2,
+                ],
+            )
+            .expect("Failed to create inner submenu"),
+        ],
+    )
+    .expect("Failed to create outer submenu");
+
+    menu.append(&submenu).expect("Failed to append submenu");
+
     tauri::Builder::default()
-        // Setup updater plugin
-        .setup(|app| {
-            #[cfg(desktop)]
+        .setup(|_| {
+            #[cfg(target_os = "windows")]
             {
-                // Initialize the updater plugin in your app.
-                app.handle()
-                    .plugin(tauri_plugin_updater::Builder::new().build())?;
+                let window = tauri::Window::current().expect("Failed to get main window");
+                unsafe {
+                    menu.init_for_hwnd(window.hwnd() as isize);
+                }
             }
             Ok(())
         })
-        .plugin(prevent)        // Initialize dialog plugin for any dialogs you need (like confirmations, alerts)
+        .plugin(tauri_plugin_prevent_default::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
-        // Initialize process plugin to run external processes if needed
         .plugin(tauri_plugin_process::init())
-        // Add commands like greet and get_mac
         .invoke_handler(tauri::generate_handler![
             greet,
             get_mac,
