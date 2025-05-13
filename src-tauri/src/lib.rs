@@ -91,7 +91,7 @@ pub fn run() {
         .setup(|_| {
             #[cfg(target_os = "windows")]
             {
-                let window = tauri::Window::current().expect("Failed to get main window");
+                let window = tauri::Window::current("main").expect("Failed to get main window");
                 unsafe {
                     menu.init_for_hwnd(window.hwnd() as isize);
                 }
