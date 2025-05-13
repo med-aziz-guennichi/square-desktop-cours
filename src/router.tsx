@@ -18,6 +18,7 @@ const AjouterCoursPage = lazy(() => import('./pages/cours/ajouter-cours'));
 const CoursLayout = lazy(() => import('./pages/cours/cours-layout'));
 const CoursDetailsPage = lazy(() => import('./pages/cours/cours-details'));
 const CoursDetailsLayout = lazy(() => import('./layout/cours-details-layout'));
+const NotificationPage = lazy(() => import("./pages/notification/notification-page"));
 // ----------------------------------------------- VIDEO CONFERANCE
 const VideoConferancePage = lazy(
   () => import('./pages/video-conferance/video-conferance-page'),
@@ -52,6 +53,10 @@ export const router = createBrowserRouter([
           {
             path: 'conferance',
             element: withSuspense(<VideoConferancePage />),
+          },
+          {
+            path: 'notifications',
+            element: withSuspense(<NotificationPage />),
           },
           {
             path: 'meet/:roomName',

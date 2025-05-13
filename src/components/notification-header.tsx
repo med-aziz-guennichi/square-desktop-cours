@@ -27,16 +27,17 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
 export default function NotificationHeader() {
-  const { 
-    notifications, 
-    unreadCount, 
-    markAsRead, 
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
     markAllAsRead,
-    removeNotification 
+    removeNotification
   } = useNotificationsStore()
-  
+
   const [isOpen, setIsOpen] = useState(false)
   // const navigate = useNavigate();
   const handleMarkAllAsRead = (e: React.MouseEvent) => {
@@ -49,7 +50,7 @@ export default function NotificationHeader() {
     removeNotification(id)
   }
 
-  const handleNotificationClick = (id: string, name:string) => {
+  const handleNotificationClick = (id: string, name: string) => {
     markAsRead(id);
     setIsOpen(false);
     window.location.href = `/dashboard/meet/${name}`
@@ -98,7 +99,7 @@ export default function NotificationHeader() {
                 )}
               </Button>
             </DropdownMenuTrigger>
-              </TooltipTrigger>
+          </TooltipTrigger>
           <TooltipContent side="bottom">
             <p>Notifications</p>
           </TooltipContent>
@@ -120,7 +121,7 @@ export default function NotificationHeader() {
             </Button>
           </DropdownMenuLabel>
 
-          <div 
+          <div
             className="overflow-y-auto max-h-[60vh] md:max-h-[400px] scrollbar-thin"
             role="region"
             aria-label="Notification list"
@@ -207,12 +208,12 @@ export default function NotificationHeader() {
               asChild
               className="justify-center text-sm font-medium py-3 focus:bg-muted hover:bg-muted/50 transition-colors duration-200"
             >
-              <a
-                href="/notifications"
+              <NavLink
+                to="/dashboard/notifications"
                 className="w-full text-center text-primary"
               >
                 View all notifications
-              </a>
+              </NavLink>
             </DropdownMenuItem>
           </div>
         </div>
