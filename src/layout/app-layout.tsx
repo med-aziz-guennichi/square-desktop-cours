@@ -1,6 +1,7 @@
 import { AppSidebar } from '@/components/side-bar/app-sidebar';
 import { SiteHeader } from '@/components/side-bar/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { useCheckFactures } from '@/hooks/use-facture';
 import { SocketProvider } from '@/providers/socket';
 import { useUserStore } from '@/store/user-store';
 import { getCurrentWindow } from '@tauri-apps/api/window';
@@ -9,6 +10,9 @@ import { Outlet } from 'react-router-dom';
 
 export default function AppLayout() {
   const user = useUserStore().decodedUser;
+  const userId = user?._id
+  const role = user?.role
+  useCheckFactures(userId!, role!);
   useEffect(() => {
     const currentWindow = getCurrentWindow();
     const timer = setTimeout(async () => {
