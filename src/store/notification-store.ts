@@ -9,7 +9,7 @@ export interface Notification {
   description: string;
   body?: string;
   createdAt: string;
-  type: 'invitation' | 'comment' | 'react' | 'chat' | 'meet' | 'system';
+  type: 'invitation' | 'comment' | 'react' | 'chat' | 'meet' | 'system' | 'alert';
   read: boolean;
   status?: 'read' | 'unread';
   screen?: string;
