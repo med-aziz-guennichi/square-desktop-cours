@@ -36,6 +36,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { ClickedChapter } from '@/pages/cours/ajouter-cours';
 interface ChaptersManagerProps {
   fields: Record<'id', string>[];
@@ -240,6 +241,7 @@ function SortableChapterItem({
     id,
   });
   const form = useFormContext();
+  const isLocked = form.watch(`chapters.${index}.isLocked`);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -321,6 +323,22 @@ function SortableChapterItem({
           </div>
 
           <div className="flex items-center gap-1 mr-4">
+            <div className="flex items-center gap-2 mr-2">
+              <Switch
+                checked={isLocked}
+                onCheckedChange={(checked) => {
+                  form.setValue(`chapters.${index}.isLocked`, checked);
+                }}
+                onClick={(e) => e.stopPropagation()}
+                id={`lock-chapter-${index}`}
+              />
+              <label
+                htmlFor={`lock-chapter-${index}`}
+                className="text-sm text-muted-foreground"
+              >
+                {isLocked ? 'Privé' : 'Public'}
+              </label>
+            </div>
             <Button
               type="button"
               variant="ghost"

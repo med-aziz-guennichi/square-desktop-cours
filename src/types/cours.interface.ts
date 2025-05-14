@@ -18,6 +18,7 @@ export interface Chapters extends BaseModel {
   }[];
   typeDocument: string;
   type: string;
+  isLocked: boolean;
   studyMaterials: StudyMaterials[];
 }
 

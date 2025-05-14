@@ -18,6 +18,7 @@ export const ChapterSchema = z.object({
   jsonFiles: z.string().optional(),
   files: z.any().optional(),
   quizzes: z.array(z.string()).optional(),
+  isLocked: z.boolean().optional(),
 });
 
 export const AddCoursSchema = z.object({

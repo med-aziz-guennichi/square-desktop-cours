@@ -22,6 +22,7 @@ export const CourseSidebar = ({ course, progressCount }: CourseSidebarProps) => 
             id={chapter._id}
             label={chapter.title}
             type={chapter.type}
+            isLocked={chapter.isLocked}
             isCompleted={!!chapter.userProgress?.[0]?.isCompleted}
           />
         ))}

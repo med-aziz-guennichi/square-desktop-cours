@@ -32,37 +32,55 @@ export default function CoursDetailsLayout() {
 
   useEffect(() => {
     if (!isLoading && !isLoadingProgress && data && !chapitreId) {
-      // Find the last completed chapter
       const chapters = data.chapters || [];
       const sortedChapters = [...chapters].sort((a, b) => a.position - b.position);
 
-      let lastCompletedIndex = -1;
+      // Find first available unlocked chapter
+      const firstUnlockedChapter = sortedChapters.find((chap) => !chap.isLocked);
 
+      // If no unlocked chapters exist, don't navigate
+      if (!firstUnlockedChapter) return;
+
+      // Check if user has progress
+      const hasAnyProgress = sortedChapters.some((chap) =>
+        chap.userProgress?.some((up: Progress) => up.isComplete),
+      );
+
+      if (!hasAnyProgress) {
+        // Navigate to first unlocked chapter if no progress
+        navigate(`chapitre/${firstUnlockedChapter._id}`, { replace: true });
+        return;
+      }
+
+      // Find the last completed unlocked chapter
+      let lastCompletedIndex = -1;
       for (let i = 0; i < sortedChapters.length; i++) {
         const chapter = sortedChapters[i];
+        if (chapter.isLocked) continue; // Skip locked chapters
+
         const isComplete = chapter.userProgress?.some(
           (up: Progress) => up.isComplete,
         );
+
         if (isComplete) {
           lastCompletedIndex = i;
         } else {
-          break; // Stop at the first incomplete chapter after completed ones
+          break;
         }
       }
 
-      // Navigate to the next chapter after the last completed one
-      if (lastCompletedIndex < sortedChapters.length - 1) {
-        const nextChapterIndex = lastCompletedIndex + 1;
-        const nextChapterId = sortedChapters[nextChapterIndex]?._id;
-        if (nextChapterId) {
-          navigate(`chapitre/${nextChapterId}`, { replace: true });
-        }
-      } else if (sortedChapters.length > 0) {
-        // If all chapters are completed or no chapters are completed, navigate to the first chapter
-        const firstChapterId = sortedChapters[0]?._id;
-        if (firstChapterId) {
-          navigate(`chapitre/${firstChapterId}`, { replace: true });
-        }
+      // Find next unlocked chapter after last completed
+      let nextChapter = sortedChapters
+        .slice(lastCompletedIndex + 1)
+        .find((chap) => !chap.isLocked);
+
+      // Fallback to first unlocked if all completed
+      if (!nextChapter) {
+        nextChapter = firstUnlockedChapter;
+      }
+
+      if (nextChapter?._id) {
+        navigate(`chapitre/${nextChapter._id}`, { replace: true });
       }
     }
   }, [isLoading, isLoadingProgress, data, chapitreId, navigate]);

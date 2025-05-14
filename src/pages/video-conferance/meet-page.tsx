@@ -71,7 +71,9 @@ export default function MeetPage() {
         getIFrameRef={(iframeRef) => {
           iframeRef.style.height = '100vh';
           iframeRef.onload = () => {
-            iframeRef.addEventListener('contextmenu', (e: MouseEvent) => e.preventDefault());
+            iframeRef.addEventListener('contextmenu', (e: MouseEvent) =>
+              e.preventDefault(),
+            );
           };
           iframeRef.addEventListener('contextmenu', (e) => e.preventDefault());
         }}

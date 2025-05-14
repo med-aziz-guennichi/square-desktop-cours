@@ -10,8 +10,8 @@ import { Outlet } from 'react-router-dom';
 
 export default function AppLayout() {
   const user = useUserStore().decodedUser;
-  const userId = user?._id
-  const role = user?.role
+  const userId = user?._id;
+  const role = user?.role;
   useCheckFactures(userId!, role!);
   useEffect(() => {
     const currentWindow = getCurrentWindow();
