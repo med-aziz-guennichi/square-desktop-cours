@@ -37,6 +37,8 @@ export default function GlobalLayout() {
         setUpdateFeatures(update.body);
         setIsModalOpen(true);
       }
+    }).catch((err) => {
+      console.error('Error checking for updates:', err);
     });
   }, []);
 
